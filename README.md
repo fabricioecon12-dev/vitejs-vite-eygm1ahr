@@ -10,6 +10,7 @@ Organize a aplicação em componentes reutilizáveis, com responsabilidades bem 
 Desenvolva uma interface moderna, intuitiva e responsiva, com identidade visual em azul-marinho, verde-esmeralda e tons claros. O dashboard deverá destacar o saldo financeiro e apresentar indicadores de receitas, despesas e resultado mensal.
 Implemente quatro seções principais: Visão geral, Transações, Orçamento e Relatórios. A navegação deverá ocorrer dentro da mesma página, exibindo somente a seção selecionada, sem recarregar a aplicação.
 Permita cadastrar receitas e despesas com descrição, valor, categoria e data; listar, pesquisar, filtrar e excluir movimentações; navegar entre meses; acompanhar o saldo acumulado; definir limites mensais de orçamento; e visualizar relatórios financeiros por categoria.
+Inclua a possibilidade de cadastrar novas categorias de receitas e despesas, caso o usuário não encontre uma opção adequada. As categorias personalizadas deverão funcionar durante a utilização da aplicação, sem necessidade de armazenamento permanente.
 Inclua dados demonstrativos para facilitar os testes e a apresentação, com opções para limpar e restaurar os registros.
 Desenvolva o projeto componente por componente, explicando a responsabilidade de cada arquivo e, por último, apresente a integração no App.vue. Utilize CSS próprio, Flexbox, Grid e media queries para criar uma interface responsiva.
 
