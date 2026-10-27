@@ -23,7 +23,7 @@ defineProps({
   'hover:-translate-y-1',
   'hover:shadow-lg',
   'hover:border-emerald-300'
-]""
+]"
 >
     <div class="card-financeiro-topo">
       <span>{{ titulo }}</span>
