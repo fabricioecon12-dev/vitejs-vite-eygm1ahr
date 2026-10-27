@@ -24,13 +24,15 @@ function dataBR(data) {
 </script>
 
 <template>
-  <div class="item-transacao">
+  <div
+  class="item-transacao group rounded-lg transition-colors duration-300 hover:bg-emerald-50"
+>
     <span
-      class="item-icone"
+      class="item-icone transition-transform duration-300 group-hover:scale-110"
       :class="transacao.tipo"
     >
-      {{ transacao.tipo === 'receita' ? '↗' : '↘' }}
-    </span>
+  {{ transacao.tipo === 'receita' ? '↗' : '↘' }}
+   </span>
 
     <div class="item-descricao">
       <strong>{{ transacao.descricao }}</strong>
@@ -49,13 +51,14 @@ function dataBR(data) {
     </strong>
 
     <button
-      v-if="excluir"
-      class="btn-excluir"
-      :aria-label="'Excluir ' + transacao.descricao"
-      title="Excluir transação"
-      @click="emit('excluir', transacao.id)"
-    >
-      ✕
-    </button>
+  v-if="excluir"
+  type="button"
+  class="btn-excluir rounded-lg transition-all duration-300 hover:bg-red-100 hover:scale-110"
+  :aria-label="'Excluir ' + transacao.descricao"
+  title="Excluir transação"
+  @click="emit('excluir', transacao.id)"
+>
+  ✕
+</button>
   </div>
 </template>

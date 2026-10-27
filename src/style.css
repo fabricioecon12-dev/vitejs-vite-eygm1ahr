@@ -1,4 +1,8 @@
+@layer theme, base, components, utilities;
 
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@source inline("hover:-translate-y-1 hover:shadow-lg hover:border-emerald-300 hover:bg-emerald-50 group-hover:scale-110 transition-all duration-500 ease-in-out hover:shadow-md hover:bg-red-100 hover:scale-110");
 :root {
   font-family: Arial, Helvetica, sans-serif;
   color: #24354d;
@@ -92,7 +96,8 @@ h2 {
 
 .nav-item {
   width: 100%;
-  border: 0;
+  border: none;
+  border-left: 4px solid transparent;
   background: transparent;
   color: #c4d2e4;
   padding: 14px;
@@ -107,6 +112,9 @@ h2 {
 .nav-item.ativo {
   background: #2b4668;
   color: white;
+}
+.nav-desktop .nav-item.ativo {
+  border-left: 4px solid #34d399;
 }
 
 .nav-icone {
@@ -276,6 +284,12 @@ h2 {
   border: 1px solid #e8edf3;
   border-radius: 14px;
   box-shadow: 0 3px 12px rgba(20, 35, 62, 0.03);
+  
+}
+
+/* Destaque Premium Fintech nos cartões financeiros */
+.card-financeiro:hover {
+  border-color: #6ee7b7;
 }
 
 .card-financeiro-topo {
@@ -401,6 +415,11 @@ h2 {
   border: 0;
   padding: 8px;
   border-radius: 7px;
+}
+
+/* Destaque interativo do botão Excluir */
+.btn-excluir:hover {
+  background-color: #fee2e2;
 }
 
 /* ORÇAMENTO E GRÁFICOS */

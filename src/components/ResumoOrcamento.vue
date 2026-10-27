@@ -29,17 +29,18 @@ function percentual(gasto, limite) {
     </div>
 
     <div class="barra">
-      <div
-        :class="{
-          alerta: percentual(gasto, limite) >= 80,
-          excedido: percentual(gasto, limite) >= 100
-        }"
-        :style="{
-          width:
-            Math.min(percentual(gasto, limite), 100) + '%'
-        }"
-      ></div>
-    </div>
+  <div
+    class="transition-all duration-500 ease-in-out"
+    :class="{
+      alerta: percentual(gasto, limite) >= 80,
+      excedido: percentual(gasto, limite) >= 100
+    }"
+    :style="{
+      width:
+        Math.min(percentual(gasto, limite), 100) + '%'
+    }"
+  ></div>
+</div>
 
     <div class="resumo-linha">
       <span>

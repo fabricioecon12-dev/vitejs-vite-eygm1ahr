@@ -142,47 +142,58 @@ function cadastrar() {
     </div>
 
     <div class="tipo-seletor">
-      <button
-        type="button"
-        :class="{ selecionado: tipo === 'receita' }"
-        @click="trocarTipo('receita')"
-      >
-        ＋ Receita
-      </button>
+  <button
+    type="button"
+    class="rounded-xl transition-all duration-300 hover:shadow-md"
+    :class="{ selecionado: tipo === 'receita' }"
+    :aria-pressed="tipo === 'receita'"
+    @click="trocarTipo('receita')"
+  >
+    ＋ Receita
+  </button>
 
-      <button
-        type="button"
-        :class="{ selecionado: tipo === 'despesa' }"
-        @click="trocarTipo('despesa')"
-      >
-        − Despesa
-      </button>
-    </div>
+  <button
+    type="button"
+    class="rounded-xl transition-all duration-300 hover:shadow-md"
+    :class="{ selecionado: tipo === 'despesa' }"
+    :aria-pressed="tipo === 'despesa'"
+    @click="trocarTipo('despesa')"
+  >
+    − Despesa
+  </button>
+
+</div>
 
     <form @submit.prevent="cadastrar">
       <label>
         Descrição
         <input
-          v-model="descricao"
-          placeholder="Ex.: Supermercado"
-          maxlength="60"
-        />
+  v-model="descricao"
+  class="transition-all duration-300 focus:ring-2 focus:ring-emerald-200"
+  placeholder="Ex.: Supermercado"
+  maxlength="60"
+/>
       </label>
 
       <label>
         Valor (R$)
         <input
-          v-model="valor"
-          type="number"
-          min="0.01"
-          step="0.01"
-          placeholder="0,00"
-        />
+  v-model="valor"
+  type="number"
+  class="transition-all duration-300 focus:ring-2 focus:ring-emerald-200"
+  min="0.01"
+  step="0.01"
+  placeholder="0,00"
+/>
       </label>
 
       <label>
         Data
-        <input v-model="data" type="date" />
+       <input
+  v-model="data"
+  type="date"
+  class="transition-all duration-300 focus:ring-2 focus:ring-emerald-200"
+/>
       </label>
 
       <!-- Seleção de categorias -->
@@ -190,9 +201,10 @@ function cadastrar() {
         Categoria
 
         <select
-          :value="mostrarNovaCategoria ? '__nova__' : categoria"
-          @change="selecionarCategoria"
-        >
+  class="transition-all duration-300 focus:ring-2 focus:ring-emerald-200"
+  :value="mostrarNovaCategoria ? '__nova__' : categoria"
+  @change="selecionarCategoria"
+>
           <option
             v-for="opcao in (
               tipo === 'receita'
@@ -255,11 +267,11 @@ function cadastrar() {
       </p>
 
       <button
-        class="btn btn-primary botao-cheio"
-        type="submit"
-      >
-        ＋ Adicionar transação
-      </button>
+  class="btn btn-primary botao-cheio rounded-xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+  type="submit"
+>
+  ＋ Adicionar transação
+</button>
     </form>
   </section>
 </template>

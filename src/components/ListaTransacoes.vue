@@ -37,15 +37,17 @@ function filtrar(lista) {
 
     <div class="filtros">
       <input
-        v-model="busca"
-        placeholder="Buscar por descrição..."
-        aria-label="Buscar transações"
-      />
+  v-model="busca"
+  class="transition-all duration-300 focus:ring-2 focus:ring-emerald-200"
+  placeholder="Buscar por descrição..."
+  aria-label="Buscar transações"
+/>
 
       <select
-        v-model="filtro"
-        aria-label="Filtrar tipo"
-      >
+  v-model="filtro"
+  class="transition-all duration-300 focus:ring-2 focus:ring-emerald-200"
+  aria-label="Filtrar tipo"
+>
         <option value="todos">Todos os tipos</option>
         <option value="receita">Receitas</option>
         <option value="despesa">Despesas</option>
