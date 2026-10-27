@@ -11,6 +11,13 @@ const valor = ref('')
 const data = ref(new Date().toLocaleDateString('en-CA'))
 const categoria = ref('Alimentação')
 const erro = ref('')
+// Controle de erros individuais dos campos
+const errosCampos = ref({
+  descricao: '',
+  valor: '',
+  data: '',
+  categoria: ''
+})
 
 // Categorias originais
 const categoriasDespesa = ref([
@@ -101,7 +108,66 @@ function cancelarCategoria() {
   erroCategoria.value = ''
 }
 
-// Cadastra uma transação
+function dataValida(valor) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) {
+    return false
+  }
+
+  const [ano, mes, dia] = valor.split('-').map(Number)
+
+  if (ano < 2000 || ano > 2100) {
+    return false
+  }
+
+  const dataVerificada = new Date(0)
+  dataVerificada.setFullYear(ano, mes - 1, dia)
+
+  return (
+    dataVerificada.getFullYear() === ano &&
+    dataVerificada.getMonth() === mes - 1 &&
+    dataVerificada.getDate() === dia
+  )
+}
+
+  // Cadastra uma transação
+// Identifica os erros de cada campo
+function validarCampos() {
+  errosCampos.value = {
+    descricao: '',
+    valor: '',
+    data: '',
+    categoria: ''
+  }
+
+  if (!descricao.value.trim()) {
+    errosCampos.value.descricao =
+      'Informe a descrição da transação.'
+  }
+
+  if (valor.value === '') {
+    errosCampos.value.valor =
+      'Informe o valor da transação.'
+  } else if (
+    !Number.isFinite(Number(valor.value)) ||
+    Number(valor.value) <= 0
+  ) {
+    errosCampos.value.valor =
+      'O valor deve ser maior que zero.'
+  }
+
+  if (!dataValida(data.value)) {
+    errosCampos.value.data =
+      'Data inválida. Verifique a data informada.'
+  }
+
+  if (!categoria.value) {
+    errosCampos.value.categoria =
+      'Selecione uma categoria.'
+  }
+
+  return !Object.values(errosCampos.value).some(Boolean)
+}
+
 function cadastrar() {
   if (mostrarNovaCategoria.value) {
     erro.value =
@@ -109,18 +175,13 @@ function cadastrar() {
     return
   }
 
-  if (
-    !descricao.value.trim() ||
-    !data.value ||
-    !categoria.value ||
-    !(Number(valor.value) > 0)
-  ) {
-    erro.value =
-      'Preencha a descrição, data, categoria e um valor maior que zero.'
-    return
-  }
+  // Validação individual dos campos
+if (!validarCampos()) {
+  erro.value = ''
+  return
+}
 
-  emit('adicionar', {
+    emit('adicionar', {
     descricao: descricao.value.trim(),
     valor: Number(valor.value),
     data: data.value,
@@ -164,47 +225,100 @@ function cadastrar() {
 
 </div>
 
-    <form @submit.prevent="cadastrar">
-      <label>
-        Descrição
-        <input
-  v-model="descricao"
-  class="transition-all duration-300 focus:ring-2 focus:ring-emerald-200"
-  placeholder="Ex.: Supermercado"
-  maxlength="60"
-/>
-      </label>
+      <form novalidate @submit.prevent="cadastrar">
+        <label>
+  Descrição
 
-      <label>
-        Valor (R$)
-        <input
-  v-model="valor"
-  type="number"
-  class="transition-all duration-300 focus:ring-2 focus:ring-emerald-200"
-  min="0.01"
-  step="0.01"
-  placeholder="0,00"
-/>
-      </label>
+  <input
+    v-model="descricao"
+    :class="[
+      'transition-all duration-300 focus:ring-2',
+      errosCampos.descricao
+        ? 'border-red-500 focus:ring-red-200'
+        : 'focus:ring-emerald-200'
+    ]"
+    :aria-invalid="!!errosCampos.descricao"
+    placeholder="Ex.: Supermercado"
+    maxlength="60"
+  />
 
-      <label>
-        Data
-       <input
-  v-model="data"
-  type="date"
-  class="transition-all duration-300 focus:ring-2 focus:ring-emerald-200"
-/>
-      </label>
+  <span
+    v-if="errosCampos.descricao"
+    class="text-red-600 text-sm mt-1 block"
+    role="alert"
+  >
+    {{ errosCampos.descricao }}
+  </span>
+</label>
+
+<label>
+  Valor (R$)
+
+  <input
+    v-model="valor"
+    type="number"
+    :class="[
+      'transition-all duration-300 focus:ring-2',
+      errosCampos.valor
+        ? 'border-red-500 focus:ring-red-200'
+        : 'focus:ring-emerald-200'
+    ]"
+    :aria-invalid="!!errosCampos.valor"
+    min="0.01"
+    step="0.01"
+    placeholder="0,00"
+  />
+
+  <span
+    v-if="errosCampos.valor"
+    class="text-red-600 text-sm mt-1 block"
+    role="alert"
+  >
+    {{ errosCampos.valor }}
+  </span>
+</label>
+
+<label>
+  Data
+
+  <input
+    v-model="data"
+    type="date"
+    min="2000-01-01"
+    max="2100-12-31"
+    :class="[
+      'transition-all duration-300 focus:ring-2',
+      errosCampos.data
+        ? 'border-red-500 focus:ring-red-200'
+        : 'focus:ring-emerald-200'
+    ]"
+    :aria-invalid="!!errosCampos.data"
+  />
+
+  <span
+    v-if="errosCampos.data"
+    class="text-red-600 text-sm mt-1 block"
+    role="alert"
+  >
+    {{ errosCampos.data }}
+  </span>
+</label>
 
       <!-- Seleção de categorias -->
-      <label>
-        Categoria
+<label>
+  Categoria
 
-        <select
-  class="transition-all duration-300 focus:ring-2 focus:ring-emerald-200"
-  :value="mostrarNovaCategoria ? '__nova__' : categoria"
-  @change="selecionarCategoria"
->
+  <select
+    :class="[
+      'transition-all duration-300 focus:ring-2',
+      errosCampos.categoria
+        ? 'border-red-500 focus:ring-red-200'
+        : 'focus:ring-emerald-200'
+    ]"
+    :aria-invalid="!!errosCampos.categoria"
+    :value="mostrarNovaCategoria ? '__nova__' : categoria"
+    @change="selecionarCategoria"
+  >
           <option
             v-for="opcao in (
               tipo === 'receita'
@@ -221,6 +335,14 @@ function cadastrar() {
             ＋ Nova categoria
           </option>
         </select>
+        <span
+  v-if="errosCampos.categoria"
+  class="text-red-600 text-sm mt-1 block"
+  role="alert"
+>
+  {{ errosCampos.categoria }}
+</span>
+
       </label>
 
       <!-- Cadastro de nova categoria -->

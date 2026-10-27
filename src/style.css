@@ -763,3 +763,23 @@ select:focus {
   margin-top: 12px;
   flex-wrap: wrap;
 }
+
+/* Nexus Finanças — Validação visual dos formulários */
+
+.formulario input[aria-invalid="true"],
+.formulario select[aria-invalid="true"] {
+  border: 2px solid #dc2626;
+  background-color: #fffafa;
+}
+
+.formulario input[aria-invalid="true"]:focus,
+.formulario select[aria-invalid="true"]:focus {
+  outline: 2px solid #fecaca;
+  outline-offset: 1px;
+}
+
+.formulario span[role="alert"] {
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 500;
+}

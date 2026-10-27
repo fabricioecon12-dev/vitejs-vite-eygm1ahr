@@ -231,12 +231,41 @@ function limiteAtual() {
 
 // AÇÕES DO USUÁRIO
 function adicionar(transacao) {
-  transacoes.value.push({
+    // Segunda camada de proteção para datas inválidas
+  const dataInformada = transacao.data
+
+  if (
+    typeof dataInformada !== 'string' ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(dataInformada)
+  ) {
+    aviso.value = 'Data inválida. Transação não cadastrada.'
+    return
+  }
+
+  const [ano, mes, dia] = dataInformada.split('-').map(Number)
+
+  const dataVerificada = new Date(0)
+  dataVerificada.setFullYear(ano, mes - 1, dia)
+
+  if (
+    ano < 2000 ||
+    ano > 2100 ||
+    dataVerificada.getFullYear() !== ano ||
+    dataVerificada.getMonth() !== mes - 1 ||
+    dataVerificada.getDate() !== dia
+  ) {
+    aviso.value =
+    'Data inválida. Verifique a data informada.'
+    return
+  }
+
+    // Armazena a transação somente após validar a data
+    transacoes.value.push({
     ...transacao,
     id: proximoId++
   })
 
-  mesSelecionado.value = new Date(
+    mesSelecionado.value = new Date(
     Number(transacao.data.slice(0, 4)),
     Number(transacao.data.slice(5, 7)) - 1,
     1
