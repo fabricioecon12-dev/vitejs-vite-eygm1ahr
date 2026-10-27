@@ -52,6 +52,14 @@ function trocarTipo(novo) {
   novaCategoria.value = ''
   erroCategoria.value = ''
   erro.value = ''
+
+  // Limpa as mensagens de validação ao trocar o tipo
+  errosCampos.value = {
+    descricao: '',
+    valor: '',
+    data: '',
+    categoria: ''
+  }
 }
 
 // Identifica quando o usuário escolhe Nova categoria
