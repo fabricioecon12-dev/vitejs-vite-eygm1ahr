@@ -5,10 +5,21 @@ import { ref } from 'vue'
 
 const emit = defineEmits(['adicionar'])
 
+// Obtém a data local no formato YYYY-MM-DD
+function obterDataLocal() {
+  const hoje = new Date()
+
+  const ano = hoje.getFullYear()
+  const mes = String(hoje.getMonth() + 1).padStart(2, '0')
+  const dia = String(hoje.getDate()).padStart(2, '0')
+
+  return `${ano}-${mes}-${dia}`
+}
+
 const tipo = ref('despesa')
 const descricao = ref('')
 const valor = ref('')
-const data = ref(new Date().toLocaleDateString('en-CA'))
+const data = ref(obterDataLocal())
 const categoria = ref('Alimentação')
 const erro = ref('')
 // Controle de erros individuais dos campos
