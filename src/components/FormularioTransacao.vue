@@ -257,17 +257,20 @@ if (!validarCampos()) {
         : 'focus:ring-emerald-200'
     ]"
     :aria-invalid="!!errosCampos.descricao"
+    :aria-describedby="errosCampos.descricao ? 'erro-descricao' : undefined"
     placeholder="Ex.: Supermercado"
     maxlength="60"
   />
 
   <span
     v-if="errosCampos.descricao"
+    id="erro-descricao"
     class="text-red-600 text-sm mt-1 block"
     role="alert"
   >
     {{ errosCampos.descricao }}
   </span>
+
 </label>
 
 <label>
@@ -283,6 +286,7 @@ if (!validarCampos()) {
         : 'focus:ring-emerald-200'
     ]"
     :aria-invalid="!!errosCampos.valor"
+    :aria-describedby="errosCampos.valor ? 'erro-valor' : undefined"
     min="0.01"
     step="0.01"
     placeholder="0,00"
@@ -290,6 +294,7 @@ if (!validarCampos()) {
 
   <span
     v-if="errosCampos.valor"
+    id="erro-valor"
     class="text-red-600 text-sm mt-1 block"
     role="alert"
   >
@@ -312,10 +317,12 @@ if (!validarCampos()) {
         : 'focus:ring-emerald-200'
     ]"
     :aria-invalid="!!errosCampos.data"
+    :aria-describedby="errosCampos.data ? 'erro-data' : undefined"
   />
 
   <span
     v-if="errosCampos.data"
+    id="erro-data"
     class="text-red-600 text-sm mt-1 block"
     role="alert"
   >
@@ -335,6 +342,7 @@ if (!validarCampos()) {
         : 'focus:ring-emerald-200'
     ]"
     :aria-invalid="!!errosCampos.categoria"
+    :aria-describedby="errosCampos.categoria ? 'erro-categoria' : undefined"
     :value="mostrarNovaCategoria ? '__nova__' : categoria"
     @change="selecionarCategoria"
   >
@@ -355,13 +363,13 @@ if (!validarCampos()) {
           </option>
         </select>
         <span
-  v-if="errosCampos.categoria"
-  class="text-red-600 text-sm mt-1 block"
-  role="alert"
->
-  {{ errosCampos.categoria }}
-</span>
-
+          v-if="errosCampos.categoria"
+            id="erro-categoria"
+            class="text-red-600 text-sm mt-1 block"
+           role="alert"
+         >
+             {{ errosCampos.categoria }}
+        </span>
       </label>
 
       <!-- Cadastro de nova categoria -->
