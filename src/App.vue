@@ -731,7 +731,7 @@ async function navegarPara(destino) {
               <div class="secao-titulo">
                 <h2>Últimas movimentações</h2>
                 <button
-                  class="link-botao"
+                  class="link-botao ver-todas-premium"
                   @click="navegarPara('transacoes')"
                 >
                   Ver todas →
