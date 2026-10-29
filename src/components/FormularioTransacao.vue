@@ -1,9 +1,11 @@
 
 
 <script setup>
-import { ref } from 'vue'
+import { ref, nextTick, watch } from 'vue'
+
 
 const emit = defineEmits(['adicionar'])
+const inputNovaCategoria = ref(null)
 
 // Obtém a data local no formato YYYY-MM-DD
 function obterDataLocal() {
@@ -22,6 +24,38 @@ const valor = ref('')
 const data = ref(obterDataLocal())
 const categoria = ref('Alimentação')
 const erro = ref('')
+// Converte o valor monetário brasileiro para número
+function converterValor(valorInformado) {
+  const texto = String(valorInformado).trim()
+
+  if (!texto) return NaN
+
+  // Aceita números brasileiros com separadores corretos
+  const formatoValido =
+    /^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d{1,2})?$/
+
+  if (!formatoValido.test(texto)) {
+    return NaN
+  }
+
+  const normalizado = texto
+    .replace(/\./g, '')
+    .replace(',', '.')
+
+  return Number(normalizado)
+}
+
+// Formata números no padrão brasileiro
+function formatarValorMonetario() {
+  const numero = converterValor(valor.value)
+
+  if (!Number.isFinite(numero)) return
+
+  valor.value = numero.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
+}
 // Controle de erros individuais dos campos
 const errosCampos = ref({
   descricao: '',
@@ -49,6 +83,13 @@ const categoriasReceita = ref([
 
 // Controle do cadastro de novas categorias
 const mostrarNovaCategoria = ref(false)
+watch(mostrarNovaCategoria, async (mostrar) => {
+  if (mostrar) {
+    await nextTick()
+    inputNovaCategoria.value?.focus()
+  }
+})
+
 const novaCategoria = ref('')
 const erroCategoria = ref('')
 
@@ -163,17 +204,17 @@ function validarCampos() {
       'Informe a descrição da transação.'
   }
 
-  if (valor.value === '') {
-    errosCampos.value.valor =
-      'Informe o valor da transação.'
-  } else if (
-    !Number.isFinite(Number(valor.value)) ||
-    Number(valor.value) <= 0
-  ) {
-    errosCampos.value.valor =
-      'O valor deve ser maior que zero.'
-  }
+  if (valor.value.trim() === '') {
+  errosCampos.value.valor =
+    'Informe o valor da transação.'
+} else {
+  const valorNumerico = converterValor(valor.value)
 
+  if (!Number.isFinite(valorNumerico) || valorNumerico <= 0) {
+    errosCampos.value.valor =
+      'Informe um valor válido e maior que zero.'
+  }
+}
   if (!dataValida(data.value)) {
     errosCampos.value.data =
       'Data inválida. Verifique a data informada.'
@@ -200,13 +241,13 @@ if (!validarCampos()) {
   return
 }
 
-    emit('adicionar', {
-    descricao: descricao.value.trim(),
-    valor: Number(valor.value),
-    data: data.value,
-    categoria: categoria.value,
-    tipo: tipo.value
-  })
+emit('adicionar', {
+  descricao: descricao.value.trim(),
+  valor: converterValor(valor.value),
+  data: data.value,
+  categoria: categoria.value,
+  tipo: tipo.value
+})
 
   descricao.value = ''
   valor.value = ''
@@ -278,7 +319,9 @@ if (!validarCampos()) {
 
   <input
     v-model="valor"
-    type="number"
+    type="text"
+    inputmode="decimal"
+    @blur="formatarValorMonetario"
     :class="[
       'transition-all duration-300 focus:ring-2',
       errosCampos.valor
@@ -378,6 +421,7 @@ if (!validarCampos()) {
           Nome da nova categoria
 
           <input
+            ref="inputNovaCategoria"
             v-model="novaCategoria"
             placeholder="Ex.: Educação"
             maxlength="40"

@@ -189,10 +189,23 @@ h2 {
 }
 
 .seletor-mes button {
-  border: 0;
-  background: #f3f6fa;
-  border-radius: 6px;
-  padding: 7px 11px;
+  border: 1px solid #d1fae5;
+  background: #ecfdf5;
+  color: #047857;
+  border-radius: 9999px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.seletor-mes button:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.16);
 }
 
 .seletor-mes span {
@@ -431,28 +444,84 @@ h2 {
   overflow: hidden;
 }
 
+/* NEXUS FINANÇAS — BARRAS PREMIUM ELEGANTE */
+
+.barra {
+  height: 12px;
+  background: linear-gradient(180deg, #edf2f6, #e3eaf0);
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(20, 35, 62, 0.08);
+}
+
 .barra > div {
   height: 100%;
-  background: #0f9f76;
-  border-radius: 20px;
+  border-radius: inherit;
+
+  background: linear-gradient(
+    90deg,
+    #34d399 0%,
+    #10b981 55%,
+    #059669 100%
+  );
+
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.18);
+
+  transition:
+    width 500ms ease-in-out,
+    background 300ms ease,
+    filter 300ms ease;
 }
 
 .barra > div.alerta {
-  background: #f2aa25;
+  background: linear-gradient(
+    90deg,
+    #fcd34d 0%,
+    #fbbf24 55%,
+    #f59e0b 100%
+  );
+
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.18);
 }
 
 .barra > div.excedido,
 .barra > div.vermelho {
-  background: #dc596a;
+  background: linear-gradient(
+    90deg,
+    #fb7185 0%,
+    #f43f5e 55%,
+    #e11d48 100%
+  );
+
+  box-shadow: 0 2px 6px rgba(244, 63, 94, 0.18);
 }
 
 .barra > div.verde {
-  background: #0f9f76;
+  background: linear-gradient(
+    90deg,
+    #34d399 0%,
+    #10b981 55%,
+    #059669 100%
+  );
 }
 
 .barra.pequena {
-  height: 9px;
+  height: 10px;
   flex: 1;
+}
+
+/* Interação discreta */
+
+.barra:hover > div {
+  filter: brightness(1.05);
+}
+
+/* Acessibilidade */
+
+@media (prefers-reduced-motion: reduce) {
+  .barra > div {
+    transition: none;
+  }
 }
 
 .resumo-linha {
@@ -636,6 +705,11 @@ select:focus {
   display: flex;
   justify-content: space-between;
 }
+.aviso.erro {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
 
 .aviso button {
   background: transparent;
@@ -782,4 +856,501 @@ select:focus {
   color: #dc2626;
   font-size: 12px;
   font-weight: 500;
+}
+
+/* NEXUS FINANÇAS — BOTÃO SALVAR LIMITE PREMIUM ELEGANTE */
+
+.form-limite .btn-primary {
+  width: 100%;
+  min-height: 50px;
+  border: 1px solid rgba(5, 150, 105, 0.2);
+  border-radius: 12px;
+
+  background: linear-gradient(
+    110deg,
+    #34d399 0%,
+    #10b981 45%,
+    #059669 100%
+  );
+
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+
+  box-shadow:
+    0 4px 12px rgba(5, 150, 105, 0.16);
+
+  transition:
+    transform 300ms ease,
+    box-shadow 300ms ease,
+    filter 300ms ease;
+}
+
+/* NEXUS FINANÇAS — HOVER COM TRANSIÇÃO SUAVE */
+
+.form-limite .btn-primary:hover {
+  transform: translateY(-2px);
+
+  filter: brightness(0.82);
+
+  box-shadow:
+    0 8px 22px rgba(5, 150, 105, 0.28);
+}
+/* ==========================================
+   NEXUS FINANÇAS — FOCO PREMIUM FINTECH
+   BOTÃO SALVAR LIMITE
+========================================== */
+
+.form-limite .btn-primary:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 3px;
+
+  box-shadow:
+    0 0 0 5px rgba(16, 185, 129, 0.15),
+    0 4px 12px rgba(5, 150, 105, 0.16);
+}
+
+.form-limite .btn-primary:focus:not(:focus-visible) {
+  outline: none;
+}
+
+
+/* ==========================================
+   NEXUS FINANÇAS — BOTÕES PREMIUM ELEGANTE
+   FORMULÁRIO DE TRANSAÇÕES
+========================================== */
+
+/* Botões Receita e Despesa */
+
+.tipo-seletor button {
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid #dce4ed;
+
+  background: #ffffff;
+  color: #24354d;
+
+  font-weight: 600;
+
+  transition:
+    transform 300ms ease,
+    box-shadow 300ms ease,
+    filter 300ms ease,
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease;
+}
+
+/* Botão não selecionado */
+
+.tipo-seletor button:not(.selecionado):hover {
+  transform: translateY(-2px);
+
+  background-color: #ecfdf5;
+  border-color: #6ee7b7;
+  color: #047857;
+
+  box-shadow: 0 5px 14px rgba(16, 185, 129, 0.12);
+}
+
+/* Botão selecionado */
+
+.tipo-seletor button.selecionado {
+  background: linear-gradient(
+    110deg,
+    #34d399 0%,
+    #10b981 45%,
+    #059669 100%
+  );
+
+  border-color: #059669;
+  color: #ffffff;
+
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.16);
+}
+
+/* Hover do botão selecionado */
+
+.tipo-seletor button.selecionado:hover {
+  transform: translateY(-2px);
+  filter: brightness(0.82);
+
+  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.24);
+}
+
+/* Botão Adicionar transação */
+
+.formulario .btn-primary {
+  min-height: 50px;
+  border-radius: 12px;
+
+  background: linear-gradient(
+    110deg,
+    #34d399 0%,
+    #10b981 45%,
+    #059669 100%
+  );
+
+  color: #ffffff;
+  font-weight: 700;
+
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.16);
+
+  transition:
+    transform 300ms ease,
+    box-shadow 300ms ease,
+    filter 300ms ease;
+}
+
+/* Hover suave do botão Adicionar transação */
+
+.formulario .btn-primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(0.82);
+
+  box-shadow: 0 8px 22px rgba(5, 150, 105, 0.28);
+}
+
+/* Interação ao clicar */
+
+.tipo-seletor button:active,
+.formulario .btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Acessibilidade */
+
+.tipo-seletor button:focus-visible,
+.formulario .btn-primary:focus-visible {
+  outline: 3px solid #6ee7b7;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tipo-seletor button,
+  .formulario .btn-primary {
+    transition: none;
+  }
+}
+
+/* ==========================================
+   NEXUS FINANÇAS — BOTÃO NOVA TRANSAÇÃO
+   MESMO PADRÃO DO BOTÃO SALVAR LIMITE
+========================================== */
+
+.cabecalho-acoes > .btn-primary {
+  min-height: 50px;
+  padding: 12px 22px;
+
+  border: 1px solid rgba(5, 150, 105, 0.2);
+  border-radius: 12px;
+
+  background: linear-gradient(
+    110deg,
+    #34d399 0%,
+    #10b981 45%,
+    #059669 100%
+  );
+
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+
+  box-shadow:
+    0 4px 12px rgba(5, 150, 105, 0.16);
+
+  transform: translateY(0);
+
+  transition:
+    transform 300ms ease,
+    box-shadow 300ms ease,
+    filter 300ms ease;
+}
+
+/* HOVER — PADRÃO SALVAR LIMITE */
+
+.cabecalho-acoes > .btn-primary:hover {
+  transform: translateY(-2px);
+
+  filter: brightness(0.82);
+
+  box-shadow:
+    0 8px 22px rgba(5, 150, 105, 0.28);
+}
+
+/* EFEITO AO CLICAR */
+
+.cabecalho-acoes > .btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ACESSIBILIDADE */
+
+.cabecalho-acoes > .btn-primary:focus-visible {
+  outline: 3px solid #6ee7b7;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cabecalho-acoes > .btn-primary {
+    transition: none;
+  }
+}
+
+/* ==========================================
+   NEXUS FINANÇAS — ALINHAMENTO MOBILE
+========================================== */
+
+@media (max-width: 640px) {
+  .cabecalho-acoes {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .cabecalho-acoes > .seletor-mes,
+  .cabecalho-acoes > .btn-primary {
+    width: 100%;
+    box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .cabecalho-acoes > .btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+/* NEXUS FINANÇAS — CENTRALIZAÇÃO DO SELETOR DE MÊS */
+
+@media (max-width: 640px) {
+  .cabecalho-acoes > .seletor-mes {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .cabecalho-acoes > .seletor-mes > button {
+    flex-shrink: 0;
+  }
+
+  .cabecalho-acoes > .seletor-mes > div {
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+  }
+}
+
+/* ==========================================
+   NEXUS FINANÇAS — ROLAGEM PREMIUM FINTECH
+   BARRA PERSONALIZADA COM ANIMAÇÃO SUAVE
+========================================== */
+
+/* Contêiner das movimentações */
+.lista-painel .movimentacoes-container {
+  position: relative;
+  min-width: 0;
+}
+
+/* Área de rolagem */
+.lista-painel .movimentacoes-rolagem {
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding-right: 12px;
+  overscroll-behavior-y: contain;
+
+  /* Oculta a barra nativa */
+  scrollbar-width: none;
+}
+
+/* Chrome, Edge e Safari */
+.lista-painel .movimentacoes-rolagem::-webkit-scrollbar {
+  display: none;
+}
+
+/* Indicador personalizado */
+.lista-painel .movimentacoes-indicador {
+  position: absolute;
+  top: 0;
+  right: 2px;
+
+  width: 5px;
+  border-radius: 10px;
+
+  background-color: #94a3b8;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition:
+    opacity 350ms ease,
+    background-color 250ms ease;
+
+  z-index: 2;
+}
+
+/* Aparecimento suave */
+.lista-painel .movimentacoes-container:hover .movimentacoes-indicador {
+  opacity: 0.75;
+}
+
+/* Acessibilidade pelo teclado */
+.lista-painel .movimentacoes-container:focus-within .movimentacoes-indicador {
+  opacity: 0.75;
+}
+
+/* Responsividade */
+@media (max-width: 640px) {
+  .lista-painel .movimentacoes-rolagem {
+    max-height: 380px;
+    padding-right: 8px;
+  }
+}
+
+/* Dispositivos com toque */
+@media (hover: none) {
+  .lista-painel .movimentacoes-indicador {
+    opacity: 0.6;
+  }
+}
+
+/* Acessibilidade: movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  .lista-painel .movimentacoes-indicador {
+    transition: none;
+  }
+}
+
+/* ==========================================
+   NEXUS FINANÇAS — FOCO GLOBAL PREMIUM FINTECH
+   ACESSIBILIDADE E PADRONIZAÇÃO DOS BOTÕES
+========================================== */
+
+/* Remove o contorno padrão quando o foco não exige
+   indicador visual de navegação pelo teclado */
+   button:focus:not(:focus-visible) {
+    outline: none;
+  }
+  
+  /* Foco elegante para navegação pelo teclado */
+  button:focus-visible {
+    outline: 2px solid #10b981;
+    outline-offset: 3px;
+  }
+  
+  /* Botões de exclusão — destaque adequado à ação */
+  .btn-excluir:focus-visible {
+    outline: 2px solid #f43f5e;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.12);
+  }
+  
+  /* Transição suave do indicador de foco */
+  button {
+    transition:
+      outline-color 200ms ease,
+      outline-offset 200ms ease;
+  }
+  
+  /* Respeita a preferência por movimento reduzido */
+  @media (prefers-reduced-motion: reduce) {
+    button {
+      transition: none;
+    }
+  }
+
+  /* ==========================================
+   NEXUS FINANÇAS — MODO DEMONSTRATIVO
+   BOTÕES PREMIUM FINTECH
+========================================== */
+
+/* Estilo compartilhado */
+.ferramentas-acoes .btn {
+  min-height: 48px;
+  padding: 12px 22px;
+
+  border-radius: 12px;
+  font-weight: 700;
+
+  transform: translateY(0);
+
+  transition:
+    transform 300ms ease,
+    box-shadow 300ms ease,
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease;
+}
+
+/* LIMPAR DADOS */
+.ferramentas-acoes .btn:first-child {
+  background: #ffffff;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
+
+.ferramentas-acoes .btn:first-child:hover {
+  background: #fff1f2;
+  border-color: #fb7185;
+  color: #9f1239;
+
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(225, 29, 72, 0.12);
+}
+
+/* RESTAURAR EXEMPLOS */
+.ferramentas-acoes .btn:last-child {
+  background: #ffffff;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.ferramentas-acoes .btn:last-child:hover {
+  background: #ecfdf5;
+  border-color: #34d399;
+  color: #065f46;
+
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.14);
+}
+
+/* Interação ao clicar */
+.ferramentas-acoes .btn:active {
+  transform: translateY(0);
+}
+
+/* Foco pelo teclado */
+.ferramentas-acoes .btn:first-child:focus-visible {
+  outline: 2px solid #f43f5e;
+  outline-offset: 3px;
+}
+
+.ferramentas-acoes .btn:last-child:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 3px;
+}
+
+/* Acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  .ferramentas-acoes .btn {
+    transition: none;
+  }
+}
+
+/* Nexus Finanças — Rolagem natural no mobile */
+@media (max-width: 768px) {
+  .lista-painel .movimentacoes-rolagem {
+    max-height: none;
+    overflow-y: visible;
+    overscroll-behavior-y: auto;
+  }
+
+  .lista-painel .movimentacoes-indicador {
+    display: none;
+  }
 }

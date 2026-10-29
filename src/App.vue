@@ -1,6 +1,6 @@
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 
 import MenuLateral from './components/MenuLateral.vue'
 import Cabecalho from './components/Cabecalho.vue'
@@ -24,11 +24,208 @@ const mesSelecionado = ref(
 const saldoInicial = ref(5380)
 const transacoes = ref([])
 const limites = ref({})
-const limiteEditando = ref('4000')
+const limiteEditando = ref('4.000,00')
 
 let proximoId = 1
 
+// PERSISTÊNCIA LOCAL — NEXUS FINANÇAS
+const CHAVE_ARMAZENAMENTO = 'nexus-financas-dados-v1'
+let bloqueioPersistencia = false
+
+// Salva as informações financeiras no navegador
+function salvarDadosLocais() {
+  if (bloqueioPersistencia) {
+  console.warn(
+    'Salvamento bloqueado: os dados armazenados estão protegidos.'
+  )
+  return
+}
+  try {
+    const dados = {
+      transacoes: transacoes.value,
+      limites: limites.value,
+      saldoInicial: saldoInicial.value,
+      proximoId
+    }
+
+    localStorage.setItem(
+      CHAVE_ARMAZENAMENTO,
+      JSON.stringify(dados)
+    )
+  } catch (erro) {
+    console.error(
+      'Não foi possível salvar os dados do Nexus Finanças:',
+      erro
+    )
+
+    aviso.value =
+      'Erro ao salvar os dados financeiros. Verifique o armazenamento do navegador.'
+  }
+}
+// Verifica a integridade de cada transação armazenada
+// Verifica se uma data existe no calendário
+function dataArmazenadaValida(data) {
+  if (
+    typeof data !== 'string' ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(data)
+  ) {
+    return false
+  }
+
+  const [ano, mes, dia] = data.split('-').map(Number)
+
+  if (ano < 2000 || ano > 2100) {
+    return false
+  }
+
+  const dataVerificada = new Date(0)
+  dataVerificada.setFullYear(ano, mes - 1, dia)
+
+  return (
+    dataVerificada.getFullYear() === ano &&
+    dataVerificada.getMonth() === mes - 1 &&
+    dataVerificada.getDate() === dia
+  )
+}
+function transacaoArmazenadaValida(item) {
+  return (
+    item !== null &&
+    typeof item === 'object' &&
+    !Array.isArray(item) &&
+    Number.isSafeInteger(item.id) &&
+    item.id > 0 &&
+    typeof item.descricao === 'string' &&
+    item.descricao.trim().length > 0 &&
+    typeof item.valor === 'number' &&
+    Number.isFinite(item.valor) &&
+    item.valor > 0 &&
+    (item.tipo === 'receita' || item.tipo === 'despesa') &&
+    typeof item.categoria === 'string' &&
+    item.categoria.trim().length > 0 &&
+    dataArmazenadaValida(item.data)
+  )
+}
+// Verifica se os identificadores das transações são únicos
+function identificadoresUnicos(transacoesArmazenadas) {
+  if (!Array.isArray(transacoesArmazenadas)) {
+    return false
+  }
+
+  const identificadores = transacoesArmazenadas.map(
+    item => item?.id
+  )
+
+  return new Set(identificadores).size === identificadores.length
+}
+// Verifica a integridade dos limites mensais armazenados
+function limitesArmazenadosValidos(limitesArmazenados) {
+  if (
+    !limitesArmazenados ||
+    typeof limitesArmazenados !== 'object' ||
+    Array.isArray(limitesArmazenados)
+  ) {
+    return false
+  }
+
+  return Object.entries(limitesArmazenados).every(
+    ([mes, valor]) => {
+      if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(mes)) {
+        return false
+      }
+
+      return (
+        typeof valor === 'number' &&
+        Number.isFinite(valor) &&
+        valor >= 0
+      )
+    }
+  )
+}
+// Recupera as informações financeiras armazenadas
+function carregarDadosLocais() {
+  try {
+    const dadosSalvos = localStorage.getItem(CHAVE_ARMAZENAMENTO)
+
+    // Primeiro acesso: ainda não existem dados armazenados
+    if (dadosSalvos === null) {
+      return false
+    }
+
+    const dados = JSON.parse(dadosSalvos)
+
+    // Verifica a estrutura básica dos dados armazenados
+    if (
+     !dados ||
+     !Array.isArray(dados.transacoes) ||
+     !dados.transacoes.every(transacaoArmazenadaValida) ||
+     !identificadoresUnicos(dados.transacoes) ||
+     !limitesArmazenadosValidos(dados.limites) ||
+    !Number.isFinite(dados.saldoInicial)
+    ) {
+      throw new Error('Estrutura de dados inválida.')
+   }
+
+    transacoes.value = dados.transacoes
+    limites.value = dados.limites
+    saldoInicial.value = dados.saldoInicial
+
+    // Evita reutilizar identificadores de transações
+    const maiorId = transacoes.value.reduce(
+      (maior, item) => Math.max(maior, Number(item.id) || 0),
+      0
+    )
+
+    proximoId = Math.max(
+      maiorId + 1,
+      Number.isSafeInteger(dados.proximoId) ? dados.proximoId : 1
+    )
+
+    return true
+  } catch (erro) {
+    console.error(
+      'Não foi possível recuperar os dados do Nexus Finanças:',
+      erro
+    )
+
+    return false
+  }
+}
+
 // FUNÇÕES AUXILIARES
+// Converte valores monetários brasileiros em números
+function converterLimiteMonetario(valorInformado) {
+  const texto = String(valorInformado).trim()
+
+  if (!texto) return NaN
+
+  const formatoValido =
+    /^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d{1,2})?$/
+
+  if (!formatoValido.test(texto)) {
+    return NaN
+  }
+
+  const valorNormalizado = texto
+    .replace(/\./g, '')
+    .replace(',', '.')
+
+  return Number(valorNormalizado)
+}
+// Formata o limite mensal ao sair do campo
+function formatarLimiteMonetario() {
+  const valor = converterLimiteMonetario(limiteEditando.value)
+
+  // Não formata valores inválidos
+  if (!Number.isFinite(valor) || valor < 0) {
+    return
+  }
+
+  limiteEditando.value = valor.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
+}
+
 function moeda(valor) {
   return Number(valor).toLocaleString('pt-BR', {
     style: 'currency',
@@ -58,7 +255,10 @@ function mudarMes(direcao) {
     1
   )
 
-  limiteEditando.value = String(limiteAtual())
+  limiteEditando.value = Number(limiteAtual()).toLocaleString('pt-BR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+})
   aviso.value = ''
 }
 
@@ -79,6 +279,11 @@ function dataMes(dia, deslocamento = 0) {
 
 // DADOS DEMONSTRATIVOS
 function demonstracao() {
+  if (armazenamentoProtegido.value) {
+    aviso.value =
+      'Restauração bloqueada: os dados armazenados precisam ser verificados.'
+    return
+  }
   proximoId = 1
 
   const exemplos = [
@@ -171,7 +376,7 @@ function demonstracao() {
     [mesChave()]: 4000
   }
 
-  limiteEditando.value = '4000'
+  limiteEditando.value = '4.000,00'
   aviso.value = 'Dados demonstrativos restaurados.'
 }
 
@@ -231,6 +436,12 @@ function limiteAtual() {
 
 // AÇÕES DO USUÁRIO
 function adicionar(transacao) {
+    // Impede alterações enquanto o armazenamento estiver protegido
+    if (armazenamentoProtegido.value) {
+    aviso.value =
+      'Cadastro bloqueado: não foi possível recuperar os dados armazenados.'
+    return
+  }
     // Segunda camada de proteção para datas inválidas
   const dataInformada = transacao.data
 
@@ -276,6 +487,12 @@ function adicionar(transacao) {
 }
 
 function excluir(id) {
+    // Impede exclusões enquanto o armazenamento estiver protegido
+    if (armazenamentoProtegido.value) {
+    aviso.value =
+      'Exclusão bloqueada: não foi possível recuperar os dados armazenados.'
+    return
+  }
   if (!confirm('Deseja excluir esta transação?')) {
     return
   }
@@ -288,6 +505,11 @@ function excluir(id) {
 }
 
 function limpar() {
+  if (armazenamentoProtegido.value) {
+  aviso.value =
+    'Operação bloqueada: não foi possível recuperar os dados armazenados.'
+  return
+}
   const confirmou = confirm(
     'Limpar todas as transações e orçamentos? ' +
     'Você poderá restaurar os exemplos.'
@@ -298,13 +520,19 @@ function limpar() {
   transacoes.value = []
   limites.value = {}
   saldoInicial.value = 0
-  limiteEditando.value = '0'
+  limiteEditando.value = '0,00'
 
   aviso.value = 'Dados limpos. Você pode começar do zero.'
 }
 
 function salvarLimite() {
-  const valor = Number(limiteEditando.value)
+    // Impede alterações no orçamento quando o armazenamento estiver protegido
+    if (armazenamentoProtegido.value) {
+    aviso.value =
+      'Alteração bloqueada: não foi possível recuperar os dados armazenados.'
+    return
+  }
+  const valor = converterLimiteMonetario(limiteEditando.value)
 
   if (!Number.isFinite(valor) || valor < 0) {
     aviso.value = 'Informe um limite válido.'
@@ -360,16 +588,79 @@ const titulos = {
   ]
 }
 
-// INICIALIZAÇÃO
-demonstracao()
-aviso.value = ''
+// INICIALIZAÇÃO — NEXUS FINANÇAS
+// Recupera os dados salvos ou carrega os exemplos no primeiro acesso
+const dadosRecuperados = carregarDadosLocais()
+bloqueioPersistencia = !dadosRecuperados
+
+let armazenamentoInicializado = false
+const armazenamentoProtegido = ref(!dadosRecuperados)
+
+if (!dadosRecuperados) {
+  let armazenamentoVazio = false
+
+  try {
+    armazenamentoVazio =
+      localStorage.getItem(CHAVE_ARMAZENAMENTO) === null
+  } catch (erro) {
+    console.error(
+      'Não foi possível verificar o armazenamento local:',
+      erro
+    )
+  }
+
+  if (armazenamentoVazio) {
+  armazenamentoProtegido.value = false
+  bloqueioPersistencia = false
+  demonstracao()
+  salvarDadosLocais()
+  armazenamentoInicializado = true
+  } else {
+    aviso.value =
+      'Não foi possível recuperar os dados armazenados. ' +
+      'Os registros existentes foram preservados.'
+  }
+}
+
+// Mantém o campo do orçamento formatado
+limiteEditando.value = Number(
+  limites.value[mesChave()] ?? 0
+).toLocaleString('pt-BR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+})
+
+if (dadosRecuperados) {
+  aviso.value = ''
+}
+// SALVAMENTO AUTOMÁTICO — NEXUS FINANÇAS
+watch(
+  [transacoes, limites, saldoInicial],
+  () => {
+    if (dadosRecuperados || armazenamentoInicializado) {
+      salvarDadosLocais()
+    }
+  },
+  { deep: true }
+)
+// NEXUS FINANÇAS — Navegação com retorno ao topo
+async function navegarPara(destino) {
+  pagina.value = destino
+  aviso.value = ''
+
+  await nextTick()
+
+  window.scrollTo(0, 0)
+}
+
+
 </script>
 
 <template>
   <div class="app-layout">
     <MenuLateral
       :pagina="pagina"
-      @navegar="pagina = $event; aviso = ''"
+      @navegar="navegarPara($event)"
     />
 
     <div class="area-principal">
@@ -380,12 +671,17 @@ aviso.value = ''
         :mostrar-novo="pagina === 'inicio'"
         @mes-anterior="mudarMes(-1)"
         @mes-seguinte="mudarMes(1)"
-        @nova-transacao="pagina = 'transacoes'"
+        @nova-transacao="navegarPara('transacoes')"
       />
 
       <main>
          
-        <p v-if="aviso" class="aviso" role="status">
+          <p
+           v-if="aviso"
+            class="aviso"
+           :class="{ erro: aviso === 'Informe um limite válido.' }"
+           :role="aviso === 'Informe um limite válido.' ? 'alert' : 'status'"
+            >
           {{ aviso }}
           <button
             aria-label="Fechar mensagem"
@@ -436,7 +732,7 @@ aviso.value = ''
                 <h2>Últimas movimentações</h2>
                 <button
                   class="link-botao"
-                  @click="pagina = 'transacoes'"
+                  @click="navegarPara('transacoes')"
                 >
                   Ver todas →
                 </button>
@@ -466,7 +762,7 @@ aviso.value = ''
                   <h2>Gastos por categoria</h2>
                   <button
                     class="link-botao"
-                    @click="pagina = 'relatorios'"
+                    @click="navegarPara('relatorios')"
                   >
                     Detalhes →
                   </button>
@@ -559,11 +855,13 @@ aviso.value = ''
                 <label>
                   Limite mensal (R$)
                   <input
-                    v-model="limiteEditando"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                  />
+                  v-model="limiteEditando"
+                  type="text"
+                  inputmode="decimal"
+                  placeholder="0,00"
+                  autocomplete="off"
+                 @blur="formatarLimiteMonetario"
+                />
                 </label>
 
                 <button
