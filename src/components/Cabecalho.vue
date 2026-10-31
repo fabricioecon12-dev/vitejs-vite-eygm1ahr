@@ -16,14 +16,23 @@ const emit = defineEmits([
 
 <template>
   <header class="cabecalho">
-    <div>
-      <p class="eyebrow">PAINEL FINANCEIRO</p>
+    <div class="cabecalho-identidade">
+      <img
+        src="/nexus-logo.png"
+        alt=""
+        class="cabecalho-logo-mobile"
+        aria-hidden="true"
+      />
 
-      <h1 class="tracking-tight font-bold transition-colors duration-300">
-        {{ titulo }}
-      </h1>
+      <div class="cabecalho-textos">
+        <p class="eyebrow">PAINEL FINANCEIRO</p>
 
-      <p class="subtitulo">{{ subtitulo }}</p>
+        <h1 class="tracking-tight font-bold transition-colors duration-300">
+          {{ titulo }}
+        </h1>
+
+        <p class="subtitulo">{{ subtitulo }}</p>
+      </div>
     </div>
 
     <div class="cabecalho-acoes">

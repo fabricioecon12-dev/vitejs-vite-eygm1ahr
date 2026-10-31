@@ -17,9 +17,14 @@ const itens = [
 <template>
   <aside class="sidebar transition-colors duration-300">
     <div class="marca">
-      <span class="marca-icone">🏦</span>
+      <img
+        src="/nexus-logo.png"
+        alt="Logomarca Nexus Finanças"
+        class="marca-logo"
+        />
+
       <div>
-        <strong class="nome-nexus">Nexus.</strong>
+        <strong class="nome-nexus">Nexus</strong>
         <small>FINANÇAS</small>
       </div>
     </div>
@@ -39,7 +44,11 @@ const itens = [
     'focus-visible:outline-2',
     'focus-visible:outline-offset-2',
     'focus-visible:outline-emerald-400',
-    { ativo: pagina === item.id }
+    {
+      ativo: pagina === item.id,
+      'border-l-4 border-emerald-400': pagina === item.id,
+      'border-l-4 border-transparent': pagina !== item.id
+    }
   ]"
   :aria-current="pagina === item.id ? 'page' : undefined"
   @click="emit('navegar', item.id)"

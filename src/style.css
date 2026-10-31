@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700&display=swap');
 @layer theme, base, components, utilities;
 
 @import "tailwindcss/theme.css" layer(theme);
@@ -65,13 +66,17 @@ h2 {
 
 .marca strong {
   display: block;
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
   font-size: 27px;
+  font-weight: 700;
   color: #0F9F76;
 }
 
 .marca small {
   display: block;
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
   font-size: 10px;
+  font-weight: 500;
   letter-spacing: 3px;
   color: #b8c9dd;
 }
@@ -1402,5 +1407,48 @@ select:focus {
 @media (prefers-reduced-motion: reduce) {
   .link-botao.ver-todas-premium {
     transition: none;
+  }
+}
+
+/* Nexus Finanças — Logomarca Premium Fintech */
+.sidebar .marca-logo {
+  display: block;
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+/* Nexus Finanças — identidade visual do cabeçalho mobile */
+
+/* Desktop: mantém o cabeçalho original */
+.cabecalho-identidade {
+  min-width: 0;
+}
+
+.cabecalho-textos {
+  min-width: 0;
+}
+
+.cabecalho-logo-mobile {
+  display: none;
+}
+
+/* Mobile: exibe a logomarca ao lado do título */
+@media (max-width: 850px) {
+  .cabecalho-identidade {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .cabecalho-logo-mobile {
+    display: block;
+    width: 75px;
+    height: 75px;
+    flex-shrink: 0;
+    object-fit: contain;
+    border-radius: 10px;
   }
 }
