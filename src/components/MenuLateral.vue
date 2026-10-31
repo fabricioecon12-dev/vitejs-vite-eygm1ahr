@@ -1,5 +1,12 @@
 
 <script setup>
+import {
+  LayoutDashboard,
+  ArrowLeftRight,
+  Wallet,
+  ChartNoAxesCombined
+} from '@lucide/vue'
+
 defineProps({
   pagina: String
 })
@@ -7,10 +14,10 @@ defineProps({
 const emit = defineEmits(['navegar'])
 
 const itens = [
-  { id: 'inicio', nome: 'Visão geral', icone: '▦' },
-  { id: 'transacoes', nome: 'Transações', icone: '⇄' },
-  { id: 'orcamento', nome: 'Orçamento', icone: '▣' },
-  { id: 'relatorios', nome: 'Relatórios', icone: '▥' }
+  { id: 'inicio', nome: 'Visão geral', icone: LayoutDashboard },
+  { id: 'transacoes', nome: 'Transações', icone: ArrowLeftRight },
+  { id: 'orcamento', nome: 'Orçamento', icone: Wallet },
+  { id: 'relatorios', nome: 'Relatórios', icone: ChartNoAxesCombined }
 ]
 </script>
 
@@ -53,8 +60,15 @@ const itens = [
   :aria-current="pagina === item.id ? 'page' : undefined"
   @click="emit('navegar', item.id)"
 >
-        <span class="nav-icone">{{ item.icone }}</span>
-        {{ item.nome }}
+<span>
+        <component
+          :is="item.icone"
+          :size="20"
+          :stroke-width="1.8"
+          aria-hidden="true"
+        />
+      </span>
+      <small>{{ item.nome }}</small>
       </button>
     </nav>
 
@@ -71,7 +85,14 @@ const itens = [
       :class="{ ativo: pagina === item.id }"
       @click="emit('navegar', item.id)"
     >
-      <span>{{ item.icone }}</span>
+    <span>
+  <component
+    :is="item.icone"
+    :size="20"
+    :stroke-width="1.8"
+    aria-hidden="true"
+  />
+</span>
       <small>{{ item.nome }}</small>
     </button>
   </nav>
