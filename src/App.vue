@@ -1,7 +1,7 @@
 <script setup>
 import { computed, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChartBar, History } from 'lucide-vue-next'
+import { ChartBar, History, SlidersHorizontal } from 'lucide-vue-next'
 
 import MenuLateral from './components/MenuLateral.vue'
 import Cabecalho from './components/Cabecalho.vue'
@@ -306,133 +306,126 @@ async function navegarPara(destino) {
           </div>
         </template>
 
-        <!-- ORÇAMENTO -->
-        <template v-else-if="pagina === 'orcamento'">
-          <div class="cards-grid">
-            <CardFinanceiro
-              titulo="Limite do mês"
-              :valor="moeda(limiteAtual())"
-              detalhe="Planejamento mensal"
-            />
+        
+<!-- ORÇAMENTO -->
+<template v-else-if="pagina === 'orcamento'">
+  <div class="cards-grid">
+    <CardFinanceiro
+      titulo="Limite do mês"
+      :valor="moeda(limiteAtual())"
+      detalhe="Planejamento mensal"
+    />
 
-            <CardFinanceiro
-              titulo="Valor utilizado"
-              :valor="moeda(despesas())"
-              tipo="despesa"
-              detalhe="Despesas do período"
-            />
+    <CardFinanceiro
+      titulo="Valor utilizado"
+      :valor="moeda(despesas())"
+      tipo="despesa"
+      detalhe="Despesas do período"
+    />
 
-            <CardFinanceiro
-              titulo="Valor restante"
-              :valor="moeda(limiteAtual() - despesas())"
-              tipo="receita"
-              detalhe="Limite menos despesas"
-            />
-          </div>
+    <CardFinanceiro
+      titulo="Valor restante"
+      :valor="moeda(limiteAtual() - despesas())"
+      tipo="receita"
+      detalhe="Limite menos despesas"
+    />
+  </div>
 
-          <div class="orcamento-grid">
-            
-              <section class="painel">
-                <h2 class="titulo-categorias-premium">
-               <span class="icone-categorias-premium" aria-hidden="true">
-               <ChartBar :size="20" :stroke-width="2" />
-              </span>
-                Gastos por categoria
-               </h2>
+  <div class="orcamento-grid">
+    <section class="painel">
+      <h2 class="titulo-categorias-premium">
+        <span class="icone-categorias-premium" aria-hidden="true">
+          <SlidersHorizontal :size="20" :stroke-width="2" />
+        </span>
+        Configurar orçamento
+      </h2>
 
-  <p class="texto-apoio">
-    Entenda como o orçamento está sendo utilizado.
-  </p>
+      <p class="texto-apoio">
+        Defina o limite de despesas para o mês selecionado.
+      </p>
 
+      <form class="form-limite" @submit.prevent="salvarLimite">
+        <label>
+          Limite mensal (R$)
+          <input
+            v-model="limiteEditando"
+            type="text"
+            inputmode="decimal"
+            placeholder="0,00"
+            autocomplete="off"
+            @blur="formatarLimiteMonetario"
+          />
+        </label>
 
-              <form
-                class="form-limite"
-                @submit.prevent="salvarLimite"
-              >
-                <label>
-                  Limite mensal (R$)
-                  <input
-                  v-model="limiteEditando"
-                  type="text"
-                  inputmode="decimal"
-                  placeholder="0,00"
-                  autocomplete="off"
-                 @blur="formatarLimiteMonetario"
-                />
-                </label>
+        <button class="btn btn-primary" type="submit">
+          Salvar limite
+        </button>
+      </form>
 
-                <button
-                  class="btn btn-primary"
-                  type="submit"
-                >
-                  Salvar limite
-                </button>
-              </form>
+      <ResumoOrcamento
+        :limite="limiteAtual()"
+        :gasto="despesas()"
+      />
+    </section>
 
-              <ResumoOrcamento
-                :limite="limiteAtual()"
-                :gasto="despesas()"
-              />
-            </section>
+    <section class="painel">
+      <h2 class="titulo-categorias-premium">
+        <span class="icone-categorias-premium" aria-hidden="true">
+          <ChartBar :size="20" :stroke-width="2" />
+        </span>
+        Gastos por categoria
+      </h2>
 
-            <section class="painel">
-              <h2>Gastos por categoria</h2>
+      <p class="texto-apoio">
+        Acompanhe a distribuição das despesas do mês.
+      </p>
 
-              <p class="texto-apoio">
-                Entenda como o orçamento está sendo utilizado.
-              </p>
+      <div
+        v-if="!categorias().length"
+        class="estado-vazio"
+      >
+        Nenhuma despesa neste mês.
+      </div>
 
-              <div
-                v-if="!categorias().length"
-                class="estado-vazio"
-              >
-                Nenhuma despesa neste mês.
-              </div>
+      <div
+        v-for="categoria in categorias()"
+        :key="categoria.nome"
+        class="categoria-linha categoria-linha-orcamento"
+      >
+        <div class="categoria-cabecalho">
+          <span>{{ categoria.nome }}</span>
+          <strong>{{ moeda(categoria.valor) }}</strong>
+        </div>
 
-              <div
-                v-for="categoria in categorias()"
-                :key="categoria.nome"
-                class="categoria-linha"
-              >
-                <span>{{ categoria.nome }}</span>
+        <div class="barra pequena">
+          <div
+            :style="{
+              width: categoria.valor / maxCategoria() * 100 + '%'
+            }"
+          ></div>
+        </div>
+      </div>
 
-                <div class="barra pequena">
-                  <div
-                    :style="{
-                      width:
-                        categoria.valor / maxCategoria() *
-                        100 + '%'
-                    }"
-                  ></div>
-                </div>
+      <p
+        v-if="limiteAtual() > 0 && despesas() >= limiteAtual()"
+        class="mensagem-erro"
+      >
+        Você atingiu ou ultrapassou o limite mensal.
+      </p>
 
-                <strong>
-                  {{ moeda(categoria.valor) }}
-                </strong>
-              </div>
+      <p
+        v-else-if="
+          limiteAtual() > 0 &&
+          despesas() >= limiteAtual() * 0.8
+        "
+        class="mensagem-alerta"
+      >
+        Atenção: seus gastos estão próximos do limite.
+      </p>
+    </section>
+  </div>
+</template>
 
-              <p
-                v-if="
-                  limiteAtual() > 0 &&
-                  despesas() >= limiteAtual()
-                "
-                class="mensagem-erro"
-              >
-                Você atingiu ou ultrapassou o limite mensal.
-              </p>
-
-              <p
-                v-else-if="
-                  limiteAtual() > 0 &&
-                  despesas() >= limiteAtual() * 0.8
-                "
-                class="mensagem-alerta"
-              >
-                Atenção: seus gastos estão próximos do limite.
-              </p>
-            </section>
-          </div>
-        </template>
 
         <!-- RELATÓRIOS -->
         <template v-else-if="pagina === 'relatorios'">

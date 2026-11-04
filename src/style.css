@@ -2422,4 +2422,246 @@ select:focus {
   white-space: nowrap;
 }
 
+/* ==========================================
+   NEXUS FINANÇAS — ORÇAMENTO PREMIUM
+   Restauração do layout das categorias
+   ========================================== */
 
+   .orcamento-grid .categoria-linha-orcamento {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 14px 0;
+    border-bottom: 1px solid #edf1f5;
+    font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  }
+  
+  .orcamento-grid .categoria-linha-orcamento:last-of-type {
+    border-bottom: none;
+  }
+  
+  .orcamento-grid .categoria-linha-orcamento .categoria-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    min-width: 0;
+  }
+  
+  .orcamento-grid .categoria-linha-orcamento .categoria-cabecalho span {
+    min-width: 0;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+  
+  .orcamento-grid .categoria-linha-orcamento .categoria-cabecalho strong {
+    flex-shrink: 0;
+    color: #14233e;
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  
+  .orcamento-grid .categoria-linha-orcamento .barra.pequena {
+    width: 100%;
+    height: 9px;
+    flex: none;
+  }
+  
+  @media (max-width: 600px) {
+    .orcamento-grid .categoria-linha-orcamento {
+      padding: 12px 0;
+      gap: 9px;
+    }
+  
+    .orcamento-grid .categoria-linha-orcamento .categoria-cabecalho {
+      gap: 10px;
+    }
+  
+    .orcamento-grid .categoria-linha-orcamento .categoria-cabecalho span,
+    .orcamento-grid .categoria-linha-orcamento .categoria-cabecalho strong {
+      font-size: 12px;
+    }
+  
+    .orcamento-grid .categoria-linha-orcamento .categoria-cabecalho strong {
+      white-space: normal;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+  }
+  
+
+/* ==========================================
+   NEXUS FINANÇAS — RODAPÉ PREMIUM ORIGINAL
+   ========================================== */
+
+   .rodape.rodape-premium {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    padding: 24px 28px;
+    box-sizing: border-box;
+    border: 1px solid #203a50;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #10243b, #172f46);
+    color: #d6e3ee;
+    text-align: left;
+    font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.6;
+    box-shadow: 0 8px 24px rgba(15, 35, 55, 0.08);
+  }
+  
+  /* Marca e selo acadêmico */
+  
+  .rodape-premium-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    width: 100%;
+  }
+  
+  .rodape-premium-identidade {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  
+  .rodape-premium-topo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .rodape-premium-icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 9px;
+    background: #193b4b;
+    color: #31d6ac;
+  }
+  
+  .rodape-premium-marca {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+  }
+  
+  .rodape-premium-marca span {
+    color: #31d6ac;
+  }
+  
+  .rodape-premium-slogan {
+    margin: 0;
+    color: #d6e3ee;
+    font-size: 11px;
+  }
+  
+  .rodape-premium-selo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border: 1px solid #285367;
+    border-radius: 999px;
+    background: #193b4b;
+    color: #bcede4;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  
+  /* Divisor */
+  
+  .rodape-premium-divisor {
+    width: 100%;
+    height: 1px;
+    margin: 16px 0 12px;
+    background: #385064;
+  }
+  
+  /* Créditos inferiores */
+  
+  .rodape-premium-creditos {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+  }
+  
+  .rodape-premium-credito {
+    margin: 0;
+    color: #d6e3ee;
+    font-size: 11px;
+  }
+  
+  .rodape-premium-credito strong {
+    color: #ffffff;
+    font-weight: 700;
+  }
+  
+  /* Tablet */
+  
+  @media (max-width: 850px) {
+    .rodape.rodape-premium {
+      padding: 22px;
+    }
+  
+    .rodape-premium-cabecalho,
+    .rodape-premium-creditos {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+  }
+  
+  /* Celular */
+  
+  @media (max-width: 600px) {
+    .rodape.rodape-premium {
+      padding: 20px 16px;
+      border-radius: 12px;
+    }
+  
+    .rodape-premium-cabecalho,
+    .rodape-premium-creditos {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+  
+    .rodape-premium-marca {
+      font-size: 13px;
+    }
+  
+    .rodape-premium-slogan,
+    .rodape-premium-credito {
+      font-size: 10px;
+    }
+  
+    .rodape-premium-selo {
+      font-size: 10px;
+      white-space: normal;
+    }
+  
+    .rodape-premium-divisor {
+      margin: 14px 0 12px;
+    }
+  }
+  
