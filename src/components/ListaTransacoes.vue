@@ -2,6 +2,7 @@
 <script setup>
 import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import ItemTransacao from './ItemTransacao.vue'
+import { ArrowLeftRight } from 'lucide-vue-next'
 
 const props = defineProps({
   transacoes: Array
@@ -99,7 +100,14 @@ onUnmounted(() => {
 <template>
   <section class="painel lista-painel">
     <div class="secao-topo">
-      <h2>Suas movimentações</h2>
+      
+         <h2 class="titulo-categorias-premium">
+           <span class="icone-categorias-premium" aria-hidden="true">
+           <ArrowLeftRight :size="20" :stroke-width="2" />
+           </span>
+            Suas movimentações
+         </h2>
+
       <p>Pesquise, filtre e gerencie os lançamentos do mês</p>
     </div>
 

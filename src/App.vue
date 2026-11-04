@@ -1,6 +1,7 @@
-
 <script setup>
-import { ref, watch, nextTick } from 'vue'
+import { computed, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ChartBar, History } from 'lucide-vue-next'
 
 import MenuLateral from './components/MenuLateral.vue'
 import Cabecalho from './components/Cabecalho.vue'
@@ -11,649 +12,67 @@ import ListaTransacoes from './components/ListaTransacoes.vue'
 import ResumoOrcamento from './components/ResumoOrcamento.vue'
 import Rodape from './components/Rodape.vue'
 
-// ESTADO PRINCIPAL
-const hoje = new Date()
+import { useFinancas } from './composables/useFinancas.js'
 
-const pagina = ref('inicio')
-const aviso = ref('')
+const {
+  mesSelecionado,
+  saldoInicial,
+  transacoes,
+  limites,
+  limiteEditando,
+  aviso,
+  armazenamentoProtegido,
+  moeda,
+  mesChave,
+  nomeMes,
+  mudarMes,
+  dataMes,
+  doMes,
+  somar,
+  receitas,
+  despesas,
+  resultado,
+  saldo,
+  limiteAtual,
+  categorias,
+  maxCategoria,
+  adicionar,
+  excluir,
+  limpar,
+  salvarLimite,
+  demonstracao,
+  converterLimiteMonetario,
+  formatarLimiteMonetario
+} = useFinancas()
 
-const mesSelecionado = ref(
-  new Date(hoje.getFullYear(), hoje.getMonth(), 1)
-)
+const route = useRoute()
+const router = useRouter()
 
-const saldoInicial = ref(5380)
-const transacoes = ref([])
-const limites = ref({})
-const limiteEditando = ref('4.000,00')
+const pagina = computed(() => {
+  const nome = route.name
 
-let proximoId = 1
-
-// PERSISTÊNCIA LOCAL — NEXUS FINANÇAS
-const CHAVE_ARMAZENAMENTO = 'nexus-financas-dados-v1'
-let bloqueioPersistencia = false
-
-// Salva as informações financeiras no navegador
-function salvarDadosLocais() {
-  if (bloqueioPersistencia) {
-  console.warn(
-    'Salvamento bloqueado: os dados armazenados estão protegidos.'
-  )
-  return
-}
-  try {
-    const dados = {
-      transacoes: transacoes.value,
-      limites: limites.value,
-      saldoInicial: saldoInicial.value,
-      proximoId
-    }
-
-    localStorage.setItem(
-      CHAVE_ARMAZENAMENTO,
-      JSON.stringify(dados)
-    )
-  } catch (erro) {
-    console.error(
-      'Não foi possível salvar os dados do Nexus Finanças:',
-      erro
-    )
-
-    aviso.value =
-      'Erro ao salvar os dados financeiros. Verifique o armazenamento do navegador.'
-  }
-}
-// Verifica a integridade de cada transação armazenada
-// Verifica se uma data existe no calendário
-function dataArmazenadaValida(data) {
-  if (
-    typeof data !== 'string' ||
-    !/^\d{4}-\d{2}-\d{2}$/.test(data)
-  ) {
-    return false
-  }
-
-  const [ano, mes, dia] = data.split('-').map(Number)
-
-  if (ano < 2000 || ano > 2100) {
-    return false
-  }
-
-  const dataVerificada = new Date(0)
-  dataVerificada.setFullYear(ano, mes - 1, dia)
-
-  return (
-    dataVerificada.getFullYear() === ano &&
-    dataVerificada.getMonth() === mes - 1 &&
-    dataVerificada.getDate() === dia
-  )
-}
-function transacaoArmazenadaValida(item) {
-  return (
-    item !== null &&
-    typeof item === 'object' &&
-    !Array.isArray(item) &&
-    Number.isSafeInteger(item.id) &&
-    item.id > 0 &&
-    typeof item.descricao === 'string' &&
-    item.descricao.trim().length > 0 &&
-    typeof item.valor === 'number' &&
-    Number.isFinite(item.valor) &&
-    item.valor > 0 &&
-    (item.tipo === 'receita' || item.tipo === 'despesa') &&
-    typeof item.categoria === 'string' &&
-    item.categoria.trim().length > 0 &&
-    dataArmazenadaValida(item.data)
-  )
-}
-// Verifica se os identificadores das transações são únicos
-function identificadoresUnicos(transacoesArmazenadas) {
-  if (!Array.isArray(transacoesArmazenadas)) {
-    return false
-  }
-
-  const identificadores = transacoesArmazenadas.map(
-    item => item?.id
-  )
-
-  return new Set(identificadores).size === identificadores.length
-}
-// Verifica a integridade dos limites mensais armazenados
-function limitesArmazenadosValidos(limitesArmazenados) {
-  if (
-    !limitesArmazenados ||
-    typeof limitesArmazenados !== 'object' ||
-    Array.isArray(limitesArmazenados)
-  ) {
-    return false
-  }
-
-  return Object.entries(limitesArmazenados).every(
-    ([mes, valor]) => {
-      if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(mes)) {
-        return false
-      }
-
-      return (
-        typeof valor === 'number' &&
-        Number.isFinite(valor) &&
-        valor >= 0
-      )
-    }
-  )
-}
-// Recupera as informações financeiras armazenadas
-function carregarDadosLocais() {
-  try {
-    const dadosSalvos = localStorage.getItem(CHAVE_ARMAZENAMENTO)
-
-    // Primeiro acesso: ainda não existem dados armazenados
-    if (dadosSalvos === null) {
-      return false
-    }
-
-    const dados = JSON.parse(dadosSalvos)
-
-    // Verifica a estrutura básica dos dados armazenados
-    if (
-     !dados ||
-     !Array.isArray(dados.transacoes) ||
-     !dados.transacoes.every(transacaoArmazenadaValida) ||
-     !identificadoresUnicos(dados.transacoes) ||
-     !limitesArmazenadosValidos(dados.limites) ||
-    !Number.isFinite(dados.saldoInicial)
-    ) {
-      throw new Error('Estrutura de dados inválida.')
-   }
-
-    transacoes.value = dados.transacoes
-    limites.value = dados.limites
-    saldoInicial.value = dados.saldoInicial
-
-    // Evita reutilizar identificadores de transações
-    const maiorId = transacoes.value.reduce(
-      (maior, item) => Math.max(maior, Number(item.id) || 0),
-      0
-    )
-
-    proximoId = Math.max(
-      maiorId + 1,
-      Number.isSafeInteger(dados.proximoId) ? dados.proximoId : 1
-    )
-
-    return true
-  } catch (erro) {
-    console.error(
-      'Não foi possível recuperar os dados do Nexus Finanças:',
-      erro
-    )
-
-    return false
-  }
-}
-
-// FUNÇÕES AUXILIARES
-// Converte valores monetários brasileiros em números
-function converterLimiteMonetario(valorInformado) {
-  const texto = String(valorInformado).trim()
-
-  if (!texto) return NaN
-
-  const formatoValido =
-    /^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d{1,2})?$/
-
-  if (!formatoValido.test(texto)) {
-    return NaN
-  }
-
-  const valorNormalizado = texto
-    .replace(/\./g, '')
-    .replace(',', '.')
-
-  return Number(valorNormalizado)
-}
-// Formata o limite mensal ao sair do campo
-function formatarLimiteMonetario() {
-  const valor = converterLimiteMonetario(limiteEditando.value)
-
-  // Não formata valores inválidos
-  if (!Number.isFinite(valor) || valor < 0) {
-    return
-  }
-
-  limiteEditando.value = valor.toLocaleString('pt-BR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })
-}
-
-function moeda(valor) {
-  return Number(valor).toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  })
-}
-
-function mesChave(data = mesSelecionado.value) {
-  const ano = data.getFullYear()
-  const mes = String(data.getMonth() + 1).padStart(2, '0')
-  return `${ano}-${mes}`
-}
-
-function nomeMes() {
-  const nome = mesSelecionado.value.toLocaleDateString(
-    'pt-BR',
-    { month: 'long', year: 'numeric' }
-  )
-
-  return nome.charAt(0).toUpperCase() + nome.slice(1)
-}
-
-function mudarMes(direcao) {
-  mesSelecionado.value = new Date(
-    mesSelecionado.value.getFullYear(),
-    mesSelecionado.value.getMonth() + direcao,
-    1
-  )
-
-  limiteEditando.value = Number(limiteAtual()).toLocaleString('pt-BR', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2
+  return ['inicio', 'transacoes', 'orcamento', 'relatorios'].includes(nome)
+    ? nome
+    : 'inicio'
 })
-  aviso.value = ''
-}
-
-function dataMes(dia, deslocamento = 0) {
-  const data = new Date(
-    hoje.getFullYear(),
-    hoje.getMonth() + deslocamento,
-    dia,
-    12
-  )
-
-  const ano = data.getFullYear()
-  const mes = String(data.getMonth() + 1).padStart(2, '0')
-  const diaFormatado = String(data.getDate()).padStart(2, '0')
-
-  return `${ano}-${mes}-${diaFormatado}`
-}
-
-// DADOS DEMONSTRATIVOS
-function demonstracao() {
-  if (armazenamentoProtegido.value) {
-    aviso.value =
-      'Restauração bloqueada: os dados armazenados precisam ser verificados.'
-    return
-  }
-  proximoId = 1
-
-  const exemplos = [
-    {
-      descricao: 'Salário',
-      valor: 4500,
-      tipo: 'receita',
-      categoria: 'Salário',
-      data: dataMes(25)
-    },
-    {
-      descricao: 'Freelance',
-      valor: 1000,
-      tipo: 'receita',
-      categoria: 'Serviços',
-      data: dataMes(18)
-    },
-    {
-      descricao: 'Supermercado',
-      valor: 760,
-      tipo: 'despesa',
-      categoria: 'Alimentação',
-      data: dataMes(23)
-    },
-    {
-      descricao: 'Aluguel',
-      valor: 620,
-      tipo: 'despesa',
-      categoria: 'Moradia',
-      data: dataMes(20)
-    },
-    {
-      descricao: 'Transporte',
-      valor: 260,
-      tipo: 'despesa',
-      categoria: 'Transporte',
-      data: dataMes(16)
-    },
-    {
-      descricao: 'Farmácia',
-      valor: 180,
-      tipo: 'despesa',
-      categoria: 'Saúde',
-      data: dataMes(12)
-    },
-    {
-      descricao: 'Lazer',
-      valor: 140,
-      tipo: 'despesa',
-      categoria: 'Lazer',
-      data: dataMes(10)
-    },
-    {
-      descricao: 'Outros gastos',
-      valor: 220,
-      tipo: 'despesa',
-      categoria: 'Outros',
-      data: dataMes(8)
-    },
-    {
-      descricao: 'Internet',
-      valor: 100,
-      tipo: 'despesa',
-      categoria: 'Moradia',
-      data: dataMes(5)
-    },
-    {
-      descricao: 'Compra anterior',
-      valor: 150,
-      tipo: 'despesa',
-      categoria: 'Outros',
-      data: dataMes(14, -1)
-    }
-  ]
-
-  transacoes.value = exemplos.map(item => ({
-    ...item,
-    id: proximoId++
-  }))
-
-  saldoInicial.value = 5380
-
-  mesSelecionado.value = new Date(
-    hoje.getFullYear(),
-    hoje.getMonth(),
-    1
-  )
-
-  limites.value = {
-    [mesChave()]: 4000
-  }
-
-  limiteEditando.value = '4.000,00'
-  aviso.value = 'Dados demonstrativos restaurados.'
-}
-
-// CÁLCULOS FINANCEIROS
-function doMes() {
-  return transacoes.value
-    .filter(item => item.data.slice(0, 7) === mesChave())
-    .sort((a, b) =>
-      b.data.localeCompare(a.data) || b.id - a.id
-    )
-}
-
-function somar(lista, tipo) {
-  return lista
-    .filter(item => item.tipo === tipo)
-    .reduce((total, item) => total + item.valor, 0)
-}
-
-function receitas() {
-  return somar(doMes(), 'receita')
-}
-
-function despesas() {
-  return somar(doMes(), 'despesa')
-}
-
-function resultado() {
-  return receitas() - despesas()
-}
-
-function saldo() {
-  const ultimoDia = new Date(
-    mesSelecionado.value.getFullYear(),
-    mesSelecionado.value.getMonth() + 1,
-    0
-  )
-
-  const ano = ultimoDia.getFullYear()
-  const mes = String(ultimoDia.getMonth() + 1).padStart(2, '0')
-  const dia = String(ultimoDia.getDate()).padStart(2, '0')
-  const limiteData = `${ano}-${mes}-${dia}`
-
-  const ateMes = transacoes.value.filter(
-    item => item.data <= limiteData
-  )
-
-  return (
-    saldoInicial.value +
-    somar(ateMes, 'receita') -
-    somar(ateMes, 'despesa')
-  )
-}
-
-function limiteAtual() {
-  return limites.value[mesChave()] || 0
-}
-
-// AÇÕES DO USUÁRIO
-function adicionar(transacao) {
-    // Impede alterações enquanto o armazenamento estiver protegido
-    if (armazenamentoProtegido.value) {
-    aviso.value =
-      'Cadastro bloqueado: não foi possível recuperar os dados armazenados.'
-    return
-  }
-    // Segunda camada de proteção para datas inválidas
-  const dataInformada = transacao.data
-
-  if (
-    typeof dataInformada !== 'string' ||
-    !/^\d{4}-\d{2}-\d{2}$/.test(dataInformada)
-  ) {
-    aviso.value = 'Data inválida. Transação não cadastrada.'
-    return
-  }
-
-  const [ano, mes, dia] = dataInformada.split('-').map(Number)
-
-  const dataVerificada = new Date(0)
-  dataVerificada.setFullYear(ano, mes - 1, dia)
-
-  if (
-    ano < 2000 ||
-    ano > 2100 ||
-    dataVerificada.getFullYear() !== ano ||
-    dataVerificada.getMonth() !== mes - 1 ||
-    dataVerificada.getDate() !== dia
-  ) {
-    aviso.value =
-    'Data inválida. Verifique a data informada.'
-    return
-  }
-
-    // Armazena a transação somente após validar a data
-    transacoes.value.push({
-    ...transacao,
-    id: proximoId++
-  })
-
-    mesSelecionado.value = new Date(
-    Number(transacao.data.slice(0, 4)),
-    Number(transacao.data.slice(5, 7)) - 1,
-    1
-  )
-
-  limiteEditando.value = String(limiteAtual())
-  aviso.value = 'Transação adicionada com sucesso!'
-}
-
-function excluir(id) {
-    // Impede exclusões enquanto o armazenamento estiver protegido
-    if (armazenamentoProtegido.value) {
-    aviso.value =
-      'Exclusão bloqueada: não foi possível recuperar os dados armazenados.'
-    return
-  }
-  if (!confirm('Deseja excluir esta transação?')) {
-    return
-  }
-
-  transacoes.value = transacoes.value.filter(
-    item => item.id !== id
-  )
-
-  aviso.value = 'Transação excluída.'
-}
-
-function limpar() {
-  if (armazenamentoProtegido.value) {
-  aviso.value =
-    'Operação bloqueada: não foi possível recuperar os dados armazenados.'
-  return
-}
-  const confirmou = confirm(
-    'Limpar todas as transações e orçamentos? ' +
-    'Você poderá restaurar os exemplos.'
-  )
-
-  if (!confirmou) return
-
-  transacoes.value = []
-  limites.value = {}
-  saldoInicial.value = 0
-  limiteEditando.value = '0,00'
-
-  aviso.value = 'Dados limpos. Você pode começar do zero.'
-}
-
-function salvarLimite() {
-    // Impede alterações no orçamento quando o armazenamento estiver protegido
-    if (armazenamentoProtegido.value) {
-    aviso.value =
-      'Alteração bloqueada: não foi possível recuperar os dados armazenados.'
-    return
-  }
-  const valor = converterLimiteMonetario(limiteEditando.value)
-
-  if (!Number.isFinite(valor) || valor < 0) {
-    aviso.value = 'Informe um limite válido.'
-    return
-  }
-
-  limites.value = {
-    ...limites.value,
-    [mesChave()]: valor
-  }
-
-  aviso.value = 'Limite mensal atualizado.'
-}
-
-function categorias() {
-  const mapa = {}
-
-  doMes()
-    .filter(item => item.tipo === 'despesa')
-    .forEach(item => {
-      mapa[item.categoria] =
-        (mapa[item.categoria] || 0) + item.valor
-    })
-
-  return Object.entries(mapa)
-    .sort((a, b) => b[1] - a[1])
-    .map(([nome, valor]) => ({ nome, valor }))
-}
-
-function maxCategoria() {
-  return Math.max(
-    ...categorias().map(item => item.valor),
-    1
-  )
-}
 
 const titulos = {
-  inicio: [
-    'Visão geral',
-    'Acompanhe seu resumo financeiro'
-  ],
-  transacoes: [
-    'Transações',
-    'Cadastre e gerencie suas movimentações'
-  ],
-  orcamento: [
-    'Orçamento',
-    'Defina seu limite e acompanhe seus gastos'
-  ],
-  relatorios: [
-    'Relatórios',
-    'Analise seus resultados e visualize seus gastos'
-  ]
+  inicio: ['Visão geral', 'Acompanhe seu resumo financeiro'],
+  transacoes: ['Transações', 'Cadastre e gerencie suas movimentações'],
+  orcamento: ['Orçamento', 'Defina seu limite e acompanhe seus gastos'],
+  relatorios: ['Relatórios', 'Analise seus resultados e visualize seus gastos']
 }
 
-// INICIALIZAÇÃO — NEXUS FINANÇAS
-// Recupera os dados salvos ou carrega os exemplos no primeiro acesso
-const dadosRecuperados = carregarDadosLocais()
-bloqueioPersistencia = !dadosRecuperados
-
-let armazenamentoInicializado = false
-const armazenamentoProtegido = ref(!dadosRecuperados)
-
-if (!dadosRecuperados) {
-  let armazenamentoVazio = false
-
-  try {
-    armazenamentoVazio =
-      localStorage.getItem(CHAVE_ARMAZENAMENTO) === null
-  } catch (erro) {
-    console.error(
-      'Não foi possível verificar o armazenamento local:',
-      erro
-    )
-  }
-
-  if (armazenamentoVazio) {
-  armazenamentoProtegido.value = false
-  bloqueioPersistencia = false
-  demonstracao()
-  salvarDadosLocais()
-  armazenamentoInicializado = true
-  } else {
-    aviso.value =
-      'Não foi possível recuperar os dados armazenados. ' +
-      'Os registros existentes foram preservados.'
-  }
-}
-
-// Mantém o campo do orçamento formatado
-limiteEditando.value = Number(
-  limites.value[mesChave()] ?? 0
-).toLocaleString('pt-BR', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2
-})
-
-if (dadosRecuperados) {
-  aviso.value = ''
-}
-// SALVAMENTO AUTOMÁTICO — NEXUS FINANÇAS
-watch(
-  [transacoes, limites, saldoInicial],
-  () => {
-    if (dadosRecuperados || armazenamentoInicializado) {
-      salvarDadosLocais()
-    }
-  },
-  { deep: true }
-)
-// NEXUS FINANÇAS — Navegação com retorno ao topo
 async function navegarPara(destino) {
-  pagina.value = destino
+  if (!['inicio', 'transacoes', 'orcamento', 'relatorios'].includes(destino)) {
+    return
+  }
+
+  await router.push({ name: destino })
   aviso.value = ''
-
   await nextTick()
-
   window.scrollTo(0, 0)
 }
-
-
 </script>
 
 <template>
@@ -693,15 +112,72 @@ async function navegarPara(destino) {
 
         <!-- VISÃO GERAL -->
         <template v-if="pagina === 'inicio'">
-          <section class="saldo-destaque">
-            <div>
-              <p>Saldo disponível até {{ nomeMes() }}</p>
-              <strong>{{ moeda(saldo()) }}</strong>
-              <small>Seu dinheiro, suas decisões.</small>
-            </div>
+          <section class="saldo-destaque saldo-premium">
 
-            <div class="saldo-desenho">▰</div>
-          </section>
+<div class="saldo-conteudo">
+
+  <div class="saldo-icone" aria-hidden="true">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <rect x="2" y="5" width="20" height="16" rx="2" />
+      <path d="M2 10h20" />
+      <path d="M16 15h3" />
+    </svg>
+  </div>
+
+  <div class="saldo-informacoes">
+    <p>Saldo disponível até {{ nomeMes() }}</p>
+
+    <strong>{{ moeda(saldo()) }}</strong>
+
+    <small>Seu dinheiro, suas decisões.</small>
+  </div>
+
+</div>
+
+<div class="saldo-visual" aria-hidden="true">
+
+  <img
+  class="saldo-marca saldo-logo-oficial"
+  src="/nexus_transparente.png"
+  alt=""
+  aria-hidden="true"
+/>
+
+  <div class="saldo-barras">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <svg
+    class="saldo-curva"
+    viewBox="0 0 500 160"
+    preserveAspectRatio="none"
+  >
+    <path
+      d="M0 150 C100 130 140 65 230 85 S380 110 500 10"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+  </svg>
+
+</div>
+
+</section>
 
           <div class="cards-grid">
             <CardFinanceiro
@@ -729,7 +205,14 @@ async function navegarPara(destino) {
           <div class="painel-grid">
             <section class="painel">
               <div class="secao-titulo">
-                <h2>Últimas movimentações</h2>
+                
+                 <h2 class="titulo-categorias-premium">
+                   <span class="icone-categorias-premium" aria-hidden="true">
+                   <History :size="20" :stroke-width="2" />
+                   </span>
+                    Últimas movimentações
+                </h2>
+
                 <button
                   class="link-botao ver-todas-premium"
                   @click="navegarPara('transacoes')"
@@ -758,15 +241,23 @@ async function navegarPara(destino) {
               />
 
               <section class="painel">
-                <div class="secao-titulo">
-                  <h2>Gastos por categoria</h2>
-                  <button
-                    class="link-botao"
-                    @click="navegarPara('relatorios')"
-                  >
-                    Detalhes →
-                  </button>
+                 
+               <div class="secao-titulo">
+                 <h2 class="titulo-categorias-premium">
+                <span class="icone-categorias-premium" aria-hidden="true">
+               <ChartBar :size="20" :stroke-width="2" />
+               </span>
+                   Gastos por categoria
+                    </h2>
+
+                <button
+                 class="link-botao ver-todas-premium"
+                 @click="navegarPara('relatorios')"
+                 >
+                 Detalhes →
+                </button>
                 </div>
+
 
                 <div
                   v-if="!categorias().length"
@@ -840,13 +331,19 @@ async function navegarPara(destino) {
           </div>
 
           <div class="orcamento-grid">
-            <section class="painel">
-              <h2>Definir orçamento</h2>
+            
+              <section class="painel">
+                <h2 class="titulo-categorias-premium">
+               <span class="icone-categorias-premium" aria-hidden="true">
+               <ChartBar :size="20" :stroke-width="2" />
+              </span>
+                Gastos por categoria
+               </h2>
 
-              <p class="texto-apoio">
-                Escolha quanto pretende gastar em
-                {{ nomeMes() }}.
-              </p>
+  <p class="texto-apoio">
+    Entenda como o orçamento está sendo utilizado.
+  </p>
+
 
               <form
                 class="form-limite"
@@ -1014,12 +511,19 @@ async function navegarPara(destino) {
               </div>
             </section>
 
-            <section class="painel">
-              <h2>Despesas por categoria</h2>
+            
+               <section class="painel">
+                 <h2 class="titulo-categorias-premium">
+                  <span class="icone-categorias-premium" aria-hidden="true">
+                   <ChartBar :size="20" :stroke-width="2" />
+                  </span>
+                   Despesas por categoria
+                </h2>
 
-              <p class="texto-apoio">
-                Participação de cada categoria nos gastos
-              </p>
+  <p class="texto-apoio">
+    Participação de cada categoria nos gastos
+  </p>
+
 
               <div
                 v-if="!categorias().length"

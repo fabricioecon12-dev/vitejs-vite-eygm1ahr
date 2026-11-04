@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Nexus Finanças — backups e dados locais
+nexus-financas-backup-dados.json
+src/App.backup-*.vue
+src/composables/*.backup-*.js
+
+# Nexus Finanças — scripts auxiliares de migração
+integrar-financas.cjs
+migrar-persistencia-segura.cjs
+migrar-persistencia.cjs
+preparar-persistencia.cjs
+verificar-migracao.cjs
+verificar-navegacao.cjs

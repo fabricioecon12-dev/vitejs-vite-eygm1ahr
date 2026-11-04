@@ -55,7 +55,14 @@ h2 {
   color: white;
   display: flex;
   flex-direction: column;
+
+  /* Menu lateral persistente */
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  overflow-y: auto;
 }
+
 
 .marca {
   display: flex;
@@ -1452,3 +1459,967 @@ select:focus {
     border-radius: 10px;
   }
 }
+
+/* ==========================================
+   NEXUS FINANÇAS — CARTÃO DE SALDO PREMIUM
+========================================== */
+
+.saldo-destaque.saldo-premium {
+  position: relative;
+  isolation: isolate;
+  min-height: 220px;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 34px 40px;
+  border-radius: 20px;
+
+  background:
+    radial-gradient(
+      circle at 85% 30%,
+      rgba(16, 185, 129, 0.20),
+      transparent 42%
+    ),
+    linear-gradient(
+      115deg,
+      #101d35 0%,
+      #142c45 55%,
+      #15545a 100%
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow:
+    0 12px 28px rgba(20, 35, 62, 0.12);
+}
+
+/* Conteúdo financeiro */
+
+.saldo-premium .saldo-conteudo {
+  position: relative;
+  z-index: 3;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+
+  min-width: 0;
+}
+
+/* Ícone de carteira */
+
+.saldo-premium .saldo-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+
+  color: #a7f3d0;
+  background: rgba(16, 185, 129, 0.12);
+
+  border: 1px solid rgba(110, 231, 183, 0.22);
+  border-radius: 16px;
+}
+
+/* Informações do saldo */
+
+.saldo-premium .saldo-informacoes {
+  min-width: 0;
+}
+
+.saldo-premium .saldo-informacoes p {
+  margin: 0 0 12px;
+
+  color: #c6d8e6;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.saldo-premium .saldo-informacoes strong {
+  display: block;
+
+  margin: 0 0 12px;
+
+  color: #ffffff;
+  font-size: clamp(30px, 3vw, 42px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -1px;
+}
+
+.saldo-premium .saldo-informacoes small {
+  color: #8ce8c6;
+  font-size: 13px;
+}
+
+/* Elementos gráficos decorativos */
+
+.saldo-premium .saldo-visual {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Marca d'água Nexus */
+
+.saldo-premium .saldo-marca {
+  position: absolute;
+  right: 7%;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  font-size: clamp(130px, 18vw, 240px);
+  font-weight: 800;
+  line-height: 1;
+
+  color: rgba(255, 255, 255, 0.045);
+}
+
+/* Barras de crescimento decorativas */
+
+.saldo-premium .saldo-barras {
+  position: absolute;
+  right: 7%;
+  bottom: 22px;
+
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+
+  height: 110px;
+  opacity: 0.16;
+}
+
+.saldo-premium .saldo-barras span {
+  width: 18px;
+  border-radius: 5px 5px 0 0;
+
+  background: linear-gradient(
+    180deg,
+    #6ee7b7,
+    #059669
+  );
+}
+
+.saldo-premium .saldo-barras span:nth-child(1) {
+  height: 35%;
+}
+
+.saldo-premium .saldo-barras span:nth-child(2) {
+  height: 55%;
+}
+
+.saldo-premium .saldo-barras span:nth-child(3) {
+  height: 45%;
+}
+
+.saldo-premium .saldo-barras span:nth-child(4) {
+  height: 75%;
+}
+
+.saldo-premium .saldo-barras span:nth-child(5) {
+  height: 100%;
+}
+
+/* Curva decorativa */
+
+.saldo-premium .saldo-curva {
+  position: absolute;
+
+  right: -2%;
+  bottom: 0;
+
+  width: 58%;
+  height: 75%;
+
+  color: #6ee7b7;
+  opacity: 0.22;
+}
+
+/* ==========================================
+   RESPONSIVIDADE DO CARTÃO PREMIUM
+========================================== */
+
+@media (max-width: 850px) {
+  .saldo-destaque.saldo-premium {
+    min-height: 200px;
+    padding: 28px;
+  }
+
+  .saldo-premium .saldo-curva {
+    width: 65%;
+    opacity: 0.14;
+  }
+}
+
+@media (max-width: 600px) {
+  .saldo-destaque.saldo-premium {
+    min-height: 190px;
+    padding: 24px 20px;
+    border-radius: 16px;
+  }
+
+  .saldo-premium .saldo-conteudo {
+    gap: 14px;
+  }
+
+  .saldo-premium .saldo-icone {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+
+  .saldo-premium .saldo-icone svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .saldo-premium .saldo-informacoes p {
+    font-size: 12px;
+  }
+
+  .saldo-premium .saldo-informacoes strong {
+    font-size: clamp(25px, 6.5vw, 32px);
+    letter-spacing: -0.5px;
+    overflow-wrap: anywhere;
+  }
+
+  .saldo-premium .saldo-marca {
+    right: -5%;
+    font-size: 150px;
+  }
+
+  .saldo-premium .saldo-barras {
+    right: 3%;
+    opacity: 0.08;
+  }
+
+  .saldo-premium .saldo-curva {
+    width: 80%;
+    opacity: 0.10;
+  }
+}
+
+/* NEXUS FINANÇAS — LOGOMARCA OFICIAL COMO MARCA-D'ÁGUA */
+
+.saldo-premium .saldo-logo-oficial {
+  position: absolute;
+  top: 50%;
+  right: 8%;
+
+  width: clamp(140px, 17vw, 230px);
+  height: auto;
+
+  transform: translateY(-50%);
+
+  object-fit: contain;
+  opacity: 0.09;
+
+  filter: grayscale(1) brightness(2);
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .saldo-premium .saldo-logo-oficial {
+    position: absolute;
+    top: 50%;
+    right: 8%;
+  
+    width: clamp(140px, 17vw, 230px);
+    height: auto;
+  
+    transform: translateY(-50%);
+  
+    object-fit: contain;
+    opacity: 0.12;
+  
+    pointer-events: none;
+  }
+}
+
+/* ==========================================
+   NEXUS FINANÇAS — HARMONIA VISUAL DO SALDO
+   ETAPA H.7.3-G.4
+========================================== */
+
+/* Logomarca oficial no canto superior direito */
+.saldo-premium .saldo-logo-oficial {
+  top: 18px;
+  right: 28px;
+
+  width: 100px;
+  height: auto;
+
+  transform: none;
+  opacity: 0.18;
+}
+
+/* Curva concentrada na parte inferior direita */
+.saldo-premium .saldo-curva {
+  right: -2%;
+  bottom: 0;
+
+  width: 54%;
+  height: 55%;
+
+  opacity: 0.20;
+}
+
+/* Barras decorativas abaixo da logomarca */
+.saldo-premium .saldo-barras {
+  right: 8%;
+  bottom: 18px;
+
+  height: 85px;
+  opacity: 0.13;
+}
+
+/* Adaptação para tablets */
+@media (max-width: 850px) {
+  .saldo-premium .saldo-logo-oficial {
+    top: 18px;
+    right: 20px;
+    width: 78px;
+    opacity: 0.14;
+  }
+
+  .saldo-premium .saldo-curva {
+    width: 58%;
+    height: 50%;
+  }
+}
+
+/* Adaptação para celulares */
+@media (max-width: 600px) {
+  .saldo-premium .saldo-logo-oficial {
+    top: 14px;
+    right: 14px;
+
+    width: 54px;
+    opacity: 0.12;
+  }
+
+  .saldo-premium .saldo-curva {
+    width: 65%;
+    height: 42%;
+    opacity: 0.10;
+  }
+
+  .saldo-premium .saldo-barras {
+    right: 5%;
+    bottom: 12px;
+
+    height: 65px;
+    opacity: 0.08;
+  }
+}
+
+/* ==========================================
+   NEXUS FINANÇAS — INDICADORES PREMIUM
+   ETAPA H.7.4-D
+========================================== */
+
+.card-financeiro.card-financeiro-premium {
+  position: relative;
+  overflow: hidden;
+
+  min-width: 0;
+  min-height: 130px;
+  padding: 20px 24px;
+
+  background: #ffffff;
+  border: 1px solid #e6edf3;
+  border-radius: 18px;
+
+  box-shadow: 0 4px 16px rgba(20, 35, 62, 0.045);
+
+  transition:
+    transform 250ms ease,
+    box-shadow 250ms ease,
+    border-color 250ms ease;
+}
+
+/* Linha superior de identificação */
+
+.card-financeiro-premium::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--card-cor);
+}
+
+/* Identidade visual de cada indicador */
+
+.card-financeiro-premium.receita {
+  --card-cor: #10b981;
+  --card-fundo-icone: #ecfdf5;
+}
+
+.card-financeiro-premium.despesa {
+  --card-cor: #e87987;
+  --card-fundo-icone: #fff1f2;
+}
+
+.card-financeiro-premium.resultado {
+  --card-cor: #365a87;
+  --card-fundo-icone: #eff6ff;
+}
+
+.card-financeiro-premium.neutro {
+  --card-cor: #365a87;
+  --card-fundo-icone: #eff6ff;
+}
+
+/* Organização interna */
+
+.card-financeiro-premium .card-premium-conteudo {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  min-width: 0;
+}
+
+/* Ícone */
+
+.card-financeiro-premium .card-premium-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+
+  color: var(--card-cor);
+  background: var(--card-fundo-icone);
+
+  border-radius: 15px;
+}
+
+/* Informações financeiras */
+
+.card-financeiro-premium .card-premium-informacoes {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  min-width: 0;
+}
+
+.card-financeiro-premium .card-premium-titulo {
+  margin-bottom: 10px;
+
+  color: #718096;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.card-financeiro-premium .card-premium-valor {
+  display: block;
+  margin: 0 0 10px;
+
+  color: #14233e;
+  font-size: clamp(22px, 2vw, 29px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.6px;
+
+  overflow-wrap: anywhere;
+}
+
+.card-financeiro-premium .card-premium-detalhe {
+  color: #8a97a8;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Interatividade discreta */
+
+.card-financeiro.card-financeiro-premium:hover {
+  transform: translateY(-3px);
+  border-color: var(--card-cor);
+
+  box-shadow: 0 10px 24px rgba(20, 35, 62, 0.09);
+}
+
+/* Responsividade */
+
+@media (max-width: 1100px) {
+  .card-financeiro.card-financeiro-premium {
+    padding: 22px 18px;
+  }
+
+  .card-financeiro-premium .card-premium-conteudo {
+    gap: 12px;
+  }
+
+  .card-financeiro-premium .card-premium-icone {
+    width: 46px;
+    height: 46px;
+  }
+
+  .card-financeiro-premium .card-premium-icone svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .card-financeiro.card-financeiro-premium {
+    min-height: 145px;
+    padding: 24px;
+  }
+
+  .card-financeiro-premium .card-premium-conteudo {
+    gap: 18px;
+  }
+
+  .card-financeiro-premium .card-premium-valor {
+    font-size: 28px;
+  }
+}
+
+/* Acessibilidade */
+
+@media (prefers-reduced-motion: reduce) {
+  .card-financeiro.card-financeiro-premium {
+    transition: none;
+  }
+}
+
+/* ==========================================
+   NEXUS FINANÇAS — RESPONSIVIDADE DOS CARDS
+   ETAPA H.7.4-G.4-D
+========================================== */
+
+/* TABLET — 2 CARDS + 1 CARD */
+
+@media (min-width: 601px) and (max-width: 1100px) {
+
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  /* Terceiro indicador ocupa a segunda linha */
+
+  .cards-grid > .card-financeiro:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+
+}
+
+/* CELULAR — 1 CARD POR LINHA */
+
+@media (max-width: 600px) {
+
+  .cards-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .cards-grid > .card-financeiro {
+    grid-column: auto;
+  }
+}
+
+/* =========================================
+   NEXUS FINANÇAS — MOVIMENTAÇÕES PREMIUM
+   ========================================= */
+
+   .item-transacao.item-transacao-premium {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    padding: 16px 18px;
+    margin-bottom: 8px;
+  
+    background: #ffffff;
+    border: 1px solid #e8edf3;
+    border-radius: 16px;
+  
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease,
+      box-shadow 0.3s ease,
+      transform 0.3s ease;
+  }
+  
+  .item-transacao.item-transacao-premium:hover {
+    background: #f0fdf7;
+    border-color: #b7efd8;
+    box-shadow: 0 5px 16px rgba(20, 35, 62, 0.05);
+    transform: translateY(-1px);
+  }
+  
+  .item-transacao-premium .item-icone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  
+    width: 48px;
+    height: 48px;
+  
+    border-radius: 14px;
+    font-size: 23px;
+    font-weight: 600;
+  }
+  
+  .item-transacao-premium .item-icone.receita {
+    background: #e5f8ef;
+    color: #059669;
+  }
+  
+  .item-transacao-premium .item-icone.despesa {
+    background: #fff0f2;
+    color: #e94b65;
+  }
+  
+  .item-transacao-premium .item-descricao {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .item-transacao-premium .item-descricao strong {
+    display: block;
+    color: #14233e;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+  
+  .item-transacao-premium .item-descricao small {
+    display: block;
+    margin-top: 5px;
+    color: #8190a6;
+  }
+  
+  .item-transacao-premium .item-valor-premium {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  
+    padding: 10px 15px;
+    border-radius: 999px;
+  
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  
+  .item-transacao-premium .item-valor-premium.receita {
+    background: #e5f8ef;
+    color: #008b5c;
+  }
+  
+  .item-transacao-premium .item-valor-premium.despesa {
+    background: #fff0f2;
+    color: #e11d48;
+  }
+  
+  /* Ajustes para telas pequenas */
+  @media (max-width: 600px) {
+    .item-transacao.item-transacao-premium {
+      gap: 10px;
+      padding: 12px 10px;
+      border-radius: 12px;
+    }
+  
+    .item-transacao-premium .item-icone {
+      width: 38px;
+      height: 38px;
+      font-size: 19px;
+      border-radius: 11px;
+    }
+  
+    .item-transacao-premium .item-descricao strong {
+      font-size: 13px;
+    }
+  
+    .item-transacao-premium .item-descricao small {
+      font-size: 11px;
+    }
+  
+    .item-transacao-premium .item-valor-premium {
+      padding: 7px 9px;
+      font-size: 12px;
+    }
+  }
+
+  /* NEXUS FINANÇAS — HOVER PREMIUM POR TIPO */
+
+.item-transacao-premium.receita:hover {
+  background-color: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.item-transacao-premium.despesa:hover {
+  background-color: #fff1f2;
+  border-color: #fecdd3;
+}
+
+/* Ícones com contraste durante o hover */
+
+.item-transacao-premium.receita:hover .item-icone {
+  background-color: #d1fae5;
+}
+
+.item-transacao-premium.despesa:hover .item-icone {
+  background-color: #ffe4e6;
+}
+
+
+/* =========================================
+   NEXUS FINANÇAS — ORÇAMENTO PREMIUM
+   ========================================= */
+
+   .resumo-orcamento-premium .resumo-premium-titulo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .resumo-orcamento-premium .resumo-premium-titulo h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  
+  .resumo-titulo-icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 11px;
+    background: #e8f9f1;
+    color: #059669;
+  }
+  
+  .resumo-orcamento-premium .resumo-percentual {
+    flex-shrink: 0;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #e8f9f1;
+    color: #047857;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  
+  .resumo-orcamento-premium .barra {
+    height: 10px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e8edf3;
+  }
+  
+  .resumo-orcamento-premium .barra > div {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #059669, #34d399);
+  }
+  
+  .resumo-premium-indicadores {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 18px;
+  }
+  
+  .resumo-premium-indicador {
+    min-width: 0;
+    padding: 13px 11px;
+    border: 1px solid #e8edf3;
+    border-radius: 12px;
+    background: #f8fafc;
+  }
+  
+  .resumo-indicador-legenda {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 10px;
+  }
+  
+  .resumo-indicador-legenda svg {
+    flex-shrink: 0;
+  }
+  
+  .resumo-indicador-legenda small {
+    color: #748399;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  
+  .resumo-premium-indicador > strong {
+    display: block;
+    font-size: clamp(13px, 1.25vw, 18px);
+    font-weight: 700;
+    white-space: nowrap;
+    letter-spacing: -0.4px;
+  }
+  
+  .resumo-premium-indicador.gasto svg,
+  .resumo-premium-indicador.gasto > strong {
+    color: #dc596a;
+  }
+  
+  .resumo-premium-indicador.disponivel svg,
+  .resumo-premium-indicador.disponivel > strong {
+    color: #059669;
+  }
+  
+  @media (max-width: 1100px) {
+    .resumo-orcamento-premium .resumo-premium-titulo {
+      flex-wrap: wrap;
+    }
+  
+    .resumo-premium-indicador > strong {
+      font-size: 15px;
+    }
+  }
+  
+  @media (max-width: 380px) {
+    .resumo-premium-indicadores {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Orçamento entre 80% e 99% */
+.resumo-orcamento-premium .barra > div.alerta:not(.excedido) {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+/* Orçamento atingido ou ultrapassado */
+.resumo-orcamento-premium .barra > div.excedido {
+  background: linear-gradient(90deg, #dc2626, #ef4444);
+}
+
+
+/* Barra de progresso — Premium Fintech */
+
+.resumo-orcamento-premium .barra > div {
+  background: linear-gradient(
+    90deg,
+    #059669 0%,
+    #34d399 100%
+  );
+}
+
+/* Atenção: 80% a 99% */
+.resumo-orcamento-premium .barra > div.alerta:not(.excedido) {
+  background: linear-gradient(
+    90deg,
+    #fbbf24 0%,
+    #f97316 100%
+  );
+}
+
+/* Limite atingido ou ultrapassado */
+.resumo-orcamento-premium .barra > div.excedido {
+  background: linear-gradient(
+    90deg,
+    #fb593c 0%,
+    #f94716 20%,
+    #ef4444 70%,
+    #dc2626f6 100%
+  );
+}
+
+
+/* Espaçamento entre indicadores e mensagem */
+.resumo-orcamento-premium .resumo-premium-indicadores {
+  margin-bottom: 18px;
+}
+
+/* Percentual de 80% a 99% */
+.resumo-orcamento-premium .resumo-percentual.alerta:not(.excedido) {
+  background: #fff3db;
+  color: #b45309;
+}
+
+/* Percentual a partir de 100% */
+.resumo-orcamento-premium .resumo-percentual.excedido {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+
+/* Nexus Finanças — título Gastos por categoria */
+
+.titulo-categorias-premium {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.icone-categorias-premium {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 11px;
+  background: #e8f9f1;
+  color: #059669;
+}
+
+/* NEXUS FINANÇAS — Hover padronizado */
+
+/* Estado normal das transações */
+.item-transacao-premium.receita,
+.item-transacao-premium.despesa {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* Receita — destaque verde */
+.item-transacao-premium.receita:hover {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+/* Despesa — destaque vermelho */
+.item-transacao-premium.despesa:hover {
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+
+/* Valor da despesa — mesmo formato do valor da receita */
+.item-transacao-premium .item-valor-premium.despesa {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: #ffe4e6;
+  color: #e11d48;
+  white-space: nowrap;
+}
+
+

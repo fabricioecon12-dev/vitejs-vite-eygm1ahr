@@ -36,7 +36,7 @@ const itens = [
       </div>
     </div>
 
-    <p class="menu-legenda">MENU PRINCIPAL</p>
+    <strong class="menu-legenda">MENU PRINCIPAL</strong>
 
     <nav class="nav-desktop" aria-label="Menu principal">
       <button

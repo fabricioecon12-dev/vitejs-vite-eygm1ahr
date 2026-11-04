@@ -1,5 +1,11 @@
 
 <script setup>
+import {
+  Target,
+  Receipt,
+  Banknote
+} from 'lucide-vue-next'
+
 defineProps({
   limite: Number,
   gasto: Number
@@ -20,40 +26,66 @@ function percentual(gasto, limite) {
 </script>
 
 <template>
-  <section class="painel resumo-orcamento">
-    <div class="secao-titulo">
-      <h2>Orçamento do mês</h2>
-      <strong>
-        {{ percentual(gasto, limite) }}% utilizado
-      </strong>
+  <section class="painel resumo-orcamento resumo-orcamento-premium">
+    <div class="secao-titulo resumo-premium-titulo">
+      <h2>
+        <span class="resumo-titulo-icone" aria-hidden="true">
+          <Target :size="20" :stroke-width="2" />
+        </span>
+        Orçamento do mês
+      </h2>
+
+      <strong
+  class="resumo-percentual"
+  :class="{
+    alerta: percentual(gasto, limite) >= 80,
+    excedido: percentual(gasto, limite) >= 100
+  }"
+>
+  {{ percentual(gasto, limite) }}% utilizado
+</strong>
     </div>
 
-    <div class="barra">
-  <div
-    class="transition-all duration-500 ease-in-out"
-    :class="{
-      alerta: percentual(gasto, limite) >= 80,
-      excedido: percentual(gasto, limite) >= 100
-    }"
-    :style="{
-      width:
-        Math.min(percentual(gasto, limite), 100) + '%'
-    }"
-  ></div>
-</div>
+    <div
+      class="barra"
+      role="progressbar"
+      :aria-valuenow="Math.min(percentual(gasto, limite), 100)"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-label="Utilização do orçamento mensal"
+    >
+      <div
+        class="transition-all duration-500 ease-in-out"
+        :class="{
+          alerta: percentual(gasto, limite) >= 80,
+          excedido: percentual(gasto, limite) >= 100
+        }"
+        :style="{
+          width: Math.min(percentual(gasto, limite), 100) + '%'
+        }"
+      ></div>
+    </div>
 
-    <div class="resumo-linha">
-      <span>
+    <div class="resumo-premium-indicadores">
+      <div class="resumo-premium-indicador gasto">
+        <div class="resumo-indicador-legenda">
+          <Receipt :size="19" :stroke-width="2" aria-hidden="true" />
+          <small>Gastos até agora</small>
+        </div>
+
         <strong>{{ moeda(gasto) }}</strong>
-        <small>Gastos até agora</small>
-      </span>
+      </div>
 
-      <span class="alinha-direita">
+      <div class="resumo-premium-indicador disponivel">
+        <div class="resumo-indicador-legenda">
+          <Banknote :size="19" :stroke-width="2" aria-hidden="true" />
+          <small>Disponível do limite</small>
+        </div>
+
         <strong>
           {{ moeda(Math.max(limite - gasto, 0)) }}
         </strong>
-        <small>Disponível</small>
-      </span>
+      </div>
     </div>
 
     <p v-if="!limite" class="nota">

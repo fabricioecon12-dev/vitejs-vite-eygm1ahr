@@ -2,6 +2,7 @@
 
 <script setup>
 import { ref, nextTick, watch } from 'vue'
+import { FilePlus2 } from 'lucide-vue-next'
 
 
 const emit = defineEmits(['adicionar'])
@@ -257,10 +258,18 @@ emit('adicionar', {
 
 <template>
   <section class="painel formulario">
+    
     <div class="secao-topo">
-      <h2>Nova transação</h2>
-      <p>Registre suas receitas e despesas</p>
+      <h2 class="titulo-categorias-premium">
+       <span class="icone-categorias-premium" aria-hidden="true">
+         <FilePlus2 :size="20" :stroke-width="2" />
+       </span>
+        Nova transação
+      </h2>
+
+       <p>Registre suas receitas e despesas</p>
     </div>
+
 
     <div class="tipo-seletor">
   <button
