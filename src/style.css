@@ -2665,3 +2665,187 @@ select:focus {
     }
   }
   
+/* NEXUS FINANÇAS — COMPARATIVO PREMIUM */
+
+.painel-comparacao-premium {
+  display: flex;
+  flex-direction: column;
+}
+
+.comparacao-premium {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  margin-top: 22px;
+}
+
+.comparacao-premium-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comparacao-premium-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.comparacao-premium-cabecalho strong {
+  color: #14233e;
+  font-size: 15px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.comparacao-premium-legenda {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.comparacao-premium-ponto {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.comparacao-premium-ponto.receita {
+  background: #10b981;
+}
+
+.comparacao-premium-ponto.despesa {
+  background: #f43f5e;
+}
+
+.comparacao-premium-barra {
+  width: 100%;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7edf2;
+}
+
+.comparacao-premium-preenchimento {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.3s ease;
+}
+
+.comparacao-premium-preenchimento.receita {
+  background: linear-gradient(90deg, #34d399, #059669);
+}
+
+.comparacao-premium-preenchimento.despesa {
+  background: linear-gradient(90deg, #fb7185, #e11d48);
+}
+
+.comparacao-premium-resultado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 26px;
+  padding: 18px;
+  border-radius: 12px;
+  background: #f0fdf7;
+  color: #065f46;
+}
+
+.comparacao-premium-resultado > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.comparacao-premium-resultado span {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.comparacao-premium-resultado strong {
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.comparacao-premium-percentual {
+  text-align: right;
+}
+
+.comparacao-premium-percentual span {
+  font-size: 11px;
+}
+
+.comparacao-premium-resultado.negativo {
+  background: #fff1f2;
+  color: #be123c;
+}
+
+@media (max-width: 600px) {
+  .comparacao-premium-cabecalho strong {
+    font-size: 13px;
+  }
+
+  .comparacao-premium-resultado {
+    flex-wrap: wrap;
+    padding: 15px;
+  }
+
+  .comparacao-premium-percentual {
+    text-align: left;
+  }
+}
+
+/* NEXUS FINANÇAS — CATEGORIAS DO DASHBOARD */
+
+.painel-grid .categoria-linha-dashboard-premium {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 14px 0;
+  border-bottom: 1px solid #edf1f5;
+}
+
+.painel-grid .categoria-linha-dashboard-premium:last-child {
+  border-bottom: none;
+}
+
+.painel-grid .categoria-dashboard-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  width: 100%;
+}
+
+.painel-grid .categoria-dashboard-cabecalho span {
+  width: auto;
+  min-width: 0;
+  flex: 1;
+  font-weight: 600;
+}
+
+.painel-grid .categoria-dashboard-cabecalho strong {
+  min-width: 0;
+  flex-shrink: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.painel-grid .categoria-linha-dashboard-premium .barra.pequena {
+  display: block;
+  width: 100%;
+  height: 9px;
+  flex: none;
+  min-width: 0;
+}
+
+

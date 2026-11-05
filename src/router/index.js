@@ -1,4 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import DashboardPage from '../pages/DashboardPage.vue'
+import TransacoesPage from '../pages/TransacoesPage.vue'
+import OrcamentoPage from '../pages/OrcamentoPage.vue'
+import RelatoriosPage from '../pages/RelatoriosPage.vue'
 
 const PaginaTemporaria = {
   template: '<div></div>'
@@ -8,22 +12,23 @@ const routes = [
   {
     path: '/',
     name: 'inicio',
-    component: PaginaTemporaria
+    component: DashboardPage
   },
   {
     path: '/transacoes',
     name: 'transacoes',
-    component: PaginaTemporaria
+    component: TransacoesPage
   },
+
   {
     path: '/orcamento',
     name: 'orcamento',
-    component: PaginaTemporaria
+    component: OrcamentoPage
   },
   {
     path: '/relatorios',
     name: 'relatorios',
-    component: PaginaTemporaria
+    component: RelatoriosPage
   }
 ]
 
