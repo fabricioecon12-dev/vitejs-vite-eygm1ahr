@@ -1,48 +1,19 @@
 <script setup>
 import { computed, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChartBar, History, SlidersHorizontal } from 'lucide-vue-next'
 
 import MenuLateral from './components/MenuLateral.vue'
 import Cabecalho from './components/Cabecalho.vue'
-import CardFinanceiro from './components/CardFinanceiro.vue'
-import FormularioTransacao from './components/FormularioTransacao.vue'
-import ItemTransacao from './components/ItemTransacao.vue'
-import ListaTransacoes from './components/ListaTransacoes.vue'
-import ResumoOrcamento from './components/ResumoOrcamento.vue'
 import Rodape from './components/Rodape.vue'
 
 import { useFinancas } from './composables/useFinancas.js'
 
 const {
-  mesSelecionado,
-  saldoInicial,
-  transacoes,
-  limites,
-  limiteEditando,
   aviso,
-  armazenamentoProtegido,
-  moeda,
-  mesChave,
   nomeMes,
   mudarMes,
-  dataMes,
-  doMes,
-  somar,
-  receitas,
-  despesas,
-  resultado,
-  saldo,
-  limiteAtual,
-  categorias,
-  maxCategoria,
-  adicionar,
-  excluir,
   limpar,
-  salvarLimite,
-  demonstracao,
-  converterLimiteMonetario,
-  formatarLimiteMonetario
+  demonstracao
 } = useFinancas()
 
 const route = useRoute()
@@ -77,10 +48,7 @@ async function navegarPara(destino) {
 
 <template>
   <div class="app-layout">
-    <MenuLateral
-      :pagina="pagina"
-      @navegar="navegarPara($event)"
-    />
+    <MenuLateral :pagina="pagina" />
 
     <div class="area-principal">
       <Cabecalho
@@ -110,29 +78,10 @@ async function navegarPara(destino) {
           </button>
         </p>
 
-        <!-- VISÃO GERAL -->
-        <template v-if="pagina === 'inicio'">
-          <RouterView />
-
-        </template>
-
-        <!-- TRANSAÇÕES -->
-        <template v-else-if="pagina === 'transacoes'">
-          <RouterView />
-        </template>
-
-        <!-- ORÇAMENTO -->
-        <template v-else-if="pagina === 'orcamento'">
-          <RouterView />
-        </template><!-- RELATÓRIOS -->
-
-        <!-- RELATÓRIOS -->
-        <template v-else-if="pagina === 'relatorios'">
-          <RouterView />
-        </template>
-      </main>
+           <!-- CONTEÚDO DAS PÁGINAS GERENCIADO PELO VUE ROUTER -->
+           <RouterView />
+         </main>
       
-
       <!-- MODO DEMONSTRATIVO -->
       <section class="ferramentas-demo">
         <div>

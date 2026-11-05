@@ -242,6 +242,9 @@ it('protege dados corrompidos sem sobrescrever o armazenamento', async () => {
 
   describe('Nexus Finanças — inicialização protegida', () => {
     it('inicializa armazenamento vazio com dados demonstrativos', async () => {
+      const confirmar = vi.fn(() => true)
+      vi.stubGlobal('confirm', confirmar)
+    
       const getItem = vi.fn(() => null)
       const setItem = vi.fn()
   
@@ -256,6 +259,7 @@ it('protege dados corrompidos sem sobrescrever o armazenamento', async () => {
         await nextTick()
   
         expect(getItem).toHaveBeenCalledTimes(1)
+        expect(confirmar).not.toHaveBeenCalled()
         expect(financas.armazenamentoProtegido.value).toBe(false)
         expect(financas.transacoes.value).toHaveLength(10)
         expect(setItem).toHaveBeenCalledTimes(1)
@@ -613,12 +617,45 @@ it('preserva o orçamento mensal quando a gravação falha', async () => {
     vi.unstubAllGlobals()
   }
 })
-it('restaura exemplos com uma única gravação', async () => {
+it('preserva os dados quando o usuário cancela a restauração', async () => {
+  const confirmar = vi.fn(() => false)
+  vi.stubGlobal('confirm', confirmar)
+
   try {
+    const { financas, setItem } = await prepararFinancas()
+
+    const transacoesAntes = JSON.parse(
+      JSON.stringify(financas.transacoes.value)
+    )
+    const limitesAntes = { ...financas.limites.value }
+    const saldoAntes = financas.saldoInicial.value
+    const mesAntes = financas.mesSelecionado.value.getTime()
+    const limiteEditandoAntes = financas.limiteEditando.value
+
+    financas.demonstracao()
+
+    expect(confirmar).toHaveBeenCalledTimes(1)
+    expect(setItem).not.toHaveBeenCalled()
+
+    expect(financas.transacoes.value).toEqual(transacoesAntes)
+    expect(financas.limites.value).toEqual(limitesAntes)
+    expect(financas.saldoInicial.value).toBe(saldoAntes)
+    expect(financas.mesSelecionado.value.getTime()).toBe(mesAntes)
+    expect(financas.limiteEditando.value).toBe(limiteEditandoAntes)
+    expect(financas.armazenamentoProtegido.value).toBe(false)
+  } finally {
+    vi.unstubAllGlobals()
+  }
+})
+it('restaura exemplos com uma única gravação', async () => {
+    const confirmar = vi.fn(() => true)
+    vi.stubGlobal('confirm', confirmar)
+    try {
     const { financas, setItem } = await prepararFinancas()
 
     financas.demonstracao()
 
+    expect(confirmar).toHaveBeenCalledTimes(1)
     expect(setItem).toHaveBeenCalledTimes(1)
     expect(financas.transacoes.value).toHaveLength(10)
     expect(financas.saldoInicial.value).toBe(5380)
@@ -640,6 +677,9 @@ it('restaura exemplos com uma única gravação', async () => {
 })
 
 it('preserva os dados quando a restauração falha', async () => {
+  const confirmar = vi.fn(() => true)
+  vi.stubGlobal('confirm', confirmar)
+
   const consoleError = vi.spyOn(console, 'error')
     .mockImplementation(() => {})
 
@@ -656,6 +696,7 @@ it('preserva os dados quando a restauração falha', async () => {
 
     financas.demonstracao()
 
+    expect(confirmar).toHaveBeenCalledTimes(1)
     expect(setItem).toHaveBeenCalledTimes(1)
     expect(financas.transacoes.value).toEqual(transacoesAntes)
     expect(financas.limites.value).toEqual(limitesAntes)

@@ -154,7 +154,7 @@ function inicializarFinancas() {
         armazenamentoProtegido.value = false
         bloqueioPersistencia = false
       
-        demonstracao()
+        demonstracao({ confirmar: false })
       
         if (!armazenamentoProtegido.value) {
           armazenamentoInicializado = true
@@ -443,10 +443,20 @@ function mudarMes(direcao) {
   
   
 // DADOS DEMONSTRATIVOS
-function demonstracao() {
+function demonstracao({ confirmar = true } = {}) {
   if (armazenamentoProtegido.value) {
     aviso.value =
       'Restauração bloqueada: os dados armazenados precisam ser verificados.'
+    return
+  }
+
+  if (
+    confirmar &&
+    !confirm(
+      'Deseja realmente restaurar os dados demonstrativos? ' +
+      'As transações e os limites financeiros atuais serão substituídos.'
+    )
+  ) {
     return
   }
 
