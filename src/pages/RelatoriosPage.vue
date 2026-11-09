@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { ChartBar, TrendingUp } from 'lucide-vue-next'
 import CardFinanceiro from '../components/CardFinanceiro.vue'
 import { useFinancas } from '../composables/useFinancas.js'
-
+import EstadoVazio from '../components/EstadoVazio.vue'
 
 const {
   moeda,
@@ -185,12 +185,11 @@ const situacaoFinanceira = computed(() => {
   </p>
 
 
-              <div
-                v-if="!categorias().length"
-                class="estado-vazio"
-              >
-                Nenhuma despesa no período.
-              </div>
+               <EstadoVazio
+               v-if="!categorias().length"
+                icone="chatbar"
+                mensagem="Nenhuma despesa neste mês."
+               />
 
               <div
                 v-for="categoria in categorias()"

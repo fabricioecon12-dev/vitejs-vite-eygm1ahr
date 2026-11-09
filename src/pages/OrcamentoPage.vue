@@ -3,6 +3,7 @@ import { SlidersHorizontal, ChartBar } from 'lucide-vue-next'
 import CardFinanceiro from '../components/CardFinanceiro.vue'
 import ResumoOrcamento from '../components/ResumoOrcamento.vue'
 import { useFinancas } from '../composables/useFinancas.js'
+import EstadoVazio from '../components/EstadoVazio.vue'
 
 
 const {
@@ -104,12 +105,11 @@ const {
                 Acompanhe a distribuição das despesas do mês.
                 </p>
 
-              <div
-                v-if="!categorias().length"
-                class="estado-vazio"
-              >
-                Nenhuma despesa neste mês.
-              </div>
+                <EstadoVazio
+                 v-if="!categorias().length"
+                  icone="ChartBar"
+                 mensagem="Nenhuma despesa neste mês."
+                 />
 
               <div
                 v-for="categoria in categorias()"

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import CardFinanceiro from '../components/CardFinanceiro.vue'
 import ItemTransacao from '../components/ItemTransacao.vue'
 import ResumoOrcamento from '../components/ResumoOrcamento.vue'
+import EstadoVazio from '../components/EstadoVazio.vue'
 
 import { useFinancas } from '../composables/useFinancas.js'
 
@@ -149,9 +150,11 @@ function navegarPara(destino) {
                 />
               </template>
 
-              <div v-else class="estado-vazio">
-                Nenhuma movimentação neste mês.
-              </div>
+              <EstadoVazio
+                v-else
+                 icone="history"
+                mensagem="Nenhuma movimentação neste mês."
+                />
             </section>
 
             <div class="coluna-paineis">
@@ -179,12 +182,11 @@ function navegarPara(destino) {
                 </div>
 
 
-                <div
-                  v-if="!categorias().length"
-                  class="estado-vazio"
-                >
-                  Sem despesas no período.
-                </div>
+                <EstadoVazio
+                 v-if="!categorias().length"
+                  icone="ChartBar"
+                  mensagem="Sem despesas no período."
+                 />
 
                 
 <div

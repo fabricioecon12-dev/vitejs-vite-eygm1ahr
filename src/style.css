@@ -354,6 +354,7 @@ h2 {
 /* PAINÉIS */
 
 .painel-grid {
+  align-items: start;
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 20px;
@@ -1186,7 +1187,7 @@ select:focus {
 
 /* Área de rolagem */
 .lista-painel .movimentacoes-rolagem {
-  max-height: 500px;
+  max-height: 530px;
   overflow-y: auto;
   overflow-x: hidden;
 
@@ -2077,10 +2078,9 @@ select:focus {
   }
   
   .item-transacao.item-transacao-premium:hover {
-    background: #f0fdf7;
-    border-color: #b7efd8;
+    background: #ffffff;
     box-shadow: 0 5px 16px rgba(20, 35, 62, 0.05);
-    transform: translateY(-1px);
+    transform: none;
   }
   
   .item-transacao-premium .item-icone {
@@ -2098,12 +2098,12 @@ select:focus {
   }
   
   .item-transacao-premium .item-icone.receita {
-    background: #e5f8ef;
+    background:transparent;
     color: #059669;
   }
   
   .item-transacao-premium .item-icone.despesa {
-    background: #fff0f2;
+    background:transparent;
     color: #e94b65;
   }
   
@@ -2132,19 +2132,25 @@ select:focus {
     flex-shrink: 0;
   
     padding: 10px 15px;
-    border-radius: 999px;
+    border-radius: 0;
   
     font-weight: 700;
     white-space: nowrap;
   }
   
   .item-transacao-premium .item-valor-premium.receita {
-    background: #e5f8ef;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
     color: #008b5c;
   }
   
   .item-transacao-premium .item-valor-premium.despesa {
-    background: #fff0f2;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
     color: #e11d48;
   }
   
@@ -2179,26 +2185,38 @@ select:focus {
 
   /* NEXUS FINANÇAS — HOVER PREMIUM POR TIPO */
 
-.item-transacao-premium.receita:hover {
-  background-color: #ecfdf5;
-  border-color: #a7f3d0;
-}
+  .item-transacao.item-transacao-premium.receita:hover {
+    background-color: #f5fdf9;
+    border-color: #a7f3d0;
+    transform: none;
+  }
 
-.item-transacao-premium.despesa:hover {
-  background-color: #fff1f2;
-  border-color: #fecdd3;
-}
+  .item-transacao.item-transacao-premium.despesa:hover {
+    background-color: #fff8f9;
+    border-color: #fecdd3;
+    transform: none;
+  }
 
 /* Ícones com contraste durante o hover */
 
-.item-transacao-premium.receita:hover .item-icone {
-  background-color: #d1fae5;
-}
-
+.item-transacao-premium.receita:hover .item-icone,
 .item-transacao-premium.despesa:hover .item-icone {
-  background-color: #ffe4e6;
+  background-color: transparent;
+}/* Categorias acompanham o destaque dos ícones no hover */
+
+/* Etiquetas com cores fixas, inclusive durante o hover */
+
+.item-transacao-premium.receita .item-categoria,
+.item-transacao-premium.receita:hover .item-categoria {
+  background-color: #ecfdf5;
+  color: #047857;
 }
 
+.item-transacao-premium.despesa .item-categoria,
+.item-transacao-premium.despesa:hover .item-categoria {
+  background-color: #fff1f2;
+  color: #e21919df;
+}
 
 /* =========================================
    NEXUS FINANÇAS — ORÇAMENTO PREMIUM
@@ -2413,30 +2431,6 @@ select:focus {
     background-color 0.3s ease,
     border-color 0.3s ease,
     box-shadow 0.3s ease;
-}
-
-/* Receita — destaque verde */
-.item-transacao-premium.receita:hover {
-  background: #ecfdf5;
-  border-color: #a7f3d0;
-}
-
-/* Despesa — destaque vermelho */
-.item-transacao-premium.despesa:hover {
-  background: #fff1f2;
-  border-color: #fecdd3;
-}
-
-/* Valor da despesa — mesmo formato do valor da receita */
-.item-transacao-premium .item-valor-premium.despesa {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 9px 16px;
-  border-radius: 999px;
-  background: #ffe4e6;
-  color: #e11d48;
-  white-space: nowrap;
 }
 
 /* ==========================================
@@ -3076,5 +3070,177 @@ select:focus {
   font-weight: 700;
 }
 
+/* ==========================================
+   NEXUS FINANÇAS — CORREÇÃO RESPONSIVA
+   DOS CARTÕES DE MOVIMENTAÇÕES
+   ETAPA 16.44-Q.2
+========================================== */
+
+.lista-painel .item-transacao-premium {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.lista-painel .item-transacao-premium .item-descricao {
+  min-width: 0;
+}
+
+.lista-painel .item-transacao-premium .item-descricao strong {
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+/* Agrupamento dos botões de ação */
+.lista-painel .item-transacao-premium .item-acoes {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+.lista-painel .item-transacao-premium .btn-editar,
+.lista-painel .item-transacao-premium .btn-excluir {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+/* Botão Editar — identidade Premium Fintech */
+.lista-painel .item-transacao-premium .btn-editar {
+    background-color: #ecfdf5;
+    color: #059669;
+    border: 1px solid #d1fae5;
+    border-radius: 10px;
+    cursor: pointer;
+  
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+  
+  .lista-painel .item-transacao-premium .btn-editar:hover {
+    background-color: #d1fae5;
+    border-color: #a7f3d0;
+    color: #047857;
+    transform: translateY(-2px);
+  }
+  
+  .lista-painel .item-transacao-premium .btn-editar:focus-visible {
+    outline: 2px solid #059669;
+    outline-offset: 3px;
+  }
+  
+/* Botão Excluir — efeito Premium Fintech */
+.lista-painel .item-transacao-premium .btn-excluir {
+    background-color: #fff1f2;
+    color: #f43f5e;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+  
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+  
+  .lista-painel .item-transacao-premium .btn-excluir:hover {
+    background-color: #ffe4e6;
+    border-color: #fecdd3;
+    color: #e11d48;
+    transform: translateY(-2px);
+  }
+  
+  .lista-painel .item-transacao-premium .btn-excluir:focus-visible {
+    outline: 2px solid #f43f5e;
+    outline-offset: 3px;
+  }
+  
+/* Reorganização quando o painel fica estreito */
+@container (max-width: 620px) {
+  .lista-painel .item-transacao-premium {
+    grid-template-columns: 48px minmax(0, 1fr) 38px 38px;
+    gap: 10px;
+  }
+
+  .lista-painel .item-transacao-premium .item-icone {
+    grid-column: 1;
+    grid-row: 1 / 3;
+  }
+
+  .lista-painel .item-transacao-premium .item-descricao {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+
+  .lista-painel .item-transacao-premium .item-valor-premium {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: start;
+  }
+
+  .lista-painel .item-transacao-premium .btn-editar {
+    grid-column: 3;
+    grid-row: 1 / 3;
+  }
+
+  .lista-painel .item-transacao-premium .btn-excluir {
+    grid-column: 4;
+    grid-row: 1 / 3;
+  }
+}
+
+.lista-painel {
+  container-type: inline-size;
+}
+
+/* Data e categoria das movimentações */
+
+.item-transacao-premium .item-metadados {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin-top: 6px;
+  }
+  
+  .item-transacao-premium .item-data {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+  
+  .item-transacao-premium .item-categoria {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #047857;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+  
+  .item-transacao-premium.despesa .item-categoria {
+    background: #fff1f2;
+    color: #e21919df;
+  }
+  
   
 
+  

@@ -3,12 +3,13 @@
 import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import ItemTransacao from './ItemTransacao.vue'
 import { ArrowLeftRight } from 'lucide-vue-next'
+import EstadoVazio from './EstadoVazio.vue'
 
 const props = defineProps({
   transacoes: Array
 })
 
-const emit = defineEmits(['excluir'])
+const emit = defineEmits(['excluir', 'editar'])
 
 const busca = ref('')
 const filtro = ref('todos')
@@ -139,20 +140,24 @@ onUnmounted(() => {
     >
 
 <div v-if="filtrar(transacoes).length">
-  <ItemTransacao
-    v-for="item in filtrar(transacoes)"
-    :key="item.id"
-    :transacao="item"
-    :excluir="true"
-    @excluir="emit('excluir', $event)"
-  />
+  
+<ItemTransacao
+  v-for="item in filtrar(transacoes)"
+  :key="item.id"
+  :transacao="item"
+  :excluir="true"
+  @excluir="emit('excluir', $event)"
+  @editar="emit('editar', $event)"
+/>
+
 </div>
 
-<div v-else class="estado-vazio">
-  <span>▤</span>
-  <strong>Nenhuma transação encontrada</strong>
-  <p>Cadastre uma movimentação ou altere os filtros.</p>
-</div>
+<EstadoVazio
+  v-else
+  icone="receipt"
+  titulo="Nenhuma transação encontrada"
+  mensagem="Cadastre uma movimentação ou altere os filtros."
+/>
 
 </div>
     <!-- Fim da área de rolagem -->

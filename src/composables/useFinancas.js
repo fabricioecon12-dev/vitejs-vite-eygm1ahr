@@ -53,7 +53,18 @@ function dataArmazenadaValida(data) {
       dataArmazenadaValida(item.data)
     )
   }
-
+// Valida as listas de categorias armazenadas.
+function categoriasArmazenadasValidas(lista) {
+  return (
+    Array.isArray(lista) &&
+    lista.every(
+      nome =>
+        typeof nome === 'string' &&
+        nome.trim().length > 0 &&
+        nome.length <= 40
+    )
+  )
+}
 // Verifica se os identificadores das transações são únicos.
 function identificadoresUnicos(transacoesArmazenadas) {
     if (!Array.isArray(transacoesArmazenadas)) {
@@ -103,6 +114,31 @@ const mesSelecionado = ref(
 const saldoInicial = ref(5380)
 const transacoes = ref([])
 const limites = ref({})
+const categoriasDespesa = ref([
+  'Alimentação',
+  'Moradia',
+  'Transporte',
+  'Saúde',
+  'Lazer',
+  'Outros'
+])
+
+const categoriasReceita = ref([
+  'Salário',
+  'Serviços',
+  'Investimentos',
+  'Vendas',
+  'Freelance',
+  'Aluguéis',
+  'Comissões',
+  'Bonificações',
+  'Aposentadoria',
+  'Pensão',
+  'Reembolsos',
+  'Presentes e doações',
+  'Restituições',
+  'Outros'
+])
 const limiteEditando = ref('4.000,00')
 const aviso = ref('')
 // Controla o próximo identificador disponível para novas transações.
@@ -195,6 +231,25 @@ function carregarDadosLocais() {
       transacoes.value = dados.transacoes
       limites.value = dados.limites
       saldoInicial.value = dados.saldoInicial
+      // Recupera categorias personalizadas, mantendo
+// compatibilidade com dados salvos anteriormente.
+if (categoriasArmazenadasValidas(dados.categoriasDespesa)) {
+  categoriasDespesa.value = [
+    ...new Set([
+      ...categoriasDespesa.value,
+      ...dados.categoriasDespesa
+    ])
+  ]
+}
+
+if (categoriasArmazenadasValidas(dados.categoriasReceita)) {
+  categoriasReceita.value = [
+    ...new Set([
+      ...categoriasReceita.value,
+      ...dados.categoriasReceita
+    ])
+  ]
+}
   
       // Evita reutilizar identificadores de transações.
       const maiorId = transacoes.value.reduce(
@@ -232,7 +287,9 @@ function salvarDadosLocais() {
         transacoes: transacoes.value,
         limites: limites.value,
         saldoInicial: saldoInicial.value,
-        proximoId
+        proximoId,
+        categoriasDespesa: categoriasDespesa.value,
+        categoriasReceita: categoriasReceita.value
       }
   
       localStorage.setItem(
@@ -272,7 +329,12 @@ function persistirOperacaoFinanceira(novosDados) {
       transacoes: novosDados.transacoes,
       limites: novosDados.limites,
       saldoInicial: novosDados.saldoInicial,
-      proximoId: novosDados.proximoId
+      proximoId: novosDados.proximoId,
+    
+      // Preserva as categorias cadastradas
+      // durante as operações financeiras.
+      categoriasDespesa: categoriasDespesa.value,
+      categoriasReceita: categoriasReceita.value
     }
 
     localStorage.setItem(
@@ -297,7 +359,73 @@ function persistirOperacaoFinanceira(novosDados) {
     return false
   }
 }
+// Cadastra uma categoria com persistência protegida.
+function adicionarCategoria(nome, tipo) {
+  if (bloqueioPersistencia || armazenamentoProtegido.value) {
+    aviso.value = 'Cadastro bloqueado: armazenamento protegido.'
+    return false
+  }
 
+  const nomeFormatado = String(nome).trim()
+
+  if (
+    !nomeFormatado ||
+    nomeFormatado.length > 40 ||
+    !['receita', 'despesa'].includes(tipo)
+  ) {
+    return false
+  }
+
+  const lista = tipo === 'receita'
+    ? categoriasReceita
+    : categoriasDespesa
+
+  const jaExiste = lista.value.some(
+    item => item.toLowerCase() === nomeFormatado.toLowerCase()
+  )
+
+  if (jaExiste) {
+    return false
+  }
+
+  const novasCategorias = [...lista.value, nomeFormatado]
+
+  const novosDados = {
+    transacoes: transacoes.value,
+    limites: limites.value,
+    saldoInicial: saldoInicial.value,
+    proximoId,
+    categoriasDespesa: tipo === 'despesa'
+      ? novasCategorias
+      : categoriasDespesa.value,
+    categoriasReceita: tipo === 'receita'
+      ? novasCategorias
+      : categoriasReceita.value
+  }
+
+  try {
+    localStorage.setItem(
+      CHAVE_ARMAZENAMENTO,
+      JSON.stringify(novosDados)
+    )
+  } catch (erro) {
+    console.error('Erro ao salvar categoria:', erro)
+
+    bloqueioPersistencia = true
+    armazenamentoProtegido.value = true
+
+    aviso.value =
+      'Não foi possível salvar a categoria. ' +
+      'Novas alterações foram bloqueadas para proteger os dados.'
+
+    return false
+  }
+
+  lista.value = novasCategorias
+  aviso.value = 'Categoria cadastrada com sucesso!'
+
+  return true
+}
 
 function executarOperacaoFinanceira(novosDados, mensagem) {
   if (!persistirOperacaoFinanceira(novosDados)) {
@@ -400,12 +528,15 @@ function mudarMes(direcao) {
 
       return {
       // Estados reativos
-      mesSelecionado,
-      saldoInicial,
-      transacoes,
-      limites,
-      limiteEditando,
-      aviso,
+     // Estados reativos
+        mesSelecionado,
+        saldoInicial,
+        transacoes,
+        limites,
+        categoriasDespesa,
+        categoriasReceita,
+        limiteEditando,
+        aviso,
       // Inicialização e proteção dos dados
       inicializarFinancas,
       armazenamentoProtegido,
@@ -430,6 +561,8 @@ function mudarMes(direcao) {
   
       // Ações financeiras
       adicionar,
+      adicionarCategoria,
+      editar,
       excluir,
       limpar,
       salvarLimite,
@@ -641,12 +774,77 @@ function adicionar(transacao) {
   )
 
   if (!sucesso) {
-    return
+    return false
   }
-
+  
   mesSelecionado.value = new Date(ano, mes - 1, 1)
   limiteEditando.value = String(limiteAtual())
+  
+  return true
+  }
+
+/**
+ * Atualiza uma transação existente com persistência protegida.
+ * Mantém o identificador original e não duplica lançamentos.
+ */
+function editar(id, dadosAtualizados) {
+  if (armazenamentoProtegido.value) {
+    aviso.value =
+      'Edição bloqueada: os dados armazenados precisam ser verificados.'
+    return false
+  }
+
+  const indice = transacoes.value.findIndex(
+    item => item.id === id
+  )
+
+  if (indice === -1) {
+    aviso.value = 'Transação não encontrada.'
+    return false
+  }
+
+  const transacaoEditada = {
+    id,
+    descricao: dadosAtualizados?.descricao,
+    valor: dadosAtualizados?.valor,
+    tipo: dadosAtualizados?.tipo,
+    categoria: dadosAtualizados?.categoria,
+    data: dadosAtualizados?.data
+  }
+
+  if (!transacaoArmazenadaValida(transacaoEditada)) {
+    aviso.value =
+      'Dados inválidos. A transação original foi preservada.'
+    return false
+  }
+
+  const novasTransacoes = transacoes.value.map(
+    item => item.id === id ? transacaoEditada : item
+  )
+
+  const novosDados = {
+    transacoes: novasTransacoes,
+    limites: limites.value,
+    saldoInicial: saldoInicial.value,
+    proximoId
+  }
+
+  const sucesso = executarOperacaoFinanceira(
+    novosDados,
+    'Transação atualizada com sucesso!'
+  )
+
+  if (!sucesso) return false
+
+  const [ano, mes] = transacaoEditada.data
+    .split('-')
+    .map(Number)
+
+  mesSelecionado.value = new Date(ano, mes - 1, 1)
+
+  return true
 }
+
   
 // Exclui uma transação após confirmação do usuário.
 

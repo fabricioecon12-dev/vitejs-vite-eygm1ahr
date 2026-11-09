@@ -1,11 +1,21 @@
-
-
 <script setup>
 import { ref, nextTick, watch } from 'vue'
 import { FilePlus2 } from 'lucide-vue-next'
+import { useFinancas } from '../composables/useFinancas.js'
 
 
-const emit = defineEmits(['adicionar'])
+const props = defineProps({
+  transacaoEdicao: {
+    type: Object,
+    default: null
+  }
+})
+
+const emit = defineEmits([
+  'adicionar',
+  'salvar-edicao',
+  'cancelar-edicao'
+])
 const inputNovaCategoria = ref(null)
 
 // Obtém a data local no formato YYYY-MM-DD
@@ -25,6 +35,67 @@ const valor = ref('')
 const data = ref(obterDataLocal())
 const categoria = ref('Alimentação')
 const erro = ref('')
+
+watch(
+  () => props.transacaoEdicao,
+  (transacao) => {
+    
+if (!transacao) {
+  tipo.value = 'despesa'
+  descricao.value = ''
+  valor.value = ''
+  data.value = obterDataLocal()
+  categoria.value = 'Alimentação'
+
+  mostrarNovaCategoria.value = false
+  novaCategoria.value = ''
+  erroCategoria.value = ''
+  erro.value = ''
+
+  errosCampos.value = {
+    descricao: '',
+    valor: '',
+    data: '',
+    categoria: ''
+  }
+
+  return
+}
+
+
+    tipo.value = transacao.tipo
+    descricao.value = transacao.descricao
+
+    valor.value = Number(transacao.valor).toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })
+
+    data.value = transacao.data
+    categoria.value = transacao.categoria
+
+    const lista = tipo.value === 'receita'
+      ? categoriasReceita.value
+      : categoriasDespesa.value
+
+    if (!lista.includes(transacao.categoria)) {
+      lista.push(transacao.categoria)
+    }
+
+    mostrarNovaCategoria.value = false
+    novaCategoria.value = ''
+    erroCategoria.value = ''
+    erro.value = ''
+
+    errosCampos.value = {
+      descricao: '',
+      valor: '',
+      data: '',
+      categoria: ''
+    }
+  }
+)
+
 // Converte o valor monetário brasileiro para número
 function converterValor(valorInformado) {
   const texto = String(valorInformado).trim()
@@ -65,23 +136,12 @@ const errosCampos = ref({
   categoria: ''
 })
 
-// Categorias originais
-const categoriasDespesa = ref([
-  'Alimentação',
-  'Moradia',
-  'Transporte',
-  'Saúde',
-  'Lazer',
-  'Outros'
-])
-
-const categoriasReceita = ref([
-  'Salário',
-  'Serviços',
-  'Investimentos',
-  'Outros'
-])
-
+// Categorias compartilhadas com o estado financeiro
+const {
+  categoriasDespesa,
+  categoriasReceita,
+  adicionarCategoria
+} = useFinancas()
 // Controle do cadastro de novas categorias
 const mostrarNovaCategoria = ref(false)
 watch(mostrarNovaCategoria, async (mostrar) => {
@@ -152,10 +212,17 @@ function cadastrarCategoria() {
     return
   }
 
-  lista.push(nome)
+  // Salva a categoria antes de atualizar o formulário
+const sucesso = adicionarCategoria(nome, tipo.value)
 
-  // Seleciona automaticamente a nova categoria
-  categoria.value = nome
+if (!sucesso) {
+  erroCategoria.value =
+    'Não foi possível salvar a categoria. Verifique o armazenamento.'
+  return
+}
+
+// Seleciona automaticamente a categoria cadastrada
+categoria.value = nome
 
   mostrarNovaCategoria.value = false
   novaCategoria.value = ''
@@ -229,6 +296,28 @@ function validarCampos() {
   return !Object.values(errosCampos.value).some(Boolean)
 }
 
+function cancelarEdicao() {
+  tipo.value = 'despesa'
+  descricao.value = ''
+  valor.value = ''
+  data.value = obterDataLocal()
+  categoria.value = 'Alimentação'
+
+  mostrarNovaCategoria.value = false
+  novaCategoria.value = ''
+  erroCategoria.value = ''
+  erro.value = ''
+
+  errosCampos.value = {
+    descricao: '',
+    valor: '',
+    data: '',
+    categoria: ''
+  }
+
+  emit('cancelar-edicao')
+}
+
 function cadastrar() {
   if (mostrarNovaCategoria.value) {
     erro.value =
@@ -242,17 +331,29 @@ if (!validarCampos()) {
   return
 }
 
-emit('adicionar', {
+
+const dadosTransacao = {
   descricao: descricao.value.trim(),
   valor: converterValor(valor.value),
   data: data.value,
   categoria: categoria.value,
   tipo: tipo.value
-})
+}
 
-  descricao.value = ''
-  valor.value = ''
-  erro.value = ''
+if (props.transacaoEdicao) {
+  emit('salvar-edicao', {
+    id: props.transacaoEdicao.id,
+    dados: dadosTransacao
+  })
+  return
+}
+
+emit('adicionar', dadosTransacao)
+
+descricao.value = ''
+valor.value = ''
+erro.value = ''
+
 }
 </script>
 
@@ -468,12 +569,28 @@ emit('adicionar', {
         {{ erro }}
       </p>
 
-      <button
+      
+<button
   class="btn btn-primary botao-cheio rounded-xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
   type="submit"
+  
 >
-  ＋ Adicionar transação
+  {{ props.transacaoEdicao
+    ? 'Salvar alterações'
+    : '＋ Adicionar transação'
+  }}
 </button>
+
+<button
+  v-if="props.transacaoEdicao"
+  type="button"
+  class="btn btn-outline botao-cheio rounded-xl transition-all duration-300"
+  @click="cancelarEdicao"
+>
+  Cancelar edição
+</button>
+
+
     </form>
   </section>
 </template>
