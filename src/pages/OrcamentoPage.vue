@@ -37,12 +37,38 @@ const {
               detalhe="Despesas do período"
             />
 
-            <CardFinanceiro
-              titulo="Valor restante"
-              :valor="moeda(limiteAtual() - despesas())"
-              tipo="receita"
-              detalhe="Limite menos despesas"
-            />
+            
+<CardFinanceiro
+  :titulo="
+    limiteAtual() <= 0
+      ? 'Limite não configurado'
+      : despesas() > limiteAtual()
+        ? 'Limite excedido'
+        : 'Valor restante'
+  "
+  :valor="
+    limiteAtual() <= 0
+      ? '—'
+      : moeda(Math.abs(limiteAtual() - despesas()))
+  "
+  :tipo="
+    limiteAtual() <= 0
+      ? 'resultado'
+      : despesas() > limiteAtual()
+        ? 'despesa'
+        : despesas() === limiteAtual()
+          ? 'resultado'
+          : 'receita'
+  "
+  :detalhe="
+    limiteAtual() <= 0
+      ? 'Defina um orçamento mensal'
+      : despesas() > limiteAtual()
+        ? 'Despesas acima do orçamento mensal'
+        : 'Limite menos despesas'
+  "
+/>
+
           </div>
 
           <div class="orcamento-grid">
@@ -133,25 +159,6 @@ const {
                 </strong>
               </div>
 
-              <p
-                v-if="
-                  limiteAtual() > 0 &&
-                  despesas() >= limiteAtual()
-                "
-                class="mensagem-erro"
-              >
-                Você atingiu ou ultrapassou o limite mensal.
-              </p>
-
-              <p
-                v-else-if="
-                  limiteAtual() > 0 &&
-                  despesas() >= limiteAtual() * 0.8
-                "
-                class="mensagem-alerta"
-              >
-                Atenção: seus gastos estão próximos do limite.
-              </p>
             </section>
           </div>
   </div>

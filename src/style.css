@@ -2954,9 +2954,13 @@ select:focus {
     font-size: 13px;
   }
   
+
   .resumo-analitico-indicadores strong {
     color: #142440;
     font-size: 13px;
+  }
+  .resumo-analitico-indicadores strong.texto-vermelho {
+    color: #e11d48;
   }
   
   .resumo-analitico-barra {
@@ -3377,7 +3381,20 @@ select:focus {
 .resumo-radial-valor.negativo {
   color: #e11d48;
 }
-
-  
+/* Relatórios — indicador de déficit financeiro */
+.resumo-radial-informacao.negativo {
+  color: #e11d48;
+}
+/* Relatórios — ícone do título em cenário negativo */
+.icone-categorias-premium.icone-resultado-negativo {
+  color: #e11d48;
+  background-color: #fff1f2;
+}
+ /* Orçamento — indicador de limite excedido */
+.resumo-premium-indicador.limite-excedido,
+.resumo-premium-indicador.limite-excedido .resumo-indicador-legenda,
+.resumo-premium-indicador.limite-excedido strong {
+  color: #e11d48;
+} 
 
   

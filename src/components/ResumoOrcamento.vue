@@ -38,11 +38,15 @@ function percentual(gasto, limite) {
       <strong
   class="resumo-percentual"
   :class="{
-    alerta: percentual(gasto, limite) >= 80,
-    excedido: percentual(gasto, limite) >= 100
+    alerta: limite > 0 && percentual(gasto, limite) >= 80,
+    excedido: limite > 0 && percentual(gasto, limite) >= 100
   }"
 >
-  {{ percentual(gasto, limite) }}% utilizado
+  {{
+    limite > 0
+      ? `${percentual(gasto, limite)}% utilizado`
+      : 'Não configurado'
+  }}
 </strong>
     </div>
 
@@ -76,16 +80,31 @@ function percentual(gasto, limite) {
         <strong>{{ moeda(gasto) }}</strong>
       </div>
 
-      <div class="resumo-premium-indicador disponivel">
-        <div class="resumo-indicador-legenda">
-          <Banknote :size="19" :stroke-width="2" aria-hidden="true" />
-          <small>Disponível do limite</small>
-        </div>
+      <div
+  class="resumo-premium-indicador disponivel"
+  :class="{ 'limite-excedido': limite > 0 && gasto > limite }"
+>
+  <div class="resumo-indicador-legenda">
+    <Banknote :size="19" :stroke-width="2" aria-hidden="true" />
 
-        <strong>
-          {{ moeda(Math.max(limite - gasto, 0)) }}
-        </strong>
-      </div>
+    <small>
+      {{ limite > 0 && gasto > limite
+        ? 'Limite excedido'
+        : 'Disponível do limite'
+      }}
+    </small>
+  </div>
+
+  <strong>
+    {{
+      moeda(
+        limite > 0 && gasto > limite
+          ? gasto - limite
+          : Math.max(limite - gasto, 0)
+      )
+    }}
+  </strong>
+</div>
     </div>
 
     <p v-if="!limite" class="nota">
@@ -93,12 +112,18 @@ function percentual(gasto, limite) {
     </p>
 
     <p
-      v-else-if="gasto >= limite"
-      class="mensagem-erro"
-    >
-      O limite mensal foi atingido ou ultrapassado.
-    </p>
+  v-else-if="limite > 0 && gasto > limite"
+  class="mensagem-erro"
+>
+  Orçamento excedido em {{ moeda(gasto - limite) }}.
+</p>
 
+<p
+  v-else-if="limite > 0 && gasto === limite"
+  class="mensagem-erro"
+>
+  Orçamento totalmente utilizado. Não há limite disponível.
+</p>
     <p
       v-else-if="gasto >= limite * 0.8"
       class="mensagem-alerta"

@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
-import { ChartBar, TrendingUp } from 'lucide-vue-next'
+import { ChartBar, TrendingUp, TrendingDown, Minus } from 'lucide-vue-next'
 import CardFinanceiro from '../components/CardFinanceiro.vue'
 import { useFinancas } from '../composables/useFinancas.js'
 import EstadoVazio from '../components/EstadoVazio.vue'
@@ -396,9 +396,29 @@ const opcoesRadial = computed(() => ({
           <section class="painel resumo-final resumo-analitico">
   <div class="resumo-analitico-cabecalho">
     <div class="resumo-analitico-titulo">
-      <span class="icone-categorias-premium" aria-hidden="true">
-        <TrendingUp :size="20" :stroke-width="2" />
-      </span>
+      <span
+  class="icone-categorias-premium"
+  :class="{ 'icone-resultado-negativo': situacaoFinanceira === 'negativo' }"
+  aria-hidden="true"
+>
+  <TrendingUp
+    v-if="situacaoFinanceira === 'positivo'"
+    :size="20"
+    :stroke-width="2"
+  />
+
+  <TrendingDown
+    v-else-if="situacaoFinanceira === 'negativo'"
+    :size="20"
+    :stroke-width="2"
+  />
+
+  <Minus
+    v-else
+    :size="20"
+    :stroke-width="2"
+  />
+</span>
 
       <div>
         <h2>Análise financeira do mês</h2>
@@ -468,13 +488,17 @@ const opcoesRadial = computed(() => ({
   
 <template v-if="percentualPreservado !== null">
   <div class="resumo-analitico-indicadores">
-    <span>Distribuição das receitas</span>
+  <span>Distribuição das receitas</span>
 
-    <strong>
-      {{ formatarPercentual(percentualPreservado) }}
-      preservado
-    </strong>
-  </div>
+  <strong :class="{ 'texto-vermelho': resultado() < 0 }">
+    {{
+      resultado() < 0
+        ? formatarPercentual(Math.abs(percentualPreservado))
+        : formatarPercentual(percentualPreservado)
+    }}
+    {{ resultado() < 0 ? 'de déficit' : 'preservado' }}
+  </strong>
+</div>
 
   
 <div class="resumo-radial-horizontal">
@@ -502,13 +526,29 @@ const opcoesRadial = computed(() => ({
 
     <div class="resumo-radial-separador"></div>
 
-    <div class="resumo-radial-informacao">
-      <TrendingUp :size="18" />
-      <span>
-        {{ formatarPercentual(percentualPreservado) }}
-        preservado
-      </span>
-    </div>
+    <div
+  class="resumo-radial-informacao"
+  :class="{ negativo: resultado() < 0 }"
+>
+  <TrendingUp
+    v-if="resultado() >= 0"
+    :size="18"
+  />
+
+  <TrendingDown
+    v-else
+    :size="18"
+  />
+
+  <span>
+    {{
+      resultado() < 0
+        ? formatarPercentual(Math.abs(percentualPreservado))
+        : formatarPercentual(percentualPreservado)
+    }}
+    {{ resultado() < 0 ? 'de déficit' : 'preservado' }}
+  </span>
+</div>
 
     <div class="resumo-radial-informacao utilizado">
       <span class="resumo-radial-ponto"></span>
