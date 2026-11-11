@@ -1,10 +1,22 @@
+
 <script setup>
 import { computed } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
-import { ChartBar, TrendingUp, TrendingDown, Minus } from 'lucide-vue-next'
+
+import {
+  ChartBar,
+  TrendingUp,
+  TrendingDown,
+  Minus
+} from 'lucide-vue-next'
+
 import CardFinanceiro from '../components/CardFinanceiro.vue'
-import { useFinancas } from '../composables/useFinancas.js'
 import EstadoVazio from '../components/EstadoVazio.vue'
+import { useFinancas } from '../composables/useFinancas.js'
+
+// =====================================================
+// DADOS FINANCEIROS
+// =====================================================
 
 const {
   moeda,
@@ -12,47 +24,139 @@ const {
   receitas,
   despesas,
   resultado,
-  categorias,
-  maxCategoria
+  categorias
 } = useFinancas()
-const percentualUtilizado = computed(() => {
-  if (receitas() <= 0) return null
 
-  return despesas() / receitas() * 100
+const receitasMes = computed(() => receitas())
+const despesasMes = computed(() => despesas())
+const resultadoMes = computed(() => resultado())
+const mesAtual = computed(() => nomeMes())
+const categoriasMes = computed(() => categorias())
+
+// =====================================================
+// INDICADORES FINANCEIROS
+// =====================================================
+
+const percentualUtilizado = computed(() => {
+  if (receitasMes.value <= 0) return null
+
+  return (
+    despesasMes.value / receitasMes.value
+  ) * 100
 })
 
 const percentualPreservado = computed(() => {
-  if (receitas() <= 0) return null
+  if (receitasMes.value <= 0) return null
 
-  return resultado() / receitas() * 100
+  return (
+    resultadoMes.value / receitasMes.value
+  ) * 100
 })
 
 const percentualBarra = computed(() => {
-  if (percentualPreservado.value === null) return 0
+  if (percentualPreservado.value === null) {
+    return 0
+  }
 
-  return Math.max(0, Math.min(100, percentualPreservado.value))
+  return Math.max(
+    0,
+    Math.min(100, percentualPreservado.value)
+  )
 })
 
-const formatarPercentual = (valor) =>
-  valor.toFixed(1).replace('.', ',') + '%'
+function formatarPercentual(valor) {
+  const numero = Number(valor)
+
+  if (!Number.isFinite(numero)) {
+    return 'N/A'
+  }
+
+  return numero.toFixed(1).replace('.', ',') + '%'
+}
+
+const percentualResultado = computed(() => {
+  if (percentualPreservado.value === null) {
+    return null
+  }
+
+  return Math.abs(percentualPreservado.value)
+})
+
+// =====================================================
+// SITUAÇÃO FINANCEIRA
+// =====================================================
 
 const situacaoFinanceira = computed(() => {
-  if (receitas() <= 0 && despesas() <= 0) return 'sem-movimento'
-  if (receitas() <= 0) return 'sem-receitas'
-  if (resultado() < 0) return 'negativo'
-  if (resultado() === 0) return 'equilibrado'
+  if (
+    receitasMes.value <= 0 &&
+    despesasMes.value <= 0
+  ) {
+    return 'sem-movimento'
+  }
+
+  if (receitasMes.value <= 0) {
+    return 'sem-receitas'
+  }
+
+  if (resultadoMes.value < 0) {
+    return 'negativo'
+  }
+
+  if (resultadoMes.value === 0) {
+    return 'equilibrado'
+  }
 
   return 'positivo'
 })
 
+const textoSituacao = computed(() => {
+  switch (situacaoFinanceira.value) {
+    case 'positivo':
+      return 'Resultado positivo'
+    case 'negativo':
+      return 'Resultado negativo'
+    case 'equilibrado':
+      return 'Resultado equilibrado'
+    default:
+      return 'Sem receitas no período'
+  }
+})
+
+const tipoCardResultado = computed(() => {
+  if (resultadoMes.value > 0) return 'receita'
+  if (resultadoMes.value < 0) return 'despesa'
+  return 'neutro'
+})
+
+// =====================================================
+// SEGURANÇA DOS TEXTOS DA LEGENDA
+// =====================================================
+
+function escaparHtml(valor) {
+  return String(valor ?? '').replace(
+    /[&<>"']/g,
+    (caractere) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[caractere]
+  )
+}
+
+// =====================================================
+// GRÁFICO DE RECEITAS E DESPESAS
+// =====================================================
+
 const seriesComparacao = computed(() => [
   {
     name: 'Receitas',
-    data: [receitas()]
+    data: [receitasMes.value]
   },
   {
     name: 'Despesas',
-    data: [despesas()]
+    data: [despesasMes.value]
   }
 ])
 
@@ -80,13 +184,13 @@ const opcoesComparacao = computed(() => ({
   },
 
   xaxis: {
-    categories: [nomeMes()]
+    categories: [mesAtual.value]
   },
 
   yaxis: {
     labels: {
       formatter: (valor) =>
-        'R$ ' + valor.toLocaleString('pt-BR', {
+        'R$ ' + Number(valor).toLocaleString('pt-BR', {
           maximumFractionDigits: 0
         })
     }
@@ -111,8 +215,15 @@ const opcoesComparacao = computed(() => ({
     text: 'Nenhum dado disponível'
   }
 }))
+
+// =====================================================
+// GRÁFICO DE DESPESAS POR CATEGORIA
+// =====================================================
+
 const seriesCategorias = computed(() =>
-  categorias().map((categoria) => categoria.valor)
+  categoriasMes.value.map(
+    (categoria) => Number(categoria.valor) || 0
+  )
 )
 
 const opcoesCategorias = computed(() => ({
@@ -124,7 +235,9 @@ const opcoesCategorias = computed(() => ({
     }
   },
 
-  labels: categorias().map((categoria) => categoria.nome),
+  labels: categoriasMes.value.map(
+    (categoria) => categoria.nome
+  ),
 
   colors: [
     '#10b981',
@@ -149,49 +262,58 @@ const opcoesCategorias = computed(() => ({
     pie: {
       donut: {
         size: '70%',
+
         labels: {
           show: true,
+
           name: {
             show: true
           },
+
           value: {
             show: true,
-            formatter: (valor) => moeda(Number(valor))
+            formatter: (valor) =>
+              moeda(Number(valor))
           },
+
           total: {
             show: true,
             label: 'Total de despesas',
-            formatter: () => moeda(despesas())
+            formatter: () => moeda(despesasMes.value)
           }
         }
       }
     }
   },
 
-  
-
   legend: {
-  show: true,
-  position: 'right',
-  fontSize: '13px',
-  width: 180,
-  formatter: (nome, opts) => {
-    const valores = opts.w.globals.series
-    const total = valores.reduce((soma, valor) => soma + valor, 0)
-    const valor = valores[opts.seriesIndex] ?? 0
+    show: true,
+    position: 'right',
+    fontSize: '13px',
+    width: 180,
 
-    const percentual = total > 0
-      ? Math.round((valor / total) * 100)
-      : 0
+    formatter: (nome, opts) => {
+      const valores = opts.w.globals.series
 
-    return `
-      <span class="donut-legenda-conteudo">
-        <span>${nome}</span>
-        <strong>${percentual}%</strong>
-      </span>
-    `
-  }
-},
+      const total = valores.reduce(
+        (soma, valor) => soma + valor,
+        0
+      )
+
+      const valor = valores[opts.seriesIndex] ?? 0
+
+      const percentual = total > 0
+        ? Math.round((valor / total) * 100)
+        : 0
+
+      return `
+        <span class="donut-legenda-conteudo">
+          <span>${escaparHtml(nome)}</span>
+          <strong>${percentual}%</strong>
+        </span>
+      `
+    }
+  },
 
   tooltip: {
     y: {
@@ -211,6 +333,13 @@ const opcoesCategorias = computed(() => ({
   ]
 }))
 
+// =====================================================
+// GRÁFICO RADIAL
+// =====================================================
+
+// O gráfico representa a receita preservada.
+// Se houver déficit, a preservação será zero.
+// O percentual de déficit aparece nos indicadores.
 const seriesRadial = computed(() => [
   percentualBarra.value
 ])
@@ -225,22 +354,25 @@ const opcoesRadial = computed(() => ({
   },
 
   colors: [
-    situacaoFinanceira.value === 'positivo'
-      ? '#10b981'
-      : '#f43f5e'
+    situacaoFinanceira.value === 'negativo'
+      ? '#f43f5e'
+      : '#10b981'
   ],
 
   plotOptions: {
     radialBar: {
       startAngle: -135,
       endAngle: 135,
+
       hollow: {
         size: '68%'
       },
+
       track: {
         background: '#e8edf3',
         strokeWidth: '100%'
       },
+
       dataLabels: {
         name: {
           show: true,
@@ -248,12 +380,14 @@ const opcoesRadial = computed(() => ({
           color: '#64748b',
           fontSize: '13px'
         },
+
         value: {
           show: true,
           offsetY: -18,
           fontSize: '28px',
           fontWeight: 700,
           color: '#14233f',
+
           formatter: (valor) =>
             formatarPercentual(valor)
         }
@@ -267,312 +401,340 @@ const opcoesRadial = computed(() => ({
     lineCap: 'round'
   }
 }))
-
-
 </script>
 
 <template>
   <div class="relatorios-page">
+
+    <!-- CARDS FINANCEIROS -->
+
     <div class="cards-grid">
-            <CardFinanceiro
-              titulo="Receitas do mês"
-              :valor="moeda(receitas())"
-              tipo="receita"
-            />
 
-            <CardFinanceiro
-              titulo="Despesas do mês"
-              :valor="moeda(despesas())"
-              tipo="despesa"
-            />
+      <CardFinanceiro
+        titulo="Receitas do mês"
+        :valor="moeda(receitasMes)"
+        tipo="receita"
+      />
 
-            <CardFinanceiro
-              titulo="Resultado do mês"
-              :valor="moeda(resultado())"
-              tipo="resultado"
-            />
-          </div>
+      <CardFinanceiro
+        titulo="Despesas do mês"
+        :valor="moeda(despesasMes)"
+        tipo="despesa"
+      />
 
-          <div class="relatorios-grid">
-            
-<section class="painel painel-comparacao-premium">
-  <h2 class="titulo-categorias-premium">
-    <span class="icone-categorias-premium" aria-hidden="true">
-      <ChartBar :size="20" :stroke-width="2" />
-    </span>
-    Receitas × Despesas
-  </h2>
+      <CardFinanceiro
+        titulo="Resultado do mês"
+        :valor="moeda(resultadoMes)"
+        :tipo="tipoCardResultado"
+      />
 
-  <p class="texto-apoio">
-    Comparativo financeiro · {{ nomeMes() }}
-  </p>
-
-  
-<div class="comparacao-premium">
-  <VueApexCharts
-    type="bar"
-    height="300"
-    :options="opcoesComparacao"
-    :series="seriesComparacao"
-  />
-</div>
-
-  <div
-    class="comparacao-premium-resultado"
-    :class="{ negativo: resultado() < 0 }"
-  >
-    <div>
-      <span>Resultado do mês</span>
-      <strong>{{ moeda(resultado()) }}</strong>
     </div>
 
-    
-<div class="comparacao-premium-percentual">
-  <strong>
-    <template v-if="receitas() <= 0">
-      N/A
-    </template>
+    <!-- GRÁFICOS PRINCIPAIS -->
 
-    <template v-else>
-      {{
-        (
-          Math.abs(resultado()) / receitas() * 100
-        ).toFixed(1).replace('.', ',')
-      }}%
-    </template>
-  </strong>
+    <div class="relatorios-grid">
 
-  <span v-if="receitas() <= 0">
-    Percentual não aplicável
-  </span>
+      <!-- COMPARAÇÃO FINANCEIRA -->
 
-  <span v-else-if="resultado() < 0">
-    Déficit em relação à receita
-  </span>
+      <section class="painel painel-comparacao-premium">
 
-  <span v-else>
-    da receita preservada
-  </span>
-</div>
+        <h2 class="titulo-categorias-premium">
+          <span
+            class="icone-categorias-premium"
+            aria-hidden="true"
+          >
+            <ChartBar :size="20" :stroke-width="2" />
+          </span>
 
-  </div>
-</section>
+          Receitas × Despesas
+        </h2>
 
+        <p class="texto-apoio">
+          Comparativo financeiro · {{ mesAtual }}
+        </p>
 
-            
-               <section class="painel">
-                 <h2 class="titulo-categorias-premium">
-                  <span class="icone-categorias-premium" aria-hidden="true">
-                   <ChartBar :size="20" :stroke-width="2" />
-                  </span>
-                   Despesas por categoria
-                </h2>
+        <div class="comparacao-premium">
+          <VueApexCharts
+            type="bar"
+            height="300"
+            :options="opcoesComparacao"
+            :series="seriesComparacao"
+          />
+        </div>
 
-  <p class="texto-apoio">
-    Participação de cada categoria nos gastos
-  </p>
-
-               
-            <EstadoVazio
-                v-if="!categorias().length"
-                 icone="chart-pie"
-                 mensagem="Nenhuma despesa neste mês."
-            />
-
-<div v-else class="grafico-donut-premium">
-  <VueApexCharts
-    type="donut"
-    height="320"
-    :options="opcoesCategorias"
-    :series="seriesCategorias"
-  />
-</div>
-
-
-              
-            </section>
+        <div
+          class="comparacao-premium-resultado"
+          :class="{ negativo: resultadoMes < 0 }"
+        >
+          <div>
+            <span>Resultado do mês</span>
+            <strong>{{ moeda(resultadoMes) }}</strong>
           </div>
 
-          <section class="painel resumo-final resumo-analitico">
-  <div class="resumo-analitico-cabecalho">
-    <div class="resumo-analitico-titulo">
-      <span
-  class="icone-categorias-premium"
-  :class="{ 'icone-resultado-negativo': situacaoFinanceira === 'negativo' }"
-  aria-hidden="true"
->
-  <TrendingUp
-    v-if="situacaoFinanceira === 'positivo'"
-    :size="20"
-    :stroke-width="2"
-  />
+          <div class="comparacao-premium-percentual">
 
-  <TrendingDown
-    v-else-if="situacaoFinanceira === 'negativo'"
-    :size="20"
-    :stroke-width="2"
-  />
+            <strong>
+              {{
+                percentualResultado === null
+                  ? 'N/A'
+                  : formatarPercentual(percentualResultado)
+              }}
+            </strong>
 
-  <Minus
-    v-else
-    :size="20"
-    :stroke-width="2"
-  />
-</span>
+            <span v-if="percentualResultado === null">
+              Percentual não aplicável
+            </span>
 
-      <div>
-        <h2>Análise financeira do mês</h2>
-        <p class="texto-apoio">{{ nomeMes() }}</p>
+            <span v-else-if="resultadoMes < 0">
+              Déficit em relação à receita
+            </span>
+
+            <span v-else>
+              da receita preservada
+            </span>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- DESPESAS POR CATEGORIA -->
+
+      <section class="painel">
+
+        <h2 class="titulo-categorias-premium">
+          <span
+            class="icone-categorias-premium"
+            aria-hidden="true"
+          >
+            <ChartBar :size="20" :stroke-width="2" />
+          </span>
+
+          Despesas por categoria
+        </h2>
+
+        <p class="texto-apoio">
+          Participação de cada categoria nos gastos
+        </p>
+
+        <EstadoVazio
+          v-if="!categoriasMes.length"
+          icone="pie"
+          mensagem="Nenhuma despesa neste mês."
+        />
+
+        <div v-else class="grafico-donut-premium">
+          <VueApexCharts
+            type="donut"
+            height="320"
+            :options="opcoesCategorias"
+            :series="seriesCategorias"
+          />
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- ANÁLISE FINANCEIRA DO MÊS -->
+
+    <section class="painel resumo-final resumo-analitico">
+
+      <div class="resumo-analitico-cabecalho">
+
+        <div class="resumo-analitico-titulo">
+
+          <span
+            class="icone-categorias-premium"
+            :class="{
+              'icone-resultado-negativo':
+                situacaoFinanceira === 'negativo'
+            }"
+            aria-hidden="true"
+          >
+            <TrendingUp
+              v-if="situacaoFinanceira === 'positivo'"
+              :size="20"
+              :stroke-width="2"
+            />
+
+            <TrendingDown
+              v-else-if="situacaoFinanceira === 'negativo'"
+              :size="20"
+              :stroke-width="2"
+            />
+
+            <Minus
+              v-else
+              :size="20"
+              :stroke-width="2"
+            />
+          </span>
+
+          <div>
+            <h2>Análise financeira do mês</h2>
+            <p class="texto-apoio">{{ mesAtual }}</p>
+          </div>
+
+        </div>
+
+        <span
+          class="resumo-analitico-status"
+          :class="situacaoFinanceira"
+        >
+          {{ textoSituacao }}
+        </span>
+
       </div>
-    </div>
 
-    <span
-      class="resumo-analitico-status"
-      :class="situacaoFinanceira"
-    >
-      {{
-        situacaoFinanceira === 'positivo'
-          ? 'Resultado positivo'
-          : situacaoFinanceira === 'negativo'
-            ? 'Resultado negativo'
-            : situacaoFinanceira === 'equilibrado'
-              ? 'Resultado equilibrado'
-              : 'Sem receitas no período'
-      }}
-    </span>
-  </div>
+      <!-- MENSAGEM ANALÍTICA -->
 
-  <div class="resumo-analitico-mensagem">
-    <template v-if="situacaoFinanceira === 'positivo'">
-      Suas receitas superaram as despesas em
-      <strong class="texto-verde">{{ moeda(resultado()) }}</strong>.
-      Você utilizou
-      <strong>{{ formatarPercentual(percentualUtilizado) }}</strong>
-      do valor recebido e preservou
-      <strong class="texto-verde">
-        {{ formatarPercentual(percentualPreservado) }}
-      </strong>
-      das receitas neste período.
-    </template>
+      <div class="resumo-analitico-mensagem">
 
-    <template v-else-if="situacaoFinanceira === 'negativo'">
-      Suas despesas superaram as receitas em
-      <strong class="texto-vermelho">
-        {{ moeda(Math.abs(resultado())) }}
-      </strong>.
-      Os gastos corresponderam a
-      <strong>{{ formatarPercentual(percentualUtilizado) }}</strong>
-      das receitas do período.
-    </template>
+        <template v-if="situacaoFinanceira === 'positivo'">
+          Suas receitas superaram as despesas em
+          <strong class="texto-verde">
+            {{ moeda(resultadoMes) }}
+          </strong>.
+          Você utilizou
+          <strong>
+            {{ formatarPercentual(percentualUtilizado) }}
+          </strong>
+          do valor recebido e preservou
+          <strong class="texto-verde">
+            {{ formatarPercentual(percentualPreservado) }}
+          </strong>
+          das receitas neste período.
+        </template>
 
-    <template v-else-if="situacaoFinanceira === 'equilibrado'">
-      As receitas e despesas ficaram equilibradas em
-      <strong>{{ moeda(receitas()) }}</strong>.
-      Não houve resultado positivo nem negativo neste mês.
-    </template>
+        <template v-else-if="situacaoFinanceira === 'negativo'">
+          Suas despesas superaram as receitas em
+          <strong class="texto-vermelho">
+            {{ moeda(Math.abs(resultadoMes)) }}
+          </strong>.
+          Os gastos corresponderam a
+          <strong>
+            {{ formatarPercentual(percentualUtilizado) }}
+          </strong>
+          das receitas do período.
+        </template>
 
-    <template v-else-if="situacaoFinanceira === 'sem-receitas'">
-      Não foram registradas receitas neste mês.
-      As despesas totalizaram
-      <strong class="texto-vermelho">{{ moeda(despesas()) }}</strong>.
-      O percentual não é aplicável sem receitas.
-    </template>
+        <template v-else-if="situacaoFinanceira === 'equilibrado'">
+          As receitas e despesas ficaram equilibradas em
+          <strong>{{ moeda(receitasMes) }}</strong>.
+          Não houve resultado positivo nem negativo neste mês.
+        </template>
 
-    <template v-else>
-      Nenhuma receita ou despesa foi registrada em
-      <strong>{{ nomeMes() }}</strong>.
-      Cadastre movimentações para visualizar a análise financeira.
-    </template>
-  </div>
+        <template v-else-if="situacaoFinanceira === 'sem-receitas'">
+          Não foram registradas receitas neste mês.
+          As despesas totalizaram
+          <strong class="texto-vermelho">
+            {{ moeda(despesasMes) }}
+          </strong>.
+          O percentual não é aplicável sem receitas.
+        </template>
 
-  
-<template v-if="percentualPreservado !== null">
-  <div class="resumo-analitico-indicadores">
-  <span>Distribuição das receitas</span>
+        <template v-else>
+          Nenhuma receita ou despesa foi registrada em
+          <strong>{{ mesAtual }}</strong>.
+          Cadastre movimentações para visualizar
+          a análise financeira.
+        </template>
 
-  <strong :class="{ 'texto-vermelho': resultado() < 0 }">
-    {{
-      resultado() < 0
-        ? formatarPercentual(Math.abs(percentualPreservado))
-        : formatarPercentual(percentualPreservado)
-    }}
-    {{ resultado() < 0 ? 'de déficit' : 'preservado' }}
-  </strong>
-</div>
+      </div>
 
-  
-<div class="resumo-radial-horizontal">
-  <div class="resumo-radial-premium">
-    <VueApexCharts
-      type="radialBar"
-      height="280"
-      :options="opcoesRadial"
-      :series="seriesRadial"
-    />
-  </div>
+      <!-- INDICADORES E GRÁFICO RADIAL -->
 
-  <div class="resumo-radial-detalhes">
-    <span class="resumo-radial-subtitulo">
-      Resultado do mês
-    </span>
+      <template v-if="percentualPreservado !== null">
 
-    <strong
-      class="resumo-radial-valor"
-      :class="{ negativo: resultado() < 0 }"
-    >
-  {{ moeda(resultado()) }}
-</strong>
+        <div class="resumo-analitico-indicadores">
+          <span>Distribuição das receitas</span>
 
+          <strong
+            :class="{
+              'texto-vermelho': resultadoMes < 0
+            }"
+          >
+            {{ formatarPercentual(percentualResultado) }}
+            {{ resultadoMes < 0 ? 'de déficit' : 'preservado' }}
+          </strong>
+        </div>
 
-    <div class="resumo-radial-separador"></div>
+        <div class="resumo-radial-horizontal">
 
-    <div
-  class="resumo-radial-informacao"
-  :class="{ negativo: resultado() < 0 }"
->
-  <TrendingUp
-    v-if="resultado() >= 0"
-    :size="18"
-  />
+          <div class="resumo-radial-premium">
+            <VueApexCharts
+              type="radialBar"
+              height="280"
+              :options="opcoesRadial"
+              :series="seriesRadial"
+            />
+          </div>
 
-  <TrendingDown
-    v-else
-    :size="18"
-  />
+          <div class="resumo-radial-detalhes">
 
-  <span>
-    {{
-      resultado() < 0
-        ? formatarPercentual(Math.abs(percentualPreservado))
-        : formatarPercentual(percentualPreservado)
-    }}
-    {{ resultado() < 0 ? 'de déficit' : 'preservado' }}
-  </span>
-</div>
+            <span class="resumo-radial-subtitulo">
+              Resultado do mês
+            </span>
 
-    <div class="resumo-radial-informacao utilizado">
-      <span class="resumo-radial-ponto"></span>
-      <span>
-        {{ formatarPercentual(percentualUtilizado) }}
-        utilizado
-      </span>
-    </div>
-  </div>
-</div>
+            <strong
+              class="resumo-radial-valor"
+              :class="{ negativo: resultadoMes < 0 }"
+            >
+              {{ moeda(resultadoMes) }}
+            </strong>
 
-  <div class="resumo-analitico-legenda">
-    <span>
-      <i class="resumo-analitico-ponto preservado"></i>
-      Receita preservada
-    </span>
+            <div class="resumo-radial-separador"></div>
 
-    <span>
-      <i class="resumo-analitico-ponto utilizado"></i>
-      Despesas do período
-    </span>
-  </div>
-</template>
+            <div
+              class="resumo-radial-informacao"
+              :class="{ negativo: resultadoMes < 0 }"
+            >
+              <TrendingUp
+                v-if="resultadoMes >= 0"
+                :size="18"
+              />
 
-</section>
+              <TrendingDown
+                v-else
+                :size="18"
+              />
+
+              <span>
+                {{ formatarPercentual(percentualResultado) }}
+                {{ resultadoMes < 0 ? 'de déficit' : 'preservado' }}
+              </span>
+            </div>
+
+            <div class="resumo-radial-informacao utilizado">
+              <span class="resumo-radial-ponto"></span>
+              <span>
+                {{ formatarPercentual(percentualUtilizado) }}
+                utilizado
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="resumo-analitico-legenda">
+
+          <span>
+            <i class="resumo-analitico-ponto preservado"></i>
+            Receita preservada
+          </span>
+
+          <span>
+            <i class="resumo-analitico-ponto utilizado"></i>
+            Despesas do período
+          </span>
+
+        </div>
+
+      </template>
+
+    </section>
+
   </div>
 </template>

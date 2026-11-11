@@ -719,9 +719,350 @@ it('preserva os dados quando a restauração falha', async () => {
     vi.unstubAllGlobals()
   }
 })
+
+it('edita uma transação e preserva seu identificador', async () => {
+  try {
+    const { financas, setItem } = await prepararFinancas()
+
+    const sucesso = financas.editar(1, {
+      descricao: 'Despesa atualizada',
+      valor: 275,
+      tipo: 'despesa',
+      categoria: 'Alimentação',
+      data: '2026-11-05'
+    })
+
+    expect(sucesso).toBe(true)
+    expect(setItem).toHaveBeenCalledTimes(1)
+    expect(financas.transacoes.value).toHaveLength(1)
+
+    const transacao = financas.transacoes.value[0]
+
+    expect(transacao.id).toBe(1)
+    expect(transacao.descricao).toBe('Despesa atualizada')
+    expect(transacao.valor).toBe(275)
+    expect(transacao.categoria).toBe('Alimentação')
+    expect(transacao.data).toBe('2026-11-05')
+
+    const dadosSalvos = JSON.parse(setItem.mock.lastCall[1])
+
+    expect(dadosSalvos.transacoes[0]).toEqual(transacao)
+    expect(dadosSalvos.proximoId).toBe(2)
+    expect(financas.aviso.value).toBe(
+      'Transação atualizada com sucesso!'
+    )
+  } finally {
+    vi.unstubAllGlobals()
+  }
 })
 
+it('preserva a transação original quando a edição falha ao salvar', async () => {
+  const consoleError = vi.spyOn(console, 'error')
+    .mockImplementation(() => {})
 
-  
+  try {
+    const { financas, setItem } = await prepararFinancas(true)
+
+    const transacoesAntes = JSON.parse(
+      JSON.stringify(financas.transacoes.value)
+    )
+
+    const limitesAntes = { ...financas.limites.value }
+    const saldoAntes = financas.saldoInicial.value
+
+    const sucesso = financas.editar(1, {
+      descricao: 'Alteração não salva',
+      valor: 900,
+      tipo: 'despesa',
+      categoria: 'Outros',
+      data: '2026-11-06'
+    })
+
+    expect(sucesso).toBe(false)
+    expect(setItem).toHaveBeenCalledTimes(1)
+
+    expect(financas.transacoes.value).toEqual(transacoesAntes)
+    expect(financas.limites.value).toEqual(limitesAntes)
+    expect(financas.saldoInicial.value).toBe(saldoAntes)
+
+    expect(financas.armazenamentoProtegido.value).toBe(true)
+    expect(financas.aviso.value).toContain(
+      'Não foi possível salvar'
+    )
+    expect(financas.aviso.value).not.toContain(
+      'Transação atualizada com sucesso!'
+    )
+
+    const tentativa = JSON.parse(setItem.mock.lastCall[1])
+
+    expect(tentativa.transacoes[0].id).toBe(1)
+    expect(tentativa.transacoes[0].valor).toBe(900)
+    expect(tentativa.proximoId).toBe(2)
+  } finally {
+    consoleError.mockRestore()
+    vi.unstubAllGlobals()
+  }
+})
+
+}) // Fecha o describe das operações financeiras
+
+it('calcula receitas, despesas e resultado do mês selecionado', async () => {
+  const dados = {
+    transacoes: [
+      {
+        id: 1,
+        descricao: 'Salário',
+        valor: 3000,
+        tipo: 'receita',
+        categoria: 'Salário',
+        data: '2026-11-05'
+      },
+      {
+        id: 2,
+        descricao: 'Freelance',
+        valor: 500,
+        tipo: 'receita',
+        categoria: 'Serviços',
+        data: '2026-11-10'
+      },
+      {
+        id: 3,
+        descricao: 'Supermercado',
+        valor: 800,
+        tipo: 'despesa',
+        categoria: 'Alimentação',
+        data: '2026-11-12'
+      },
+      {
+        id: 4,
+        descricao: 'Transporte',
+        valor: 200,
+        tipo: 'despesa',
+        categoria: 'Transporte',
+        data: '2026-11-15'
+      },
+      {
+        id: 5,
+        descricao: 'Compra anterior',
+        valor: 400,
+        tipo: 'despesa',
+        categoria: 'Outros',
+        data: '2026-10-20'
+      }
+    ],
+    limites: {},
+    saldoInicial: 1000,
+    proximoId: 6
+  }
+
+  const getItem = vi.fn(() => JSON.stringify(dados))
+  const setItem = vi.fn()
+
+  vi.stubGlobal('localStorage', {
+    getItem,
+    setItem
+  })
+
+  try {
+    vi.resetModules()
+
+    const { useFinancas } = await import(
+      '../composables/useFinancas.js'
+    )
+
+    const financas = useFinancas()
+
+    financas.mesSelecionado.value = new Date(2026, 10, 1)
+
+    expect(financas.doMes()).toHaveLength(4)
+    expect(financas.receitas()).toBe(3500)
+    expect(financas.despesas()).toBe(1000)
+    expect(financas.resultado()).toBe(2500)
+
+    expect(setItem).not.toHaveBeenCalled()
+    expect(financas.armazenamentoProtegido.value).toBe(false)
+  } finally {
+    vi.unstubAllGlobals()
+  }
+})
+
+it('navega entre meses e recalcula os valores sem alterar os dados', async () => {
+  const dados = {
+    transacoes: [
+      {
+        id: 1,
+        descricao: 'Salário de novembro',
+        valor: 3000,
+        tipo: 'receita',
+        categoria: 'Salário',
+        data: '2026-11-05'
+      },
+      {
+        id: 2,
+        descricao: 'Mercado de novembro',
+        valor: 800,
+        tipo: 'despesa',
+        categoria: 'Alimentação',
+        data: '2026-11-12'
+      },
+      {
+        id: 3,
+        descricao: 'Salário de outubro',
+        valor: 2000,
+        tipo: 'receita',
+        categoria: 'Salário',
+        data: '2026-10-05'
+      },
+      {
+        id: 4,
+        descricao: 'Compra de outubro',
+        valor: 400,
+        tipo: 'despesa',
+        categoria: 'Outros',
+        data: '2026-10-20'
+      }
+    ],
+    limites: {
+      '2026-10': 1500,
+      '2026-11': 2500
+    },
+    saldoInicial: 1000,
+    proximoId: 5
+  }
+
+  const getItem = vi.fn(() => JSON.stringify(dados))
+  const setItem = vi.fn()
+
+  vi.stubGlobal('localStorage', { getItem, setItem })
+
+  try {
+    vi.resetModules()
+
+    const { useFinancas } = await import(
+      '../composables/useFinancas.js'
+    )
+
+    const financas = useFinancas()
+
+    financas.mesSelecionado.value = new Date(2026, 10, 1)
+
+    expect(financas.mesChave()).toBe('2026-11')
+    expect(financas.doMes()).toHaveLength(2)
+    expect(financas.receitas()).toBe(3000)
+    expect(financas.despesas()).toBe(800)
+    expect(financas.resultado()).toBe(2200)
+    expect(financas.limiteAtual()).toBe(2500)
+
+    financas.mudarMes(-1)
+
+    expect(financas.mesChave()).toBe('2026-10')
+    expect(financas.doMes()).toHaveLength(2)
+    expect(financas.receitas()).toBe(2000)
+    expect(financas.despesas()).toBe(400)
+    expect(financas.resultado()).toBe(1600)
+    expect(financas.limiteAtual()).toBe(1500)
+    expect(financas.limiteEditando.value).toBe('1.500,00')
+
+    financas.mudarMes(1)
+
+    expect(financas.mesChave()).toBe('2026-11')
+    expect(financas.doMes()).toHaveLength(2)
+    expect(financas.receitas()).toBe(3000)
+    expect(financas.despesas()).toBe(800)
+    expect(financas.resultado()).toBe(2200)
+    expect(financas.limiteAtual()).toBe(2500)
+    expect(financas.limiteEditando.value).toBe('2.500,00')
+
+    expect(financas.transacoes.value).toEqual(dados.transacoes)
+    expect(setItem).not.toHaveBeenCalled()
+    expect(financas.armazenamentoProtegido.value).toBe(false)
+  } finally {
+    vi.unstubAllGlobals()
+  }
+})
+
+it('protege os dados quando o cadastro de categoria falha', async () => {
+  const dados = {
+    transacoes: [{
+      id: 1,
+      descricao: 'Salário',
+      valor: 3000,
+      tipo: 'receita',
+      categoria: 'Salário',
+      data: '2026-11-05'
+    }],
+    limites: { '2026-11': 2000 },
+    saldoInicial: 1000,
+    proximoId: 2
+  }
+
+  const getItem = vi.fn(() => JSON.stringify(dados))
+  const setItem = vi.fn(() => {
+    throw new Error('Falha simulada ao salvar categoria')
+  })
+
+  vi.stubGlobal('localStorage', { getItem, setItem })
+
+  const consoleError = vi.spyOn(console, 'error')
+    .mockImplementation(() => {})
+
+  try {
+    vi.resetModules()
+
+    const { useFinancas } = await import(
+      '../composables/useFinancas.js'
+    )
+
+    const financas = useFinancas()
+
+    const categoriasAntes = [...financas.categoriasDespesa.value]
+    const transacoesAntes = JSON.parse(
+      JSON.stringify(financas.transacoes.value)
+    )
+    const limitesAntes = { ...financas.limites.value }
+    const saldoAntes = financas.saldoInicial.value
+
+    const sucesso = financas.adicionarCategoria(
+      'Educação',
+      'despesa'
+    )
+
+    expect(sucesso).toBe(false)
+    expect(setItem).toHaveBeenCalledTimes(1)
+
+    expect(financas.categoriasDespesa.value)
+      .toEqual(categoriasAntes)
+
+    expect(financas.categoriasDespesa.value)
+      .not.toContain('Educação')
+
+    expect(financas.transacoes.value)
+      .toEqual(transacoesAntes)
+
+    expect(financas.limites.value)
+      .toEqual(limitesAntes)
+
+    expect(financas.saldoInicial.value)
+      .toBe(saldoAntes)
+
+    expect(financas.armazenamentoProtegido.value)
+      .toBe(true)
+
+    expect(financas.aviso.value)
+      .toContain('Não foi possível salvar')
+
+    const segundaTentativa = financas.adicionarCategoria(
+      'Viagens',
+      'despesa'
+    )
+
+    expect(segundaTentativa).toBe(false)
+    expect(setItem).toHaveBeenCalledTimes(1)
+  } finally {
+    consoleError.mockRestore()
+    vi.unstubAllGlobals()
+  }
+})
+
 
 

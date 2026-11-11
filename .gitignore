@@ -34,3 +34,8 @@ migrar-persistencia.cjs
 preparar-persistencia.cjs
 verificar-migracao.cjs
 verificar-navegacao.cjs
+
+# Arquivos de ambiente
+.env
+.env.*
+!.env.example

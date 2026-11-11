@@ -4,14 +4,34 @@ import {
   TrendingUp,
   TrendingDown,
   ChartColumnIncreasing
-} from '@lucide/vue'
+} from 'lucide-vue-next'
+
+// =====================================================
+// PROPRIEDADES DO CARD FINANCEIRO
+// =====================================================
+
 defineProps({
-  titulo: String,
-  valor: String,
+  titulo: {
+    type: String,
+    required: true
+  },
+
+  // Valor já formatado pelo componente pai.
+  // Exemplo: R$ 4.500,00
+  valor: {
+    type: String,
+    required: true
+  },
+
+  // Define o estilo visual e o ícone do card.
   tipo: {
     type: String,
-    default: 'neutro'
+    default: 'neutro',
+    validator: (valor) =>
+      ['receita', 'despesa','resultado', 'neutro'].includes(valor)
   },
+
+  // Informação complementar opcional.
   detalhe: {
     type: String,
     default: ''
@@ -21,13 +41,12 @@ defineProps({
 
 <template>
   <article
-    :class="[
-      'card-financeiro',
-      'card-financeiro-premium',
-      tipo
-    ]"
+    class="card-financeiro card-financeiro-premium"
+    :class="tipo"
   >
     <div class="card-premium-conteudo">
+
+      <!-- ÍCONE DO INDICADOR -->
 
       <div
         class="card-premium-icone"
@@ -52,10 +71,14 @@ defineProps({
         />
       </div>
 
+      <!-- INFORMAÇÕES FINANCEIRAS -->
+
       <div class="card-premium-informacoes">
+
         <span class="card-premium-titulo">
           {{ titulo }}
         </span>
+
         <strong class="card-premium-valor">
           {{ valor }}
         </strong>
@@ -66,7 +89,9 @@ defineProps({
         >
           {{ detalhe }}
         </small>
+
       </div>
+
     </div>
   </article>
 </template>

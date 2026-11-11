@@ -1,6 +1,7 @@
 
 <script setup>
 import { computed } from 'vue'
+
 import {
   History,
   ReceiptText,
@@ -9,20 +10,30 @@ import {
   Wallet
 } from 'lucide-vue-next'
 
+// =====================================================
+// PROPRIEDADES
+// =====================================================
+
 const props = defineProps({
   icone: {
     type: String,
     default: 'receipt'
   },
+
   titulo: {
     type: String,
     default: ''
   },
+
   mensagem: {
     type: String,
     default: ''
   }
 })
+
+// =====================================================
+// ÍCONES DISPONÍVEIS
+// =====================================================
 
 const icones = {
   history: History,
@@ -32,13 +43,22 @@ const icones = {
   wallet: Wallet
 }
 
-const iconeSelecionado = computed(
-  () => icones[props.icone] || ReceiptText
-)
+// Caso o ícone informado não exista,
+// utiliza o ícone padrão de recibo.
+const iconeSelecionado = computed(() => {
+  return icones[props.icone] || ReceiptText
+})
 </script>
 
 <template>
-  <div class="estado-vazio-premium">
+  <div
+    class="estado-vazio-premium"
+    role="status"
+    aria-live="polite"
+  >
+
+    <!-- ÍCONE ILUSTRATIVO -->
+
     <component
       :is="iconeSelecionado"
       :size="36"
@@ -47,13 +67,18 @@ const iconeSelecionado = computed(
       class="estado-vazio-premium-icone"
     />
 
+    <!-- TÍTULO OPCIONAL -->
+
     <strong v-if="titulo">
       {{ titulo }}
     </strong>
 
+    <!-- MENSAGEM OPCIONAL -->
+
     <p v-if="mensagem">
       {{ mensagem }}
     </p>
+
   </div>
 </template>
 
