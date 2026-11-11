@@ -5,6 +5,8 @@ import VueApexCharts from 'vue3-apexcharts'
 
 import {
   ChartBar,
+  ChartPie,
+  ChartColumnIncreasing,
   TrendingUp,
   TrendingDown,
   Minus
@@ -261,27 +263,38 @@ const opcoesCategorias = computed(() => ({
   plotOptions: {
     pie: {
       donut: {
-        size: '70%',
+        size: '74%',
 
-        labels: {
-          show: true,
+labels: {
+  show: true,
 
-          name: {
-            show: true
-          },
+  name: {
+    show: true,
+    fontSize: '12px',
+    fontWeight: 500,
+    color: '#64748b',
+    offsetY: -8
+  },
 
-          value: {
-            show: true,
-            formatter: (valor) =>
-              moeda(Number(valor))
-          },
+  value: {
+    show: true,
+    fontSize: '17px',
+    fontWeight: 700,
+    color: '#14233f',
+    offsetY: 8,
+    formatter: (valor) => moeda(Number(valor))
+  },
 
-          total: {
-            show: true,
-            label: 'Total de despesas',
-            formatter: () => moeda(despesasMes.value)
-          }
-        }
+  total: {
+    show: true,
+    label: 'Total de despesas',
+    fontSize: '12px',
+    fontWeight: 500,
+    color: '#64748b',
+    formatter: () => moeda(despesasMes.value)
+  }
+}
+
       }
     }
   },
@@ -443,7 +456,7 @@ const opcoesRadial = computed(() => ({
             class="icone-categorias-premium"
             aria-hidden="true"
           >
-            <ChartBar :size="20" :stroke-width="2" />
+            <ChartColumnIncreasing :size="20" :stroke-width="2" />
           </span>
 
           Receitas × Despesas
@@ -507,7 +520,7 @@ const opcoesRadial = computed(() => ({
             class="icone-categorias-premium"
             aria-hidden="true"
           >
-            <ChartBar :size="20" :stroke-width="2" />
+            <ChartPie :size="20" :stroke-width="2" />
           </span>
 
           Despesas por categoria
