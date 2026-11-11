@@ -1,6 +1,6 @@
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 
 import FormularioTransacao from '../components/FormularioTransacao.vue'
 import ListaTransacoes from '../components/ListaTransacoes.vue'
@@ -18,8 +18,10 @@ const {
 // Transação selecionada para edição.
 const transacaoEdicao = ref(null)
 
+// Referência ao contêiner do formulário.
+const formularioRef = ref(null)
+
 // Controle de confirmação de cadastro.
-// Será utilizado pelo formulário na próxima fase.
 const cadastroConfirmado = ref(0)
 
 // Lista reativa do mês selecionado.
@@ -41,7 +43,9 @@ function adicionarERetornarAoTopo(dados) {
   })
 }
 
-function selecionarEdicao(id) {
+// ETAPA 11.5-G.17-N.5
+// Seleciona a transação e rola até o formulário.
+async function selecionarEdicao(id) {
   const encontrada = transacoes.value.find(
     item => item.id === id
   )
@@ -53,6 +57,15 @@ function selecionarEdicao(id) {
   transacaoEdicao.value = {
     ...encontrada
   }
+
+  // Aguarda a atualização do formulário pelo Vue.
+  await nextTick()
+
+  // Direciona a visualização ao formulário.
+  formularioRef.value?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  })
 }
 
 function salvarEdicao({ id, dados }) {
@@ -86,13 +99,16 @@ function excluirTransacao(id) {
   <div class="transacoes-page">
     <div class="transacoes-grid">
 
-      <FormularioTransacao
-        :transacao-edicao="transacaoEdicao"
-        :cadastro-confirmado="cadastroConfirmado"
-        @adicionar="adicionarERetornarAoTopo"
-        @salvar-edicao="salvarEdicao"
-        @cancelar-edicao="cancelarEdicao"
-      />
+      <!-- Referência para a rolagem automática -->
+      <div ref="formularioRef">
+        <FormularioTransacao
+          :transacao-edicao="transacaoEdicao"
+          :cadastro-confirmado="cadastroConfirmado"
+          @adicionar="adicionarERetornarAoTopo"
+          @salvar-edicao="salvarEdicao"
+          @cancelar-edicao="cancelarEdicao"
+        />
+      </div>
 
       <ListaTransacoes
         :transacoes="transacoesDoMes"
