@@ -4,7 +4,8 @@ import {
   LayoutDashboard,
   ArrowLeftRight,
   Wallet,
-  ChartNoAxesCombined
+  ChartNoAxesCombined,
+  Settings
 } from '@lucide/vue'
 
 // Mantém a interface existente com App.vue.
@@ -37,6 +38,11 @@ const itens = [
     id: 'relatorios',
     nome: 'Relatórios',
     icone: ChartNoAxesCombined
+  },
+  {
+    id: 'configuracoes',
+    nome: 'Configurações',
+    icone: Settings
   }
 ]
 </script>

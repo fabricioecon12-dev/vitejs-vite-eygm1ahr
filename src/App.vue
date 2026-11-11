@@ -22,7 +22,13 @@ const router = useRouter()
 const pagina = computed(() => {
   const nome = route.name
 
-  return ['inicio', 'transacoes', 'orcamento', 'relatorios'].includes(nome)
+  return [
+    'inicio',
+    'transacoes',
+    'orcamento',
+    'relatorios',
+    'configuracoes'
+  ].includes(nome)
     ? nome
     : 'inicio'
 })
@@ -31,7 +37,11 @@ const titulos = {
   inicio: ['Visão geral', 'Acompanhe seu resumo financeiro'],
   transacoes: ['Transações', 'Cadastre e gerencie suas movimentações'],
   orcamento: ['Orçamento', 'Defina seu limite e acompanhe seus gastos'],
-  relatorios: ['Relatórios', 'Analise seus resultados e visualize seus gastos']
+  relatorios: ['Relatórios', 'Analise seus resultados e visualize seus gastos'],
+  configuracoes: [
+    'Configurações',
+    'Gerencie seu perfil e personalize sua experiência financeira'
+  ]
 }
 
 async function navegarPara(destino) {
@@ -55,6 +65,7 @@ async function navegarPara(destino) {
         :titulo="titulos[pagina][0]"
         :subtitulo="titulos[pagina][1]"
         :mes="nomeMes()"
+        :mostrar-seletor-mes="pagina !== 'configuracoes'"
         :mostrar-novo="pagina === 'inicio'"
         @mes-anterior="mudarMes(-1)"
         @mes-seguinte="mudarMes(1)"

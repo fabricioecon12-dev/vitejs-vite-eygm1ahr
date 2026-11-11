@@ -8,6 +8,7 @@ import DashboardPage from '../pages/DashboardPage.vue'
 import TransacoesPage from '../pages/TransacoesPage.vue'
 import OrcamentoPage from '../pages/OrcamentoPage.vue'
 import RelatoriosPage from '../pages/RelatoriosPage.vue'
+import ConfiguracoesPage from '../pages/ConfiguracoesPage.vue'
 
 // Rotas atualmente implementadas no Nexus Finanças.
 const routes = [
@@ -30,7 +31,13 @@ const routes = [
     path: '/relatorios',
     name: 'relatorios',
     component: RelatoriosPage
+  },
+  {
+  path: '/configuracoes',
+  name: 'configuracoes',
+  component: ConfiguracoesPage
   }
+
 ]
 
 // Configuração principal do Vue Router.

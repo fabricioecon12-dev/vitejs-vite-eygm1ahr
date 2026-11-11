@@ -19,6 +19,10 @@ defineProps({
     type: String,
     default: ''
   },
+  mostrarSeletorMes: {
+    type: Boolean,
+    default: true
+  },
 
   mostrarNovo: {
     type: Boolean,
@@ -97,6 +101,7 @@ function solicitarNovaTransacao() {
       <!-- SELETOR DE MÊS -->
 
       <div
+        v-if="mostrarSeletorMes"
         class="seletor-mes group flex items-center gap-3 rounded-2xl border border-emerald-100 bg-white p-2 shadow-md transition-all duration-300 hover:border-emerald-300 hover:shadow-lg"
         role="group"
         aria-label="Navegação entre meses"
