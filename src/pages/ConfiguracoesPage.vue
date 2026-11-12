@@ -3,6 +3,15 @@
 import { ref } from 'vue'
 import { Settings, UserRound, MapPin } from 'lucide-vue-next'
 import { consultarCEP } from '../services/viacepService.js'
+import { usePerfil } from '../composables/usePerfil.js'
+
+const {
+  perfil,
+  erroPerfil,
+  sucessoPerfil,
+  campoInvalido,
+  salvarPerfil
+} = usePerfil()
 
 const cep = ref('')
 const endereco = ref(null)
@@ -46,9 +55,6 @@ async function buscarEndereco() {
           <h2 class="text-xl font-bold text-slate-800">
             Configurações
           </h2>
-          <p class="text-sm text-slate-500">
-            Gerencie suas informações e preferências.
-          </p>
         </div>
       </div>
     </div>
@@ -62,9 +68,173 @@ async function buscarEndereco() {
           </h3>
         </div>
 
-        <p class="text-sm text-slate-500">
-          Área destinada às informações do usuário.
-        </p>
+        <form
+  class="space-y-4"
+  novalidate
+  @submit.prevent="salvarPerfil"
+>
+  <!-- Nome completo -->
+  <div>
+    <label
+      for="perfil-nome"
+      class="mb-2 block text-sm font-medium text-slate-700"
+    >
+      Nome completo
+    </label>
+
+
+<input
+  id="perfil-nome"
+  v-model="perfil.nome"
+  type="text"
+  autocomplete="name"
+  placeholder="Digite seu nome completo"
+  required
+  class="w-full rounded-xl border bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:ring-2"
+
+:class="{
+  '!border-red-500 !bg-red-50 focus:!border-red-500 focus:!ring-red-200':
+    campoInvalido === 'nome',
+  'border-slate-200 focus:border-emerald-500 focus:ring-emerald-100':
+    campoInvalido !== 'nome'
+}"
+
+
+  :aria-invalid="campoInvalido === 'nome'"
+  :aria-describedby="
+    campoInvalido === 'nome'
+      ? 'erro-perfil-nome'
+      : undefined
+  "
+/>
+
+<p
+  v-if="campoInvalido === 'nome'"
+  id="erro-perfil-nome"
+  role="alert"
+  class="mt-1 text-sm text-red-600"
+>
+  {{ erroPerfil }}
+</p>
+
+  </div>
+
+  <!-- E-mail -->
+  <div>
+    <label
+      for="perfil-email"
+      class="mb-2 block text-sm font-medium text-slate-700"
+    >
+      E-mail
+    </label>
+
+
+<input
+  id="perfil-email"
+  v-model="perfil.email"
+  type="email"
+  autocomplete="email"
+  placeholder="seu@email.com"
+  required
+  class="w-full rounded-xl border bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:ring-2"
+  :class="{
+    '!border-red-500 !bg-red-50 focus:!border-red-500 focus:!ring-red-200':
+      campoInvalido === 'email',
+    'border-slate-200 focus:border-emerald-500 focus:ring-emerald-100':
+      campoInvalido !== 'email'
+  }"
+  :aria-invalid="campoInvalido === 'email'"
+  :aria-describedby="
+    campoInvalido === 'email'
+      ? 'erro-perfil-email'
+      : undefined
+  "
+/>
+
+<p
+  v-if="campoInvalido === 'email'"
+  id="erro-perfil-email"
+  role="alert"
+  class="mt-1 text-sm text-red-600"
+>
+  {{ erroPerfil }}
+</p>
+
+  </div>
+
+  <!-- Telefone -->
+  <div>
+    <label
+      for="perfil-telefone"
+      class="mb-2 block text-sm font-medium text-slate-700"
+    >
+      Telefone
+    </label>
+
+
+<input
+  id="perfil-telefone"
+  v-model="perfil.telefone"
+  type="tel"
+  autocomplete="tel"
+  placeholder="(00) 00000-0000"
+  required
+  class="w-full rounded-xl border bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:ring-2"
+  :class="{
+    '!border-red-500 !bg-red-50 focus:!border-red-500 focus:!ring-red-200':
+      campoInvalido === 'telefone',
+    'border-slate-200 focus:border-emerald-500 focus:ring-emerald-100':
+      campoInvalido !== 'telefone'
+  }"
+  :aria-invalid="campoInvalido === 'telefone'"
+  :aria-describedby="
+    campoInvalido === 'telefone'
+      ? 'erro-perfil-telefone'
+      : undefined
+  "
+/>
+
+<p
+  v-if="campoInvalido === 'telefone'"
+  id="erro-perfil-telefone"
+  role="alert"
+  class="mt-1 text-sm text-red-600"
+>
+  {{ erroPerfil }}
+</p>
+
+  </div>
+
+  <!-- Botão salvar -->
+  <button
+    type="submit"
+    class="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+  >
+    Salvar alterações
+  </button>
+</form>
+
+<!-- Mensagem de erro -->
+<div
+  v-if="erroPerfil && !campoInvalido"
+  role="alert"
+  class="mt-4 rounded-xl border border-red-200 bg-red-50 p-4"
+>
+  <p class="text-sm font-medium text-red-700">
+    {{ erroPerfil }}
+  </p>
+</div>
+
+<!-- Mensagem de sucesso -->
+<div
+  v-if="sucessoPerfil"
+  role="status"
+  class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4"
+>
+  <p class="text-sm font-medium text-emerald-700">
+    Perfil atualizado com sucesso!
+  </p>
+</div>
       </article>
 
       <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -75,7 +245,7 @@ async function buscarEndereco() {
           </h3>
         </div>
 
-        
+
 <form class="space-y-4" @submit.prevent="buscarEndereco">
   <div>
     <label
