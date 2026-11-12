@@ -1,5 +1,6 @@
 
 <script setup>
+import CotacoesMercado from '../components/CotacoesMercado.vue'
 import { computed } from 'vue'
 import { ChartBar, History } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
@@ -216,6 +217,8 @@ function navegarPara(destino) {
     </div>
 
     <!-- PAINÉIS DO DASHBOARD -->
+    <div class="mb-6"><CotacoesMercado /></div>
+
     <div class="painel-grid">
 
       <!-- ÚLTIMAS MOVIMENTAÇÕES -->
