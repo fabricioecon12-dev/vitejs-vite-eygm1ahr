@@ -859,7 +859,10 @@ function excluir(id) {
     return false
   }
 
-  if (!confirm('Deseja realmente excluir esta transação?')) {
+  if (
+    usePreferencias().confirmarExclusao.value &&
+    !confirm('Deseja realmente excluir esta transação?')
+  ) {
     return false
   }
 

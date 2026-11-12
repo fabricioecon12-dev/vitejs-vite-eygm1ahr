@@ -4,6 +4,7 @@ const CHAVE_PREFERENCIAS = 'nexus-financas-preferencias-v1'
 
 const mostrarCentavos = ref(true)
 const dicasFinanceiras = ref(true)
+const confirmarExclusao = ref(true)
 
 const moeda = 'BRL'
 
@@ -27,12 +28,16 @@ function carregarPreferencias() {
       mostrarCentavos.value = preferencias.mostrarCentavos
     }
 
+    if (typeof preferencias.confirmarExclusao === 'boolean') {
+      confirmarExclusao.value = preferencias.confirmarExclusao
+    }
     if (typeof preferencias.dicasFinanceiras === 'boolean') {
       dicasFinanceiras.value = preferencias.dicasFinanceiras
     }
   } catch {
     mostrarCentavos.value = true
     dicasFinanceiras.value = true
+    confirmarExclusao.value = true
   }
 }
 
@@ -43,6 +48,7 @@ function salvarPreferencias() {
       JSON.stringify({
         mostrarCentavos: mostrarCentavos.value,
         dicasFinanceiras: dicasFinanceiras.value,
+        confirmarExclusao: confirmarExclusao.value,
         moeda
       })
     )
@@ -77,14 +83,27 @@ function definirDicasFinanceiras(valor) {
   return true
 }
 
+function definirConfirmarExclusao(valor) {
+  const anterior = confirmarExclusao.value
+  confirmarExclusao.value = valor === true
+
+  if (!salvarPreferencias()) {
+    confirmarExclusao.value = anterior
+    return false
+  }
+
+  return true
+}
 carregarPreferencias()
 
 export function usePreferencias() {
   return {
     mostrarCentavos,
     dicasFinanceiras,
+    confirmarExclusao,
     moeda,
     definirMostrarCentavos,
-    definirDicasFinanceiras
+    definirDicasFinanceiras,
+    definirConfirmarExclusao
   }
 }

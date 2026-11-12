@@ -1,7 +1,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Settings, UserRound, MapPin, ShieldCheck, SlidersHorizontal, Eye, Database, Lightbulb } from 'lucide-vue-next'
+import { CircleAlert, Settings, UserRound, MapPin, ShieldCheck, SlidersHorizontal, Eye, Database, Trash2, Lightbulb } from 'lucide-vue-next'
 import { consultarCEP } from '../services/viacepService.js'
 import { usePerfil } from '../composables/usePerfil.js'
 import { usePrivacidade } from '../composables/usePrivacidade.js'
@@ -18,14 +18,16 @@ const {
 
 const abaAtiva = ref('perfil')
 const { ocultarValores, definirOcultacao } = usePrivacidade()
-const { armazenamentoProtegido } = useFinancas()
+const { armazenamentoProtegido, limpar, demonstracao } = useFinancas()
 
 const {
   mostrarCentavos,
   dicasFinanceiras,
   moeda,
   definirMostrarCentavos,
-  definirDicasFinanceiras
+  definirDicasFinanceiras,
+  confirmarExclusao,
+  definirConfirmarExclusao
 } = usePreferencias()
 
 const cep = ref('')
@@ -98,6 +100,38 @@ async function buscarEndereco() {
         </div>
       </div>
 
+      <!-- CONFIRMACAO DE EXCLUSAO -->
+      <div class="flex flex-col gap-5 rounded-xl border border-slate-200 bg-slate-50 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex min-w-0 items-start gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+            <CircleAlert :size="21" />
+          </div>
+          <div>
+            <h4 class="font-semibold text-slate-800">Confirmação de exclusão</h4>
+            <p class="mt-2 text-sm text-slate-500">
+              Solicita confirmação antes de excluir uma transação financeira.
+            </p>
+            <p class="mt-3 text-xs font-medium text-emerald-700">
+              {{ confirmarExclusao ? 'Confirmação ativada' : 'Confirmação desativada' }}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          role="switch"
+          :aria-checked="confirmarExclusao"
+          aria-label="Confirmação de exclusão"
+          @click="definirConfirmarExclusao(!confirmarExclusao)"
+          :class="confirmarExclusao ? 'bg-emerald-600' : 'bg-slate-300'"
+          class="relative h-8 w-14 shrink-0 rounded-full border-0 shadow-inner outline-none transition-all duration-300 hover:scale-105 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+        >
+          <span
+            :class="confirmarExclusao ? 'translate-x-7' : 'translate-x-1'"
+            class="absolute left-0 top-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-300"
+          ></span>
+        </button>
+      </div>
       <div class="flex flex-col gap-5 rounded-xl border border-slate-200 bg-slate-50 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md sm:flex-row sm:items-center sm:justify-between">
         <div class="flex min-w-0 items-start gap-3">
           <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
@@ -130,13 +164,62 @@ async function buscarEndereco() {
         </button>
       </div>
 
+      <!-- RESTAURAR DADOS DEMONSTRATIVOS -->
+      <div class="flex flex-col gap-5 rounded-xl border border-slate-200 bg-slate-50 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex min-w-0 items-start gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+            <Database :size="21" />
+          </div>
+          <div>
+            <h4 class="font-semibold text-slate-800">Restaurar dados demonstrativos</h4>
+            <p class="mt-2 text-sm text-slate-500">
+              Substitui os dados financeiros atuais pelos exemplos demonstrativos.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          :disabled="armazenamentoProtegido"
+          @click="demonstracao()"
+          class="shrink-0 rounded-xl border border-emerald-500 bg-white px-5 py-3 text-sm font-semibold text-emerald-700 transition-all duration-200 hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Restaurar dados
+        </button>
+      </div>
+
+      <!-- LIMPAR DADOS FINANCEIROS -->
+      <div class="flex flex-col gap-5 rounded-xl border border-slate-200 bg-slate-50 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex min-w-0 items-start gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-700">
+            <Trash2 :size="21" />
+          </div>
+          <div>
+            <h4 class="font-semibold text-slate-800">Limpar dados financeiros</h4>
+            <p class="mt-2 text-sm text-slate-500">
+              Remove as transações e os limites financeiros cadastrados.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          :disabled="armazenamentoProtegido"
+          @click="limpar()"
+          class="shrink-0 rounded-xl border border-red-500 bg-white px-5 py-3 text-sm font-semibold text-red-700 transition-all duration-200 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Limpar dados
+        </button>
+      </div>
+    </article>
+    <article v-if="abaAtiva === 'seguranca'" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div class="rounded-xl border border-slate-200 bg-slate-50 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
               <Database :size="21" />
             </div>
-            <h4 class="font-semibold text-slate-800">Estado do armazenamento</h4>
+            <h3 class="font-semibold text-slate-800">Armazenamento local</h3>
           </div>
 
           <span
@@ -155,7 +238,8 @@ async function buscarEndereco() {
         </p>
       </div>
 
-      <div class="rounded-xl border border-blue-100 bg-blue-50 p-4">
+    </article>
+    <div v-if="abaAtiva === 'seguranca'" class="rounded-xl border border-blue-100 bg-blue-50 p-4">
         <div class="flex items-start gap-3">
           <ShieldCheck :size="19" class="mt-0.5 shrink-0 text-blue-600" />
           <div>
@@ -168,7 +252,6 @@ async function buscarEndereco() {
           </div>
         </div>
       </div>
-    </article>
         <!-- PREFERENCIAS FINANCEIRAS -->
     <article
       v-if="abaAtiva === 'preferencias'"

@@ -416,6 +416,29 @@ describe('Nexus Finanças — operações financeiras', () => {
       }
     })
   
+    it('exclui sem solicitar confirmacao quando a preferencia esta desativada', async () => {
+      const confirmar = vi.fn(() => false)
+      vi.stubGlobal('confirm', confirmar)
+
+      try {
+        const { financas, setItem } = await prepararFinancas()
+
+        const { usePreferencias } = await import(
+          '../composables/usePreferencias.js'
+        )
+
+        const preferencias = usePreferencias()
+        preferencias.confirmarExclusao.value = false
+
+        expect(financas.excluir(1)).toBe(true)
+        expect(confirmar).not.toHaveBeenCalled()
+        expect(financas.transacoes.value).toHaveLength(0)
+        expect(setItem).toHaveBeenCalledTimes(1)
+      } finally {
+        vi.unstubAllGlobals()
+        vi.resetModules()
+      }
+    })
     it('não exclui uma transação quando o usuário cancela', async () => {
       vi.stubGlobal('confirm', vi.fn(() => false))
   

@@ -47,6 +47,34 @@ describe('Nexus Finanças — Preferências', () => {
     expect(preferencias.moeda).toBe('BRL')
   })
 
+  it('desativa e persiste a confirmacao de exclusao', async () => {
+    const preferencias = await preparar()
+
+    expect(preferencias.confirmarExclusao.value).toBe(true)
+    expect(preferencias.definirConfirmarExclusao(false)).toBe(true)
+    expect(preferencias.confirmarExclusao.value).toBe(false)
+
+    const dados = JSON.parse(
+      preferencias.setItem.mock.lastCall[1]
+    )
+
+    expect(dados.confirmarExclusao).toBe(false)
+    expect(dados.mostrarCentavos).toBe(true)
+    expect(dados.dicasFinanceiras).toBe(true)
+  })
+
+  it('recupera a confirmacao de exclusao desativada', async () => {
+    const dados = JSON.stringify({
+      mostrarCentavos: true,
+      dicasFinanceiras: true,
+      confirmarExclusao: false,
+      moeda: 'BRL'
+    })
+
+    const preferencias = await preparar(vi.fn(() => dados))
+
+    expect(preferencias.confirmarExclusao.value).toBe(false)
+  })
   it('mantém BRL como moeda fixa', async () => {
     const dados = JSON.stringify({
       mostrarCentavos: true,
@@ -70,6 +98,7 @@ describe('Nexus Finanças — Preferências', () => {
       JSON.stringify({
         mostrarCentavos: false,
         dicasFinanceiras: true,
+        confirmarExclusao: true,
         moeda: 'BRL'
       })
     )

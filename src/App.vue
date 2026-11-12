@@ -11,9 +11,7 @@ import { useFinancas } from './composables/useFinancas.js'
 const {
   aviso,
   nomeMes,
-  mudarMes,
-  limpar,
-  demonstracao
+  mudarMes
 } = useFinancas()
 
 const route = useRoute()
@@ -93,32 +91,6 @@ async function navegarPara(destino) {
            <RouterView />
          </main>
       
-      <!-- MODO DEMONSTRATIVO -->
-      <section class="ferramentas-demo">
-        <div>
-          <strong>Modo demonstrativo</strong>
-          <p>
-            Experimente os recursos ou comece
-            com seus próprios dados.
-          </p>
-        </div>
-
-        <div class="ferramentas-acoes">
-          <button
-            class="btn btn-outline"
-            @click="limpar"
-          >
-            Limpar dados
-          </button>
-
-          <button
-            class="btn btn-outline"
-            @click="demonstracao"
-          >
-            Restaurar exemplos
-          </button>
-        </div>
-      </section>
 
       <Rodape />
     </div>
