@@ -1,6 +1,8 @@
 
 <script setup>
 import { computed } from 'vue'
+import { usePrivacidade } from '../composables/usePrivacidade.js'
+import { useFinancas } from '../composables/useFinancas.js'
 
 import {
   ArrowUpRight,
@@ -52,6 +54,9 @@ const props = defineProps({
     default: false
   }
 })
+
+const { valorVisivel } = usePrivacidade()
+const { moeda } = useFinancas()
 
 const emit = defineEmits([
   'excluir',
@@ -130,12 +135,7 @@ const iconeCategoria = computed(() => {
 })
 
 const valorFormatado = computed(() => {
-  const valor = Number(props.transacao.valor)
-
-  return valor.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  })
+  return moeda(props.transacao.valor)
 })
 
 const dataFormatada = computed(() => {
@@ -248,7 +248,7 @@ function solicitarExclusao() {
 
       <span>
         {{ sinalValor }}
-        {{ valorFormatado }}
+        {{ valorVisivel(valorFormatado) }}
       </span>
 
     </strong>

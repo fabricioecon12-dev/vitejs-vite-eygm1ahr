@@ -1,9 +1,12 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Settings, UserRound, MapPin } from 'lucide-vue-next'
+import { Settings, UserRound, MapPin, ShieldCheck, SlidersHorizontal, Eye, Database, Lightbulb } from 'lucide-vue-next'
 import { consultarCEP } from '../services/viacepService.js'
 import { usePerfil } from '../composables/usePerfil.js'
+import { usePrivacidade } from '../composables/usePrivacidade.js'
+import { useFinancas } from '../composables/useFinancas.js'
+import { usePreferencias } from '../composables/usePreferencias.js'
 
 const {
   perfil,
@@ -12,6 +15,18 @@ const {
   campoInvalido,
   salvarPerfil
 } = usePerfil()
+
+const abaAtiva = ref('perfil')
+const { ocultarValores, definirOcultacao } = usePrivacidade()
+const { armazenamentoProtegido } = useFinancas()
+
+const {
+  mostrarCentavos,
+  dicasFinanceiras,
+  moeda,
+  definirMostrarCentavos,
+  definirDicasFinanceiras
+} = usePreferencias()
 
 const cep = ref('')
 const endereco = ref(null)
@@ -59,7 +74,217 @@ async function buscarEndereco() {
       </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start">
+    <nav aria-label="Seções de configurações" class="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+      <button v-for="aba in [{ id: 'perfil', nome: 'Meu perfil', icone: UserRound }, { id: 'seguranca', nome: 'Segurança', icone: ShieldCheck }, { id: 'preferencias', nome: 'Preferências', icone: SlidersHorizontal }]" :key="aba.id" type="button" :aria-current="abaAtiva === aba.id ? 'page' : undefined" @click="abaAtiva = aba.id" :class="abaAtiva === aba.id ? 'bg-emerald-100 text-emerald-800' : 'text-slate-700 hover:bg-slate-50'" class="inline-flex w-full items-center gap-3 rounded-xl border-0 px-4 py-4 text-left text-sm font-semibold shadow-none outline-none transition focus-visible:ring-2 focus-visible:ring-emerald-500">
+        <component :is="aba.icone" :size="18" />
+        {{ aba.nome }}
+      </button>
+    </nav>
+    <div class="min-w-0 space-y-6">
+    <article
+      v-if="abaAtiva === 'seguranca'"
+      class="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+    >
+      <div class="flex items-center gap-3 border-b border-slate-100 pb-5">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+          <ShieldCheck :size="23" />
+        </div>
+        <div>
+          <h3 class="font-semibold text-slate-800">Segurança e privacidade</h3>
+          <p class="mt-1 text-sm text-slate-500">
+            Gerencie a proteção e a privacidade das suas informações financeiras.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-5 rounded-xl border border-slate-200 bg-slate-50 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex min-w-0 items-start gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+            <Eye :size="21" />
+          </div>
+          <div>
+            <h4 class="font-semibold text-slate-800">Ocultar valores financeiros</h4>
+            <p class="mt-2 text-sm text-slate-500">
+              Substitui os valores monetários por símbolos nas telas financeiras.
+            </p>
+            <p class="mt-3 text-xs font-medium text-emerald-700">
+              {{ ocultarValores ? 'Privacidade ativada' : 'Valores visíveis' }}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          role="switch"
+          :aria-checked="ocultarValores"
+          aria-label="Ocultar valores financeiros"
+          @click="definirOcultacao(!ocultarValores)"
+          :class="ocultarValores ? 'bg-emerald-600' : 'bg-slate-300'"
+          class="relative h-8 w-14 shrink-0 rounded-full border-0 shadow-inner outline-none transition-all duration-300 hover:scale-105 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+        >
+          <span
+            :class="ocultarValores ? 'translate-x-7' : 'translate-x-1'"
+            class="absolute left-0 top-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-300"
+          ></span>
+        </button>
+      </div>
+
+      <div class="rounded-xl border border-slate-200 bg-slate-50 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+              <Database :size="21" />
+            </div>
+            <h4 class="font-semibold text-slate-800">Estado do armazenamento</h4>
+          </div>
+
+          <span
+            role="status"
+            :class="armazenamentoProtegido ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-700'"
+            class="rounded-full px-3 py-1 text-xs font-semibold"
+          >
+            {{ armazenamentoProtegido ? 'Operações bloqueadas' : 'Operações disponíveis' }}
+          </span>
+        </div>
+
+        <p class="mt-4 text-sm text-slate-600">
+          {{ armazenamentoProtegido
+            ? 'O sistema bloqueou operações financeiras para evitar possíveis perdas de dados.'
+            : 'Nenhum bloqueio preventivo de operações financeiras está ativo.' }}
+        </p>
+      </div>
+
+      <div class="rounded-xl border border-blue-100 bg-blue-50 p-4">
+        <div class="flex items-start gap-3">
+          <ShieldCheck :size="19" class="mt-0.5 shrink-0 text-blue-600" />
+          <div>
+            <h4 class="text-sm font-semibold text-slate-800">Importante sobre seus dados</h4>
+            <p class="mt-1 text-sm text-slate-600">
+              Os dados financeiros são armazenados localmente neste navegador,
+              sem criptografia. Evite utilizar dispositivos compartilhados
+              para informações sensíveis.
+            </p>
+          </div>
+        </div>
+      </div>
+    </article>
+        <!-- PREFERENCIAS FINANCEIRAS -->
+    <article
+      v-if="abaAtiva === 'preferencias'"
+      class="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+    >
+      <div class="flex items-center gap-3 border-b border-slate-100 pb-5">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+          <SlidersHorizontal :size="23" />
+        </div>
+
+        <div>
+          <h3 class="font-semibold text-slate-800">
+            Preferências do sistema
+          </h3>
+          <p class="mt-1 text-sm text-slate-500">
+            Personalize a apresentação das suas informações financeiras.
+          </p>
+        </div>
+      </div>
+
+      <!-- EXIBICAO DE CENTAVOS -->
+      <div class="flex flex-col gap-4 rounded-xl border border-slate-200 bg-slate-50/70 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:bg-emerald-50/40 hover:shadow-md sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-start gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+            <span class="text-lg font-bold">R$</span>
+          </div>
+
+          <div>
+            <h4 class="font-semibold text-slate-800">
+              Exibir centavos
+            </h4>
+            <p class="mt-1 text-sm leading-relaxed text-slate-500">
+              Escolha se os valores financeiros devem apresentar duas casas decimais.
+            </p>
+            <p class="mt-2 text-xs font-medium text-emerald-700">
+              Exemplo: {{ mostrarCentavos ? 'R$ 1.250,75' : 'R$ 1.251' }}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          role="switch"
+          :aria-checked="mostrarCentavos"
+          aria-label="Exibir centavos"
+          @click="definirMostrarCentavos(!mostrarCentavos)"
+          :class="mostrarCentavos ? 'bg-emerald-600' : 'bg-slate-300'"
+          class="relative h-8 w-14 shrink-0 rounded-full border-0 shadow-inner outline-none transition-all duration-300 hover:scale-105 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+        >
+          <span
+            :class="mostrarCentavos ? 'translate-x-7' : 'translate-x-1'"
+            class="absolute left-0 top-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-300"
+          ></span>
+        </button>
+      </div>
+
+      <!-- DICAS FINANCEIRAS -->
+      <div class="flex flex-col gap-4 rounded-xl border border-slate-200 bg-slate-50/70 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:bg-emerald-50/40 hover:shadow-md sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-start gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+            <Lightbulb :size="21" />
+          </div>
+
+          <div>
+            <h4 class="font-semibold text-slate-800">
+              Dicas financeiras
+            </h4>
+            <p class="mt-1 text-sm leading-relaxed text-slate-500">
+              Controle a exibição de orientações e sugestões para melhorar sua organização financeira.
+            </p>
+            <p class="mt-2 text-xs font-medium text-emerald-700">
+              {{ dicasFinanceiras ? 'Orientações ativadas' : 'Orientações desativadas' }}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          role="switch"
+          :aria-checked="dicasFinanceiras"
+          aria-label="Ativar dicas financeiras"
+          @click="definirDicasFinanceiras(!dicasFinanceiras)"
+          :class="dicasFinanceiras ? 'bg-emerald-600' : 'bg-slate-300'"
+          class="relative h-8 w-14 shrink-0 rounded-full border-0 shadow-inner outline-none transition-all duration-300 hover:scale-105 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+        >
+          <span
+            :class="dicasFinanceiras ? 'translate-x-7' : 'translate-x-1'"
+            class="absolute left-0 top-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-300"
+          ></span>
+        </button>
+      </div>
+
+      <!-- MOEDA -->
+      <div class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-5">
+        <div>
+          <h4 class="font-semibold text-slate-800">
+            Moeda padrão
+          </h4>
+          <p class="mt-1 text-sm text-slate-500">
+            Moeda utilizada nos registros e indicadores financeiros.
+          </p>
+        </div>
+
+        <span class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700">
+          {{ moeda }}
+        </span>
+      </div>
+
+      <div class="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/70 p-4">
+        <ShieldCheck :size="19" class="mt-0.5 shrink-0 text-blue-600" />
+        <p class="text-sm leading-relaxed text-slate-600">
+          Suas preferências são armazenadas localmente neste navegador e podem ser modificadas a qualquer momento.
+        </p>
+      </div>
+    </article>
+<div v-if="abaAtiva === 'perfil'" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div class="mb-4 flex items-center gap-3">
           <UserRound :size="22" class="text-emerald-600" />
@@ -208,7 +433,7 @@ async function buscarEndereco() {
   <!-- Botão salvar -->
   <button
     type="submit"
-    class="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+    class="w-full border-0 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 min-h-[60px] px-5 py-4 text-base font-bold text-white shadow-md shadow-emerald-100 transition-all duration-300 hover:-translate-y-1 hover:from-emerald-500 hover:to-emerald-700 hover:shadow-lg hover:shadow-emerald-200 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
   >
     Salvar alterações
   </button>
@@ -270,7 +495,7 @@ async function buscarEndereco() {
   <button
     type="submit"
     :disabled="carregando"
-    class="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+    class="w-full border-0 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 min-h-[60px] px-5 py-4 text-base font-bold text-white shadow-md shadow-emerald-100 transition-all duration-300 hover:-translate-y-1 hover:from-emerald-500 hover:to-emerald-700 hover:shadow-lg hover:shadow-emerald-200 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
   >
     {{ carregando ? 'Consultando CEP...' : 'Consultar endereço' }}
   </button>
@@ -336,6 +561,8 @@ async function buscarEndereco() {
 
 
       </article>
+    </div>
+    </div>
     </div>
   </section>
 </template>

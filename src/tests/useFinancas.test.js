@@ -258,7 +258,11 @@ it('protege dados corrompidos sem sobrescrever o armazenamento', async () => {
   
         await nextTick()
   
-        expect(getItem).toHaveBeenCalledTimes(1)
+        expect(
+          getItem.mock.calls.filter(
+            ([chave]) => chave === 'nexus-financas-dados-v1'
+          )
+        ).toHaveLength(1)
         expect(confirmar).not.toHaveBeenCalled()
         expect(financas.armazenamentoProtegido.value).toBe(false)
         expect(financas.transacoes.value).toHaveLength(10)
@@ -301,7 +305,11 @@ it('protege dados corrompidos sem sobrescrever o armazenamento', async () => {
         expect(financas.armazenamentoProtegido.value).toBe(true)
         expect(financas.transacoes.value).toHaveLength(0)
         expect(setItem).not.toHaveBeenCalled()
-        expect(getItem).toHaveBeenCalledTimes(1)
+        expect(
+          getItem.mock.calls.filter(
+            ([chave]) => chave === 'nexus-financas-dados-v1'
+          )
+        ).toHaveLength(1)
       } finally {
         consoleError.mockRestore()
         vi.unstubAllGlobals()
@@ -327,7 +335,11 @@ it('protege dados corrompidos sem sobrescrever o armazenamento', async () => {
   
         await nextTick()
   
-        expect(getItem).toHaveBeenCalledTimes(1)
+        expect(
+          getItem.mock.calls.filter(
+            ([chave]) => chave === 'nexus-financas-dados-v1'
+          )
+        ).toHaveLength(1)
         expect(setItem).toHaveBeenCalledTimes(1)
         expect(financas.armazenamentoProtegido.value).toBe(true)
         expect(financas.aviso.value).toContain('Não foi possível salvar')

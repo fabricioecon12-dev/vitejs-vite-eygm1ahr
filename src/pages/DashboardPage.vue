@@ -10,6 +10,7 @@ import ResumoOrcamento from '../components/ResumoOrcamento.vue'
 import EstadoVazio from '../components/EstadoVazio.vue'
 
 import { useFinancas } from '../composables/useFinancas.js'
+import { usePrivacidade } from '../composables/usePrivacidade.js'
 
 const {
   moeda,
@@ -23,6 +24,8 @@ const {
   maxCategoria,
   limiteAtual
 } = useFinancas()
+
+const { valorVisivel } = usePrivacidade()
 
 const router = useRouter()
 
@@ -142,7 +145,7 @@ function navegarPara(destino) {
           </p>
 
           <strong>
-            {{ moeda(saldoDisponivel) }}
+            {{ valorVisivel(moeda(saldoDisponivel)) }}
           </strong>
 
           <small>
@@ -191,21 +194,21 @@ function navegarPara(destino) {
 
       <CardFinanceiro
         titulo="Receitas do mês"
-        :valor="moeda(totalReceitas)"
+        :valor="valorVisivel(moeda(totalReceitas))"
         tipo="receita"
         detalhe="Entradas no período"
       />
 
       <CardFinanceiro
         titulo="Despesas do mês"
-        :valor="moeda(totalDespesas)"
+        :valor="valorVisivel(moeda(totalDespesas))"
         tipo="despesa"
         detalhe="Saídas no período"
       />
 
       <CardFinanceiro
         titulo="Resultado do mês"
-        :valor="moeda(resultadoMensal)"
+        :valor="valorVisivel(moeda(resultadoMensal))"
         tipo="resultado"
         detalhe="Receitas menos despesas"
       />
@@ -325,7 +328,7 @@ function navegarPara(destino) {
                 </span>
 
                 <strong>
-                  {{ moeda(categoria.valor) }}
+                  {{ valorVisivel(moeda(categoria.valor)) }}
                 </strong>
               </div>
 

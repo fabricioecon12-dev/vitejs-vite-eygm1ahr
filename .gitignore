@@ -39,3 +39,6 @@ verificar-navegacao.cjs
 .env
 .env.*
 !.env.example
+
+# Backups locais das etapas de desenvolvimento
+*.backup-*

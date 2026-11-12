@@ -1,5 +1,6 @@
 
 import { ref, watch } from 'vue'
+import { usePreferencias } from './usePreferencias.js'
 
 // =====================================================
 // NEXUS FINANÇAS — ESTADO FINANCEIRO COMPARTILHADO
@@ -512,9 +513,13 @@ function adicionarCategoria(nome, tipo) {
 // =====================================================
 
 function moeda(valor) {
+  const { mostrarCentavos } = usePreferencias()
+
   return Number(valor).toLocaleString('pt-BR', {
     style: 'currency',
-    currency: 'BRL'
+    currency: 'BRL',
+    minimumFractionDigits: mostrarCentavos.value ? 2 : 0,
+    maximumFractionDigits: mostrarCentavos.value ? 2 : 0
   })
 }
 

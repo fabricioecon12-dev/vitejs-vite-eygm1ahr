@@ -15,6 +15,7 @@ import {
 import CardFinanceiro from '../components/CardFinanceiro.vue'
 import EstadoVazio from '../components/EstadoVazio.vue'
 import { useFinancas } from '../composables/useFinancas.js'
+import { usePrivacidade } from '../composables/usePrivacidade.js'
 
 // =====================================================
 // DADOS FINANCEIROS
@@ -28,6 +29,8 @@ const {
   resultado,
   categorias
 } = useFinancas()
+
+const { ocultarValores, valorVisivel } = usePrivacidade()
 
 const receitasMes = computed(() => receitas())
 const despesasMes = computed(() => despesas())
@@ -162,7 +165,9 @@ const seriesComparacao = computed(() => [
   }
 ])
 
-const opcoesComparacao = computed(() => ({
+const opcoesComparacao = computed(() => {
+  ocultarValores.value
+  return {
   chart: {
     type: 'bar',
     toolbar: {
@@ -192,15 +197,13 @@ const opcoesComparacao = computed(() => ({
   yaxis: {
     labels: {
       formatter: (valor) =>
-        'R$ ' + Number(valor).toLocaleString('pt-BR', {
-          maximumFractionDigits: 0
-        })
+        valorVisivel(moeda(valor))
     }
   },
 
   tooltip: {
     y: {
-      formatter: (valor) => moeda(valor)
+      formatter: (valor) => valorVisivel(moeda(valor))
     }
   },
 
@@ -216,7 +219,8 @@ const opcoesComparacao = computed(() => ({
   noData: {
     text: 'Nenhum dado disponível'
   }
-}))
+  }
+})
 
 // =====================================================
 // GRÁFICO DE DESPESAS POR CATEGORIA
@@ -228,7 +232,9 @@ const seriesCategorias = computed(() =>
   )
 )
 
-const opcoesCategorias = computed(() => ({
+const opcoesCategorias = computed(() => {
+  ocultarValores.value
+  return {
   chart: {
     type: 'donut',
     fontFamily: 'inherit',
@@ -282,7 +288,7 @@ labels: {
     fontWeight: 700,
     color: '#14233f',
     offsetY: 8,
-    formatter: (valor) => moeda(Number(valor))
+    formatter: (valor) => valorVisivel(moeda(Number(valor)))
   },
 
   total: {
@@ -291,7 +297,7 @@ labels: {
     fontSize: '12px',
     fontWeight: 500,
     color: '#64748b',
-    formatter: () => moeda(despesasMes.value)
+    formatter: () => valorVisivel(moeda(despesasMes.value))
   }
 }
 
@@ -330,7 +336,7 @@ labels: {
 
   tooltip: {
     y: {
-      formatter: (valor) => moeda(valor)
+      formatter: (valor) => valorVisivel(moeda(valor))
     }
   },
 
@@ -344,7 +350,8 @@ labels: {
       }
     }
   ]
-}))
+  }
+})
 
 // =====================================================
 // GRÁFICO RADIAL
@@ -425,19 +432,19 @@ const opcoesRadial = computed(() => ({
 
       <CardFinanceiro
         titulo="Receitas do mês"
-        :valor="moeda(receitasMes)"
+        :valor="valorVisivel(moeda(receitasMes))"
         tipo="receita"
       />
 
       <CardFinanceiro
         titulo="Despesas do mês"
-        :valor="moeda(despesasMes)"
+        :valor="valorVisivel(moeda(despesasMes))"
         tipo="despesa"
       />
 
       <CardFinanceiro
         titulo="Resultado do mês"
-        :valor="moeda(resultadoMes)"
+        :valor="valorVisivel(moeda(resultadoMes))"
         :tipo="tipoCardResultado"
       />
 
@@ -481,7 +488,7 @@ const opcoesRadial = computed(() => ({
         >
           <div>
             <span>Resultado do mês</span>
-            <strong>{{ moeda(resultadoMes) }}</strong>
+            <strong>{{ valorVisivel(moeda(resultadoMes)) }}</strong>
           </div>
 
           <div class="comparacao-premium-percentual">
@@ -607,7 +614,7 @@ const opcoesRadial = computed(() => ({
         <template v-if="situacaoFinanceira === 'positivo'">
           Suas receitas superaram as despesas em
           <strong class="texto-verde">
-            {{ moeda(resultadoMes) }}
+            {{ valorVisivel(moeda(resultadoMes)) }}
           </strong>.
           Você utilizou
           <strong>
@@ -623,7 +630,7 @@ const opcoesRadial = computed(() => ({
         <template v-else-if="situacaoFinanceira === 'negativo'">
           Suas despesas superaram as receitas em
           <strong class="texto-vermelho">
-            {{ moeda(Math.abs(resultadoMes)) }}
+            {{ valorVisivel(moeda(Math.abs(resultadoMes))) }}
           </strong>.
           Os gastos corresponderam a
           <strong>
@@ -634,7 +641,7 @@ const opcoesRadial = computed(() => ({
 
         <template v-else-if="situacaoFinanceira === 'equilibrado'">
           As receitas e despesas ficaram equilibradas em
-          <strong>{{ moeda(receitasMes) }}</strong>.
+          <strong>{{ valorVisivel(moeda(receitasMes)) }}</strong>.
           Não houve resultado positivo nem negativo neste mês.
         </template>
 
@@ -642,7 +649,7 @@ const opcoesRadial = computed(() => ({
           Não foram registradas receitas neste mês.
           As despesas totalizaram
           <strong class="texto-vermelho">
-            {{ moeda(despesasMes) }}
+            {{ valorVisivel(moeda(despesasMes)) }}
           </strong>.
           O percentual não é aplicável sem receitas.
         </template>
@@ -694,7 +701,7 @@ const opcoesRadial = computed(() => ({
               class="resumo-radial-valor"
               :class="{ negativo: resultadoMes < 0 }"
             >
-              {{ moeda(resultadoMes) }}
+              {{ valorVisivel(moeda(resultadoMes)) }}
             </strong>
 
             <div class="resumo-radial-separador"></div>

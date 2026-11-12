@@ -1,12 +1,16 @@
 
 <script setup>
 import { computed } from 'vue'
+import { usePrivacidade } from '../composables/usePrivacidade.js'
+import { useFinancas } from '../composables/useFinancas.js'
 
 import {
   Target,
   Receipt,
   Banknote
 } from 'lucide-vue-next'
+
+const { valorVisivel } = usePrivacidade()
 
 // =====================================================
 // PROPRIEDADES
@@ -28,12 +32,7 @@ const props = defineProps({
 // FORMATAÇÃO MONETÁRIA
 // =====================================================
 
-function moeda(valor) {
-  return Number(valor).toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  })
-}
+const { moeda } = useFinancas()
 
 // =====================================================
 // CÁLCULOS DO ORÇAMENTO
@@ -237,7 +236,7 @@ const descricaoProgresso = computed(() => {
         </div>
 
         <strong>
-          {{ moeda(gastoSeguro) }}
+          {{ valorVisivel(moeda(gastoSeguro)) }}
         </strong>
 
       </div>
@@ -266,7 +265,7 @@ const descricaoProgresso = computed(() => {
         </div>
 
         <strong>
-          {{ moeda(valorIndicador) }}
+          {{ valorVisivel(moeda(valorIndicador)) }}
         </strong>
 
       </div>
@@ -287,7 +286,7 @@ const descricaoProgresso = computed(() => {
       class="mensagem-erro"
     >
       Orçamento excedido em
-      {{ moeda(valorExcedido) }}.
+      {{ valorVisivel(moeda(valorExcedido)) }}.
     </p>
 
     <p

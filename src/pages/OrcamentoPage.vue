@@ -12,6 +12,7 @@ import ResumoOrcamento from '../components/ResumoOrcamento.vue'
 import EstadoVazio from '../components/EstadoVazio.vue'
 
 import { useFinancas } from '../composables/useFinancas.js'
+import { usePrivacidade } from '../composables/usePrivacidade.js'
 
 // =====================================================
 // DADOS FINANCEIROS
@@ -31,6 +32,8 @@ const {
 // =====================================================
 // INDICADORES DO ORÇAMENTO
 // =====================================================
+
+const { valorVisivel } = usePrivacidade()
 
 const limiteMensal = computed(() => limiteAtual())
 
@@ -80,7 +83,7 @@ const tituloSaldo = computed(() => {
 
 const valorSaldo = computed(() => {
   return limiteConfigurado.value
-    ? moeda(diferencaOrcamento.value)
+    ? valorVisivel(moeda(diferencaOrcamento.value))
     : '—'
 })
 
@@ -142,13 +145,13 @@ function percentualCategoria(valor) {
 
       <CardFinanceiro
         titulo="Limite do mês"
-        :valor="moeda(limiteMensal)"
+        :valor="valorVisivel(moeda(limiteMensal))"
         detalhe="Planejamento mensal"
       />
 
       <CardFinanceiro
         titulo="Valor utilizado"
-        :valor="moeda(despesasMensais)"
+        :valor="valorVisivel(moeda(despesasMensais))"
         tipo="despesa"
         detalhe="Despesas do período"
       />
@@ -281,7 +284,7 @@ function percentualCategoria(valor) {
           <!-- VALOR DA CATEGORIA -->
 
           <strong>
-            {{ moeda(categoria.valor) }}
+            {{ valorVisivel(moeda(categoria.valor)) }}
           </strong>
 
         </div>
