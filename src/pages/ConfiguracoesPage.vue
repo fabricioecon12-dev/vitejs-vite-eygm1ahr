@@ -1,7 +1,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { CircleAlert, Settings, UserRound, MapPin, ShieldCheck, SlidersHorizontal, Eye, Database, Trash2, Lightbulb } from 'lucide-vue-next'
+import { CircleCheck, CircleAlert, Settings, UserRound, MapPin, ShieldCheck, SlidersHorizontal, Eye, Database, Trash2, Lightbulb } from 'lucide-vue-next'
 import { consultarCEP } from '../services/viacepService.js'
 import { usePerfil } from '../composables/usePerfil.js'
 import { usePrivacidade } from '../composables/usePrivacidade.js'
@@ -571,7 +571,7 @@ async function buscarEndereco() {
       maxlength="9"
       autocomplete="postal-code"
       placeholder="00000-000"
-      class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+      class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base sm:text-sm text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
     />
   </div>
 
@@ -595,47 +595,68 @@ async function buscarEndereco() {
   </p>
 </div>
 
-<!-- Endereço encontrado -->
+<!-- Endereço encontrado — Premium Fintech Light -->
 <div
   v-if="endereco"
-  class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4"
+  class="mt-5 min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
 >
-  <h4 class="mb-3 text-sm font-semibold text-emerald-800">
-    Endereço encontrado
-  </h4>
+  <div class="mb-4 flex items-center gap-3 border-b border-slate-100 pb-4">
+    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+      <CircleCheck :size="22" :stroke-width="2" />
+    </div>
 
-  <dl class="space-y-3 text-sm">
-    <div>
-      <dt class="font-medium text-slate-500">Logradouro</dt>
-      <dd class="break-words text-slate-800">
+    <div class="min-w-0">
+      <h4 class="text-base font-bold text-slate-800">
+        Endereço encontrado
+      </h4>
+      <p class="text-xs text-slate-500">
+        Consulta realizada com sucesso
+      </p>
+    </div>
+  </div>
+
+  <dl class="grid min-w-0 grid-cols-2 gap-3">
+    <div class="col-span-2 min-w-0 rounded-xl border border-slate-100 bg-slate-50 p-4">
+      <dt class="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Logradouro
+      </dt>
+      <dd class="ml-0 text-left break-words text-sm font-semibold leading-relaxed text-slate-800">
         {{ endereco.logradouro || 'Não informado' }}
       </dd>
     </div>
 
-    <div>
-      <dt class="font-medium text-slate-500">Bairro</dt>
-      <dd class="break-words text-slate-800">
+    <div class="min-w-0 rounded-xl border border-slate-100 bg-slate-50 p-3 sm:p-4">
+      <dt class="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Bairro
+      </dt>
+      <dd class="ml-0 text-left break-words text-sm font-semibold text-slate-800">
         {{ endereco.bairro || 'Não informado' }}
       </dd>
     </div>
 
-    <div>
-      <dt class="font-medium text-slate-500">Cidade</dt>
-      <dd class="break-words text-slate-800">
+    <div class="min-w-0 rounded-xl border border-slate-100 bg-slate-50 p-3 sm:p-4">
+      <dt class="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Cidade
+      </dt>
+      <dd class="ml-0 text-left break-words text-sm font-semibold text-slate-800">
         {{ endereco.localidade || 'Não informado' }}
       </dd>
     </div>
 
-    <div>
-      <dt class="font-medium text-slate-500">Estado</dt>
-      <dd class="text-slate-800">
+    <div class="min-w-0 rounded-xl border border-slate-100 bg-slate-50 p-3 sm:p-4">
+      <dt class="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Estado
+      </dt>
+      <dd class="ml-0 text-left break-words text-sm font-semibold text-slate-800">
         {{ endereco.uf || 'Não informado' }}
       </dd>
     </div>
 
-    <div>
-      <dt class="font-medium text-slate-500">CEP</dt>
-      <dd class="text-slate-800">
+    <div class="min-w-0 rounded-xl border border-slate-100 bg-slate-50 p-3 sm:p-4">
+      <dt class="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        CEP
+      </dt>
+      <dd class="ml-0 text-left break-words text-sm font-semibold text-slate-800">
         {{ endereco.cep }}
       </dd>
     </div>
