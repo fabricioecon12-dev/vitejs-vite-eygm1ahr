@@ -3649,4 +3649,18 @@
     font-size: 13px;
   }
 }
+/* ETAPA 9.18-E — Ajuste responsivo do campo Data */
 
+.formulario form,
+.formulario label {
+  min-width: 0;
+}
+
+.formulario input[type="date"] {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+}
