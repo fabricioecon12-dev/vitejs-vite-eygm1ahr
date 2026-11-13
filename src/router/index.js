@@ -52,6 +52,13 @@ const router = createRouter({
       return savedPosition
     }
 
+    if (to.hash === '#movimentacoes') {
+      return {
+        el: to.hash,
+        top: 12,
+        behavior: 'auto'
+      }
+    }
     // Novas navegações começam no topo.
     return {
       top: 0,

@@ -98,6 +98,11 @@ function navegarPara(destino) {
     return
   }
 
+  if (destino === 'transacoes' && window.matchMedia('(max-width: 600px)').matches) {
+    router.push({ name: destino, hash: '#movimentacoes' })
+    return
+  }
+
   router.push({ name: destino })
 }
 </script>

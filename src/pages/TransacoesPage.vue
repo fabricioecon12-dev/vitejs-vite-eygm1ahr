@@ -110,11 +110,13 @@ function excluirTransacao(id) {
         />
       </div>
 
-      <ListaTransacoes
-        :transacoes="transacoesDoMes"
-        @excluir="excluirTransacao"
-        @editar="selecionarEdicao"
-      />
+      <div id="movimentacoes">
+        <ListaTransacoes
+          :transacoes="transacoesDoMes"
+          @excluir="excluirTransacao"
+          @editar="selecionarEdicao"
+        />
+      </div>
 
     </div>
   </div>
