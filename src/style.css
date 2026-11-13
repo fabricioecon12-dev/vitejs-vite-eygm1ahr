@@ -3649,18 +3649,26 @@
     font-size: 13px;
   }
 }
-/* ETAPA 9.18-E — Ajuste responsivo do campo Data */
+/* ETAPA 9.18-M — Alinhamento dos campos no mobile */
 
-.formulario form,
-.formulario label {
-  min-width: 0;
-}
+@media (max-width: 600px) {
+  .formulario form,
+  .formulario form > label {
+    width: 100%;
+    min-width: 0;
+  }
 
-.formulario input[type="date"] {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
-  font: inherit;
+  .formulario form > label > input,
+  .formulario form > label > select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .formulario input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+  }
 }
