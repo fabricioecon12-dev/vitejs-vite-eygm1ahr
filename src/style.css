@@ -3672,3 +3672,11 @@
     appearance: none;
   }
 }
+
+/* ETAPA 9.19 — Evita zoom automatico no Safari iPhone */
+@media (max-width: 600px) {
+  .formulario input,
+  .formulario select {
+    font-size: 16px;
+  }
+}
