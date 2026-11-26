@@ -1,14 +1,18 @@
-
 <script setup>
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   LayoutDashboard,
   ArrowLeftRight,
+  Landmark,
   Wallet,
+  CreditCard,
   ChartNoAxesCombined,
-  Settings
+  Settings,
+  Menu,
+  X
 } from '@lucide/vue'
 
-// Mantém a interface existente com App.vue.
 defineProps({
   pagina: {
     type: String,
@@ -16,41 +20,51 @@ defineProps({
   }
 })
 
-// Navegação atual do Nexus Finanças.
-// Novos módulos serão incluídos após análise das rotas.
+const route = useRoute()
+const maisAberto = ref(false)
+
 const itens = [
-  {
-    id: 'inicio',
-    nome: 'Visão geral',
-    icone: LayoutDashboard
-  },
-  {
-    id: 'transacoes',
-    nome: 'Transações',
-    icone: ArrowLeftRight
-  },
-  {
-    id: 'orcamento',
-    nome: 'Orçamento',
-    icone: Wallet
-  },
-  {
-    id: 'relatorios',
-    nome: 'Relatórios',
-    icone: ChartNoAxesCombined
-  },
-  {
-    id: 'configuracoes',
-    nome: 'Configurações',
-    icone: Settings
-  }
+  { id: 'inicio', nome: 'Visão geral', icone: LayoutDashboard },
+  { id: 'transacoes', nome: 'Transações', icone: ArrowLeftRight },
+  { id: 'contas', nome: 'Contas bancárias', icone: Landmark },
+  { id: 'cartoes', nome: 'Cartões de Crédito', icone: CreditCard },
+  { id: 'orcamento', nome: 'Orçamento', icone: Wallet },
+  { id: 'relatorios', nome: 'Relatórios', icone: ChartNoAxesCombined },
+  { id: 'configuracoes', nome: 'Configurações', icone: Settings }
 ]
+
+const itensMobile = [
+  { id: 'inicio', nome: 'Início', icone: LayoutDashboard },
+  { id: 'transacoes', nome: 'Transações', icone: ArrowLeftRight },
+  { id: 'contas', nome: 'Contas', icone: Landmark },
+  { id: 'cartoes', nome: 'Cartões', icone: CreditCard }
+]
+
+const itensMais = itens.filter((item) =>
+  ['orcamento', 'relatorios', 'configuracoes'].includes(item.id)
+)
+
+const maisAtivo = computed(() =>
+  itensMais.some((item) => item.id === route.name)
+)
+
+function fecharMais() {
+  maisAberto.value = false
+}
+
+function alternarMais() {
+  maisAberto.value = !maisAberto.value
+}
+
+function navegar(navigate) {
+  fecharMais()
+  navigate()
+}
 </script>
 
 <template>
   <!-- SIDEBAR DESKTOP -->
   <aside class="sidebar transition-colors duration-300">
-    <!-- Identidade visual -->
     <div class="marca">
       <img
         src="/nexus-logo.png"
@@ -59,23 +73,14 @@ const itens = [
       />
 
       <div>
-        <strong class="nome-nexus">
-          Nexus
-        </strong>
-
+        <strong class="nome-nexus">Nexus</strong>
         <small>FINANÇAS</small>
       </div>
     </div>
 
-    <!-- Menu principal -->
-    <strong class="menu-legenda">
-      MENU PRINCIPAL
-    </strong>
+    <strong class="menu-legenda">MENU PRINCIPAL</strong>
 
-    <nav
-      class="nav-desktop"
-      aria-label="Menu principal"
-    >
+    <nav class="nav-desktop" aria-label="Menu principal">
       <RouterLink
         v-for="item in itens"
         :key="item.id"
@@ -119,20 +124,20 @@ const itens = [
       </RouterLink>
     </nav>
 
-    <!-- Frase institucional -->
     <div class="sidebar-frase">
       Seu dinheiro,<br />
       suas decisões.
     </div>
   </aside>
 
-  <!-- NAVEGAÇÃO MOBILE -->
+  <!-- NAVEGACAO MOBILE -->
   <nav
     class="nav-mobile"
     aria-label="Navegação móvel"
+    @keydown.esc="fecharMais"
   >
     <RouterLink
-      v-for="item in itens"
+      v-for="item in itensMobile"
       :key="item.id"
       :to="{ name: item.id }"
       custom
@@ -140,12 +145,10 @@ const itens = [
     >
       <a
         :href="href"
-        :class="{
-          ativo: isActive
-        }"
+        :class="{ ativo: isActive && !maisAberto }"
         :aria-current="isActive ? 'page' : undefined"
         :aria-label="item.nome"
-        @click="navigate"
+        @click="navegar(navigate)"
       >
         <span
           class="flex items-center justify-center"
@@ -161,5 +164,58 @@ const itens = [
         <small>{{ item.nome }}</small>
       </a>
     </RouterLink>
+
+    <div class="nav-mobile-mais">
+      <button
+        type="button"
+        class="nav-mobile-mais-botao"
+        :class="{ ativo: maisAtivo || maisAberto }"
+        :aria-expanded="maisAberto"
+        aria-controls="nexus-menu-mais"
+        aria-label="Mais opções de navegação"
+        @click="alternarMais"
+      >
+        <span
+          class="flex items-center justify-center"
+          aria-hidden="true"
+        >
+          <X v-if="maisAberto" :size="20" :stroke-width="1.8" />
+          <Menu v-else :size="20" :stroke-width="1.8" />
+        </span>
+
+        <small>Mais</small>
+      </button>
+
+      <div
+        v-if="maisAberto"
+        id="nexus-menu-mais"
+        class="nav-mobile-mais-painel"
+        aria-label="Outras páginas"
+      >
+        <RouterLink
+          v-for="item in itensMais"
+          :key="item.id"
+          :to="{ name: item.id }"
+          custom
+          v-slot="{ href, navigate, isActive }"
+        >
+          <a
+            :href="href"
+            :class="{ ativo: isActive }"
+            :aria-current="isActive ? 'page' : undefined"
+            @click="navegar(navigate)"
+          >
+            <component
+              :is="item.icone"
+              :size="18"
+              :stroke-width="1.8"
+              aria-hidden="true"
+            />
+
+            <span>{{ item.nome }}</span>
+          </a>
+        </RouterLink>
+      </div>
+    </div>
   </nav>
 </template>

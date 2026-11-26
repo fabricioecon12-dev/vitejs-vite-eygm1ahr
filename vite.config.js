@@ -6,5 +6,13 @@ export default defineConfig({
   plugins: [
     vue(),
     tailwindcss()
-  ]
+  ],
+  test: {
+    include: ['src/tests/**/*.test.{js,ts,jsx,tsx}'],
+    exclude: [
+      '**/node_modules/**',
+      '**/.git/**',
+      '**/*.backup-*.test.{js,ts,jsx,tsx}'
+    ]
+  }
 })

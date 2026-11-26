@@ -7,6 +7,8 @@ import { usePerfil } from '../composables/usePerfil.js'
 import { usePrivacidade } from '../composables/usePrivacidade.js'
 import { useFinancas } from '../composables/useFinancas.js'
 import { usePreferencias } from '../composables/usePreferencias.js'
+import ControleAdministrativo from '../components/ControleAdministrativo.vue'
+import { ClipboardList } from 'lucide-vue-next'
 
 const {
   perfil,
@@ -78,12 +80,13 @@ async function buscarEndereco() {
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start">
     <nav aria-label="Seções de configurações" class="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-      <button v-for="aba in [{ id: 'perfil', nome: 'Meu perfil', icone: UserRound }, { id: 'seguranca', nome: 'Segurança', icone: ShieldCheck }, { id: 'preferencias', nome: 'Preferências', icone: SlidersHorizontal }]" :key="aba.id" type="button" :aria-current="abaAtiva === aba.id ? 'page' : undefined" @click="abaAtiva = aba.id" :class="abaAtiva === aba.id ? 'bg-emerald-100 text-emerald-800' : 'text-slate-700 hover:bg-slate-50'" class="inline-flex w-full items-center gap-3 rounded-xl border-0 px-4 py-4 text-left text-sm font-semibold shadow-none outline-none transition focus-visible:ring-2 focus-visible:ring-emerald-500">
+      <button v-for="aba in [{ id: 'perfil', nome: 'Meu perfil', icone: UserRound }, { id: 'seguranca', nome: 'Segurança', icone: ShieldCheck }, { id: 'preferencias', nome: 'Preferências', icone: SlidersHorizontal }, { id: 'administrativo', nome: 'Controle Administrativo', icone: ClipboardList }]" :key="aba.id" type="button" :aria-current="abaAtiva === aba.id ? 'page' : undefined" @click="abaAtiva = aba.id" :class="abaAtiva === aba.id ? 'bg-emerald-100 text-emerald-800 font-bold ring-1 ring-inset ring-emerald-200' : 'bg-transparent text-slate-500 font-normal hover:bg-slate-100 hover:text-slate-800'" class="inline-flex w-full appearance-none items-center gap-3 rounded-xl border-0 px-3 py-2.5 text-left text-sm shadow-none outline-none transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500">
         <component :is="aba.icone" :size="18" />
         {{ aba.nome }}
       </button>
     </nav>
     <div class="min-w-0 space-y-6">
+      <ControleAdministrativo v-if="abaAtiva === 'administrativo'" />
     <article
       v-if="abaAtiva === 'seguranca'"
       class="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"

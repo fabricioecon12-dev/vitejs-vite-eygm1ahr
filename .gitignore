@@ -42,3 +42,7 @@ verificar-navegacao.cjs
 
 # Backups locais das etapas de desenvolvimento
 *.backup-*
+
+# Backups locais do desenvolvimento
+/backups/
+*.bak-*

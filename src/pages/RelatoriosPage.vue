@@ -268,6 +268,8 @@ const opcoesCategorias = computed(() => {
 
   plotOptions: {
     pie: {
+      customScale: 0.86,
+      expandOnClick: true,
       donut: {
         size: '74%',
 

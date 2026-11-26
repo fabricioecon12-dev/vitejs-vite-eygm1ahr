@@ -23,6 +23,8 @@ const pagina = computed(() => {
   return [
     'inicio',
     'transacoes',
+    'contas',
+    'cartoes',
     'orcamento',
     'relatorios',
     'configuracoes'
@@ -34,6 +36,8 @@ const pagina = computed(() => {
 const titulos = {
   inicio: ['Visão geral', 'Acompanhe seu resumo financeiro'],
   transacoes: ['Transações', 'Cadastre e gerencie suas movimentações'],
+  contas: ['Contas bancárias', 'Gerencie suas contas e saldos bancários'],
+  cartoes: ['Cartões de Crédito', 'Gerencie seus cartões, compras e faturas'],
   orcamento: ['Orçamento', 'Defina seu limite e acompanhe seus gastos'],
   relatorios: ['Relatórios', 'Analise seus resultados e visualize seus gastos'],
   configuracoes: [

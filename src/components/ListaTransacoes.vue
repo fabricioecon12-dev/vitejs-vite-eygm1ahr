@@ -239,14 +239,14 @@ onUnmounted(() => {
       <input
         v-model="busca"
         type="search"
-        class="transition-all duration-300 focus:ring-2 focus:ring-emerald-200"
+        class="nexus-input"
         placeholder="Buscar por descrição..."
         aria-label="Buscar transações"
       />
 
       <select
         v-model="filtro"
-        class="transition-all duration-300 focus:ring-2 focus:ring-emerald-200"
+        class="nexus-select"
         aria-label="Filtrar tipo"
       >
         <option value="todos">

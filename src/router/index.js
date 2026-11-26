@@ -9,6 +9,8 @@ import TransacoesPage from '../pages/TransacoesPage.vue'
 import OrcamentoPage from '../pages/OrcamentoPage.vue'
 import RelatoriosPage from '../pages/RelatoriosPage.vue'
 import ConfiguracoesPage from '../pages/ConfiguracoesPage.vue'
+import ContasBancariasPage from '../pages/ContasBancariasPage.vue'
+import CartoesPage from '../pages/CartoesPage.vue'
 
 // Rotas atualmente implementadas no Nexus Finanças.
 const routes = [
@@ -21,6 +23,16 @@ const routes = [
     path: '/transacoes',
     name: 'transacoes',
     component: TransacoesPage
+  },
+  {
+    path: '/contas',
+    name: 'contas',
+    component: ContasBancariasPage
+  },
+  {
+    path: '/cartoes',
+    name: 'cartoes',
+    component: CartoesPage
   },
   {
     path: '/orcamento',

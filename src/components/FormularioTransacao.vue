@@ -35,6 +35,7 @@ const emit = defineEmits([
 const {
   categoriasDespesa,
   categoriasReceita,
+  contas,
   adicionarCategoria
 } = useFinancas()
 
@@ -61,6 +62,36 @@ const descricao = ref('')
 const valor = ref('')
 const data = ref(obterDataLocal())
 const categoria = ref('Alimentação')
+const contaSelecionada = ref('')
+
+const contasDisponiveis = computed(() => {
+  const contaOriginalId = props.transacaoEdicao?.contaId
+
+  return contas.value.filter(
+    conta => conta.ativa || conta.id === contaOriginalId
+  )
+})
+
+const contaPrincipalAtiva = computed(() =>
+  contas.value.find(conta => conta.principal && conta.ativa)
+)
+
+function selecionarContaPadrao() {
+  contaSelecionada.value =
+    contaPrincipalAtiva.value?.id ?? ''
+}
+
+// Seleciona a conta principal quando ela estiver disponível.
+// Não interfere na edição nem substitui uma escolha existente.
+watch(contaPrincipalAtiva, (contaPrincipal) => {
+  if (
+    !props.transacaoEdicao &&
+    !contaSelecionada.value &&
+    contaPrincipal
+  ) {
+    contaSelecionada.value = contaPrincipal.id
+  }
+}, { immediate: true })
 
 const erro = ref('')
 
@@ -68,7 +99,8 @@ const errosCampos = ref({
   descricao: '',
   valor: '',
   data: '',
-  categoria: ''
+  categoria: '',
+  conta: ''
 })
 
 // =====================================================
@@ -121,7 +153,8 @@ function limparErros() {
     descricao: '',
     valor: '',
     data: '',
-    categoria: ''
+    categoria: '',
+    conta: ''
   }
 }
 
@@ -137,6 +170,7 @@ function limparFormulario() {
   valor.value = ''
   data.value = obterDataLocal()
   categoria.value = 'Alimentação'
+  selecionarContaPadrao()
 
   limparCadastroCategoria()
   limparErros()
@@ -167,12 +201,14 @@ watch(
 
     data.value = transacao.data
     categoria.value = transacao.categoria
+    contaSelecionada.value = transacao.contaId ?? ''
 
     // Não adiciona categorias diretamente
     // ao estado financeiro compartilhado.
     limparCadastroCategoria()
     limparErros()
-  }
+  },
+  { immediate: true }
 )
 
 // =====================================================
@@ -407,6 +443,21 @@ function validarCampos() {
       'Selecione uma categoria.'
   }
 
+  const contaEscolhida = contas.value.find(
+    conta => conta.id === contaSelecionada.value
+  )
+
+  if (!contaEscolhida) {
+    errosCampos.value.conta =
+      'Selecione uma conta bancária válida.'
+  } else if (
+    !contaEscolhida.ativa &&
+    contaEscolhida.id !== props.transacaoEdicao?.contaId
+  ) {
+    errosCampos.value.conta =
+      'A conta de destino precisa estar ativa.'
+  }
+
   return !Object.values(
     errosCampos.value
   ).some(Boolean)
@@ -442,7 +493,8 @@ function cadastrar() {
     valor: converterValor(valor.value),
     data: data.value,
     categoria: categoria.value,
-    tipo: tipo.value
+    tipo: tipo.value,
+    contaId: contaSelecionada.value
   }
 
   // Edição: a página executa editar().
@@ -522,24 +574,50 @@ function cadastrar() {
 
     <!-- FORMULÁRIO -->
 
-    <form
-      novalidate
-      @submit.prevent="cadastrar"
-    >
+    <form class="nexus-transacao-form" novalidate @submit.prevent="cadastrar">
+
+      <!-- CONTA BANCÁRIA -->
+
+      <label class="nexus-label">
+        Conta bancária
+
+        <select
+          v-model="contaSelecionada"
+          class="nexus-select"
+          :aria-invalid="!!errosCampos.conta"
+          @change="errosCampos.conta = ''"
+        >
+          <option value="" disabled>
+            Selecione uma conta
+          </option>
+
+          <option
+            v-for="conta in contasDisponiveis"
+            :key="conta.id"
+            :value="conta.id"
+          >
+            {{ conta.nome || conta.apelido || conta.instituicao || 'Conta bancária' }}
+            {{ conta.ativa ? '' : ' (inativa — conta original)' }}
+          </option>
+        </select>
+
+        <span
+          v-if="errosCampos.conta"
+          class="nexus-error"
+          role="alert"
+        >
+          {{ errosCampos.conta }}
+        </span>
+      </label>
 
       <!-- DESCRIÇÃO -->
 
-      <label>
+      <label class="nexus-label">
         Descrição
 
         <input
           v-model="descricao"
-          :class="[
-            'transition-all duration-300 focus:ring-2',
-            errosCampos.descricao
-              ? 'border-red-500 focus:ring-red-200'
-              : 'focus:ring-emerald-200'
-          ]"
+          class="nexus-input"
           :aria-invalid="!!errosCampos.descricao"
           :aria-describedby="
             errosCampos.descricao
@@ -553,7 +631,7 @@ function cadastrar() {
         <span
           v-if="errosCampos.descricao"
           id="erro-descricao"
-          class="text-red-600 text-sm mt-1 block"
+          class="nexus-error"
           role="alert"
         >
           {{ errosCampos.descricao }}
@@ -562,7 +640,7 @@ function cadastrar() {
 
       <!-- VALOR -->
 
-      <label>
+      <label class="nexus-label">
         Valor (R$)
 
         <input
@@ -570,12 +648,7 @@ function cadastrar() {
           type="text"
           inputmode="decimal"
           placeholder="0,00"
-          :class="[
-            'transition-all duration-300 focus:ring-2',
-            errosCampos.valor
-              ? 'border-red-500 focus:ring-red-200'
-              : 'focus:ring-emerald-200'
-          ]"
+          class="nexus-input"
           :aria-invalid="!!errosCampos.valor"
           :aria-describedby="
             errosCampos.valor
@@ -588,7 +661,7 @@ function cadastrar() {
         <span
           v-if="errosCampos.valor"
           id="erro-valor"
-          class="text-red-600 text-sm mt-1 block"
+          class="nexus-error"
           role="alert"
         >
           {{ errosCampos.valor }}
@@ -597,7 +670,7 @@ function cadastrar() {
 
       <!-- DATA -->
 
-      <label>
+      <label class="nexus-label">
         Data
 
         <input
@@ -605,12 +678,7 @@ function cadastrar() {
           type="date"
           min="2000-01-01"
           max="2100-12-31"
-          :class="[
-            'transition-all duration-300 focus:ring-2',
-            errosCampos.data
-              ? 'border-red-500 focus:ring-red-200'
-              : 'focus:ring-emerald-200'
-          ]"
+          class="nexus-input"
           :aria-invalid="!!errosCampos.data"
           :aria-describedby="
             errosCampos.data
@@ -622,7 +690,7 @@ function cadastrar() {
         <span
           v-if="errosCampos.data"
           id="erro-data"
-          class="text-red-600 text-sm mt-1 block"
+          class="nexus-error"
           role="alert"
         >
           {{ errosCampos.data }}
@@ -631,7 +699,7 @@ function cadastrar() {
 
       <!-- CATEGORIA -->
 
-      <label>
+      <label class="nexus-label">
         Categoria
 
         <select
@@ -640,12 +708,7 @@ function cadastrar() {
               ? '__nova__'
               : categoria
           "
-          :class="[
-            'transition-all duration-300 focus:ring-2',
-            errosCampos.categoria
-              ? 'border-red-500 focus:ring-red-200'
-              : 'focus:ring-emerald-200'
-          ]"
+          class="nexus-select"
           :aria-invalid="!!errosCampos.categoria"
           :aria-describedby="
             errosCampos.categoria
@@ -672,7 +735,7 @@ function cadastrar() {
         <span
           v-if="errosCampos.categoria"
           id="erro-categoria"
-          class="text-red-600 text-sm mt-1 block"
+          class="nexus-error"
           role="alert"
         >
           {{ errosCampos.categoria }}
@@ -683,12 +746,13 @@ function cadastrar() {
 
       <div v-if="mostrarNovaCategoria">
 
-        <label>
+        <label class="nexus-label">
           Nome da nova categoria
 
           <input
             ref="inputNovaCategoria"
             v-model="novaCategoria"
+            class="nexus-input"
             placeholder="Ex.: Educação"
             maxlength="40"
           />
@@ -761,3 +825,50 @@ function cadastrar() {
 
   </section>
 </template>
+
+<style>
+/*
+ * CART-UI-05-A.30-G.7
+ * Compactacao visual localizada do formulario de transacoes.
+ */
+.nexus-transacao-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nexus-transacao-form > label.nexus-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  min-width: 0;
+}
+
+.nexus-transacao-form > label.nexus-label > .nexus-input,
+.nexus-transacao-form > label.nexus-label > .nexus-select {
+  margin: 0;
+  width: 100%;
+  min-width: 0;
+}
+
+.nexus-transacao-form > label.nexus-label > .nexus-error {
+  margin-top: 0;
+}
+
+.nexus-transacao-form > div:has(> label.nexus-label) {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.nexus-transacao-form > div > label.nexus-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+
+.nexus-transacao-form > div > label.nexus-label > .nexus-input {
+  margin: 0;
+}
+</style>

@@ -4,15 +4,13 @@
 
 **Projeto acadêmico — Frameworks Front-End**
 
-**Integrantes:** Jefferson Cabral e Tiago Beckman
-**Repositório:** https://github.com/fabricioecon12-dev/vitejs-vite-eygm1ahr
-**Disponibilidade:** execução local (ainda sem URL pública)
+- **Integrantes:** Jefferson Cabral e Tiago Beckman
+- **Repositório:** https://github.com/fabricioecon12-dev/vitejs-vite-eygm1ahr
+- **Disponibilidade:** execução local; não há URL pública de produção registrada nesta versão.
 
-O **Nexus Finanças** é uma aplicação web de controle financeiro pessoal desenvolvida com **Vue.js 3, JavaScript, Vite e Tailwind CSS 4**.
+O **Nexus Finanças** é uma aplicação web de controle financeiro pessoal desenvolvida com **Vue.js 3, JavaScript, Vite e Tailwind CSS 4**. A interface adota a identidade visual **Premium Fintech**, com azul-marinho, verde-esmeralda, fundo cinza-claro e painéis brancos.
 
-O sistema permite acompanhar receitas, despesas, saldo financeiro e orçamento mensal por meio de uma interface moderna, responsiva e intuitiva.
-
-O desenvolvimento evoluiu em quatro fases: fundamentos do Vue 3, integração do Tailwind CSS 4, implementação do Vue Router e consumo de APIs REST com Axios. As duas primeiras fases correspondem às avaliações iniciais; as fases seguintes ampliaram a navegação e a integração com serviços externos.
+O projeto começou como uma aplicação acadêmica para praticar componentização e reatividade em Vue.js. Ao longo das etapas, recebeu estilização com Tailwind CSS, navegação com Vue Router, consumo de APIs REST e ampliação gradual dos módulos financeiros. A versão atual do código inclui áreas de transações, orçamento, relatórios, contas bancárias, cartões de crédito e configurações.
 
 ---
 
@@ -20,598 +18,546 @@ O desenvolvimento evoluiu em quatro fases: fundamentos do Vue 3, integração do
 
 Desenvolver uma aplicação web de página única (**Single Page Application — SPA**) para gerenciamento financeiro pessoal, aplicando conceitos estudados na disciplina de Frameworks Front-End.
 
-Os principais objetivos são:
+Os objetivos incluem:
 
 - Utilizar componentes reutilizáveis em Vue.js 3.
-
 - Implementar reatividade e comunicação entre componentes.
-
 - Permitir o gerenciamento de receitas e despesas.
-
-- Disponibilizar indicadores financeiros atualizados automaticamente.
-
-- Organizar as informações em uma interface responsiva.
-
-- Integrar um framework CSS sem comprometer as funcionalidades existentes.
+- Apresentar indicadores financeiros e acompanhamento de orçamento.
+- Organizar as informações em módulos navegáveis por rotas.
+- Integrar serviços externos por meio de requisições HTTP.
+- Aplicar validações e preservar a consistência dos registros financeiros.
+- Disponibilizar uma interface responsiva e acessível.
 
 ---
 
 ## 2. Tecnologias utilizadas
 
 | Tecnologia | Aplicação |
-
 |---|---|
-
-| Vue.js 3 | Construção da interface e dos componentes |
-
-| JavaScript | Regras de negócio e manipulação dos dados |
-
-| Vite | Ambiente de desenvolvimento e compilação |
-
-| Tailwind CSS 4 | Classes utilitárias e aprimoramentos visuais |
-
-| HTML5 | Estrutura semântica da aplicação |
-
-| CSS3 | Estilização personalizada |
-
-| Flexbox e CSS Grid | Organização dos elementos |
-
-| Media queries | Adaptação para diferentes tamanhos de tela |
-
-| Vue Router | Navegação por rotas em uma SPA |
-| Axios | Requisições HTTP às APIs REST |
+| Vue.js 3 | Interface, componentes e reatividade |
+| JavaScript (ES Modules) | Regras de negócio e manipulação dos dados |
+| Vite 7 | Servidor de desenvolvimento e compilação |
+| Tailwind CSS 4 | Classes utilitárias e composição visual |
+| CSS3 | Estilos personalizados e identidade visual |
+| Vue Router 4 | Navegação entre as páginas da SPA |
+| Axios | Requisições HTTP para serviços externos |
+| ApexCharts / Vue3-ApexCharts | Gráficos e indicadores visuais |
+| Lucide Vue | Ícones da interface |
 | Vitest | Testes automatizados |
+| Vue Test Utils | Apoio aos testes de componentes Vue |
+| jsdom | Ambiente DOM para testes |
+| Node.js e npm | Ambiente de execução e gerenciamento de dependências |
 | VS Code | Ambiente local de desenvolvimento |
-| StackBlitz | Ambiente utilizado em fases anteriores |
 
-O projeto não possui backend próprio. A navegação entre as páginas utiliza **Vue Router**, mantendo o comportamento de aplicação de página única (SPA). Os dados de CEP e câmbio são consultados em serviços externos via **Axios**.
+As versões e dependências instaladas estão registradas em `package.json` e `package-lock.json`.
 
 ---
 
-## 3. Funcionalidades implementadas
+## 3. Arquitetura e organização do projeto
 
-### 3.1 Visão geral
+A aplicação utiliza Vue 3 com componentes `.vue`, `<script setup>`, composables e páginas associadas a rotas do Vue Router.
 
-O dashboard apresenta:
+### 3.1 Estrutura principal
 
-- Saldo financeiro acumulado.
+```text
+nexus-financas-git/
+├── public/
+│   ├── bancos/                 # Identidades visuais de instituições bancárias
+│   └── cartoes/                # Identidades visuais de bandeiras de cartões
+├── src/
+│   ├── components/             # Componentes reutilizáveis da interface
+│   ├── composables/            # Estado compartilhado e regras financeiras
+│   ├── pages/                  # Páginas associadas às rotas
+│   ├── router/                 # Configuração do Vue Router
+│   ├── services/               # Integrações com serviços externos e bancários
+│   ├── styles/                 # Design system e estilos complementares
+│   ├── tests/                  # Testes automatizados Vitest
+│   ├── utils/                  # Cálculos e validações auxiliares
+│   ├── App.vue                 # Estrutura principal da aplicação
+│   ├── main.js                 # Inicialização do Vue, router e CSS
+│   └── style.css               # Estilos globais
+├── index.html
+├── package.json
+├── vite.config.js
+└── README.md
+```
 
-- Receitas do mês.
+A pasta `src/` também contém arquivos de backup e versões candidatas criados durante o desenvolvimento. Esses arquivos são artefatos de trabalho e não devem ser confundidos com os módulos ativos da aplicação.
 
-- Despesas do mês.
+### 3.2 Páginas e rotas atuais
 
-- Resultado financeiro mensal.
+O arquivo `src/router/index.js` registra as seguintes rotas:
 
-- Últimas movimentações.
+| Módulo | Caminho | Nome da rota | Componente |
+|---|---|---|---|
+| Visão geral | `/` | `inicio` | `DashboardPage.vue` |
+| Transações | `/transacoes` | `transacoes` | `TransacoesPage.vue` |
+| Contas bancárias | `/contas` | `contas` | `ContasBancariasPage.vue` |
+| Cartões de crédito | `/cartoes` | `cartoes` | `CartoesPage.vue` |
+| Orçamento | `/orcamento` | `orcamento` | `OrcamentoPage.vue` |
+| Relatórios | `/relatorios` | `relatorios` | `RelatoriosPage.vue` |
+| Configurações | `/configuracoes` | `configuracoes` | `ConfiguracoesPage.vue` |
 
+A navegação é realizada sem recarregamento integral da página, mantendo o comportamento de SPA.
+
+### 3.3 Núcleo financeiro
+
+O composable `src/composables/useFinancas.js` centraliza estados reativos e operações financeiras utilizadas por diferentes módulos. Entre os dados e operações expostos estão:
+
+- Transações, receitas e despesas.
+- Contas bancárias e saldos individuais/consolidados.
+- Transferências e histórico de tentativas recusadas.
+- Cartões de crédito, compras, faturas e pagamentos.
+- Fechamentos de faturas e obrigações complementares.
+- Limites de orçamento e categorias.
+- Consultas de situação financeira e administrativa.
+- Operações de cadastro, edição, exclusão, pagamento e recuperação.
+
+A separação em componentes, composables, serviços e utilitários busca manter as responsabilidades organizadas e favorecer a reutilização.
+
+---
+
+## 4. Identidade visual e responsividade
+
+A identidade visual **Premium Fintech** é o padrão visual do projeto:
+
+- Sidebar azul-marinho.
+- Verde-esmeralda para ações e destaques.
+- Fundo geral cinza-claro.
+- Cards brancos com cantos arredondados.
+- Tipografia moderna e hierarquia visual consistente.
+- Ícones e indicadores gráficos integrados à interface.
+
+A interface utiliza Tailwind CSS 4 em conjunto com CSS personalizado, Flexbox, CSS Grid e media queries.
+
+### 4.1 Computadores
+
+- Menu lateral para navegação entre módulos.
+- Conteúdo organizado em painéis e colunas conforme a página.
+- Formulários, tabelas, indicadores e gráficos dimensionados para telas maiores.
+
+### 4.2 Dispositivos móveis
+
+- Navegação inferior para as áreas principais e acesso às demais opções.
+- Conteúdo reorganizado em coluna quando necessário.
+- Formulários e controles adaptados à largura disponível.
+- Gráficos com dimensionamento e interação ajustados para telas estreitas.
+- Rolagem do conteúdo preservada para evitar cortes de seções.
+
+A responsividade deve ser verificada nas páginas e nos fluxos interativos, não apenas pela visualização estática inicial.
+
+---
+
+## 5. Funcionalidades por módulo
+
+Esta seção descreve recursos presentes na implementação atual. A validação integral de cada regra depende da execução dos testes e da conferência funcional correspondente.
+
+### 5.1 Visão geral — Dashboard
+
+A página inicial reúne informações financeiras do período, incluindo:
+
+- Saldo disponível.
+- Total de receitas e despesas.
+- Resultado financeiro.
+- Movimentações recentes.
 - Acompanhamento do orçamento.
+- Distribuição de despesas por categoria.
 
+Os indicadores são derivados dos dados disponibilizados pelo núcleo financeiro.
+
+### 5.2 Transações
+
+O módulo de transações contempla:
+
+- Cadastro de receitas e despesas.
+- Informações como descrição, valor, data e categoria.
+- Pesquisa e filtragem de movimentações.
+- Edição e exclusão de registros, conforme as validações aplicáveis.
+- Categorias de receitas e despesas.
+- Navegação por período.
+- Atualização dos indicadores financeiros relacionados.
+
+### 5.3 Orçamento
+
+O módulo de orçamento contempla:
+
+- Configuração de limite mensal.
+- Acompanhamento das despesas do período.
+- Cálculo do valor utilizado e do saldo do limite.
+- Indicadores visuais de utilização.
+- Alertas associados à aproximação, alcance ou ultrapassagem do limite.
 - Distribuição dos gastos por categoria.
 
-### 3.2 Transações
+### 5.4 Relatórios
 
-Permite:
-
-- Cadastrar receitas e despesas.
-
-- Informar descrição, valor, data e categoria.
-
-- Pesquisar transações por descrição.
-
-- Filtrar movimentações por tipo.
-
-- Excluir registros mediante confirmação.
-
-- Cadastrar novas categorias temporárias.
-
-- Visualizar mensagens de validação e confirmação.
-
-### 3.3 Orçamento
-
-Disponibiliza:
-
-- Definição de limite mensal.
-
-- Acompanhamento do valor utilizado.
-
-- Cálculo do saldo disponível.
-
-- Barra de progresso do orçamento.
-
-- Alertas quando os gastos atingem 80% do limite.
-
-- Alertas quando o orçamento é atingido ou ultrapassado.
-
-### 3.4 Relatórios
-
-Apresenta:
+A página de relatórios apresenta recursos gráficos e analíticos, incluindo:
 
 - Comparação entre receitas e despesas.
+- Gráfico de despesas por categoria.
+- Percentuais de participação das categorias.
+- Análise do resultado financeiro mensal.
+- Indicadores de receita preservada e despesas do período.
+- Interação com os gráficos para destacar categorias e valores.
 
-- Distribuição percentual dos gastos por categoria.
+A exibição dos valores também considera o recurso de privacidade disponível na aplicação.
 
-- Resumo financeiro do mês selecionado.
+### 5.5 Contas bancárias
 
-- Indicadores atualizados conforme as movimentações cadastradas.
+A página `ContasBancariasPage.vue` reúne recursos de administração de contas e transferências. A implementação inclui componentes específicos para:
 
-### 3.5 Recursos adicionais
+- Cadastro de conta bancária (`FormularioContaBancaria.vue`).
+- Seleção e identificação visual de instituições (`SeletorInstituicao.vue` e `identidadeBancosService.js`).
+- Edição de contas.
+- Definição de conta principal.
+- Ativação e desativação controladas.
+- Consulta de saldos individuais e consolidados.
+- Vinculação de conta bancária a outros registros quando aplicável.
+- Transferências entre contas (`FormularioTransferencia.vue`).
+- Consulta do histórico de transferências recusadas (`HistoricoTransferenciasRecusadas.vue`).
 
-A aplicação também permite:
+O código também contém serviços de contas, bancos e migração (`contasService.js`, `bancosService.js` e `migracaoContasService.js`), além de testes específicos desses recursos.
 
-- Navegar entre diferentes meses.
+**Regra de modelagem de transferências:** o planejamento do projeto prevê o registro de uma transferência como operação própria, com origem, destino e valor, sem representá-la como duas transações convencionais independentes de receita e despesa. Os saldos devem refletir os registros financeiros correspondentes.
 
-- Limpar os dados demonstrativos.
+**Atenção a versões candidatas:** existem arquivos `useFinancas.candidato-*.js` e testes com identificação de candidato. Eles são artefatos de desenvolvimento e validação isolada; não devem ser apresentados como prova de que a respectiva implementação candidata esteja integrada ao fluxo principal.
 
-- Restaurar os registros de exemplo.
+### 5.6 Cartões de crédito
 
-- Utilizar a interface em computadores e dispositivos móveis.
+A página `CartoesPage.vue` organiza o módulo em áreas de cartões, cadastro, faturas, compras e histórico. Entre os componentes ativos identificados estão:
+
+- `FormularioCartao.vue` — cadastro e edição de cartões.
+- `FormularioCompraCartao.vue` — registro de compras.
+- `ConsultaFaturasCartao.vue` — consulta de faturas.
+- `HistoricoCartoesCredito.vue` — histórico relacionado aos cartões.
+
+O núcleo financeiro contém estados e operações para cartões, compras, faturas, pagamentos e fechamentos. Também existem utilitários para cálculo de limite, cálculo de encargos de mora, precisão monetária e validação do ciclo da fatura.
+
+Os fluxos contemplados no código e nos testes incluem:
+
+- Limite contratado, comprometido e disponível.
+- Compras à vista e parceladas.
+- Fechamento e consulta de faturas.
+- Pagamentos integrais, parciais e antecipados.
+- Registro de pagamentos e tentativas recusadas.
+- Configuração e apuração de encargos quando as condições necessárias estão disponíveis.
+- Obrigações complementares vinculadas à fatura.
+- Recuperação e reconciliação de operações cujo resultado técnico precise ser confirmado.
+
+A existência desses mecanismos não significa que toda combinação de cenários esteja homologada. O estado de validação deve ser confirmado pelos testes atuais e pela inspeção funcional.
+
+### 5.7 Configurações, segurança e controle administrativo
+
+A página `ConfiguracoesPage.vue` reúne configurações e recursos de segurança, privacidade e armazenamento. Ela também integra o componente `ControleAdministrativo.vue`.
+
+O código do controle administrativo contempla consultas e procedimentos relacionados a:
+
+- Solicitações e pendências administrativas.
+- Decisões e responsáveis.
+- Evidências e histórico.
+- Auditoria de eventos.
+- Permissões, independência e validação de transições.
+- Tratamento de inconsistências e resultados técnicos indeterminados.
+
+O planejamento funcional adotado exige decisões fundamentadas, preservação do histórico e bloqueios preventivos quando a consistência dos registros não puder ser comprovada. O controle administrativo não deve, isoladamente, executar movimentações financeiras nem efetuar desbloqueios financeiros automáticos.
 
 ---
 
-## 4. Organização dos componentes
+## 6. Persistência e limites da aplicação
 
-O projeto utiliza a arquitetura de componentes do Vue.js 3.
+O código ativo de `useFinancas.js` utiliza **LocalStorage do navegador** para persistir dados financeiros localmente, com a chave de armazenamento `nexus-financas-dados-v1`.
+
+O projeto também contém mecanismos de inicialização, validação, proteção do armazenamento e confirmação de persistência para operações relevantes.
+
+### 6.1 Limites conhecidos
+
+- O projeto não possui backend próprio identificado nesta versão.
+- Os dados persistidos ficam no navegador e na origem local utilizada pela aplicação.
+- Não há sincronização multiusuário ou sincronização automática entre dispositivos implementada por um servidor próprio.
+- A integração com serviços externos não equivale à conexão bancária por Open Finance.
+- A aplicação não deve ser apresentada como serviço financeiro de produção ou como substituta de sistemas bancários reais.
+- A disponibilidade das consultas externas depende da conexão com a internet e dos serviços provedores.
+
+Para demonstrações acadêmicas, recomenda-se utilizar dados fictícios. Não inserir números completos de cartões, CVV, senhas bancárias ou credenciais reais.
+
+---
+
+## 7. Integrações com APIs REST
+
+As integrações externas utilizam Axios e serviços separados da camada visual.
+
+### 7.1 ViaCEP — consulta de endereço
+
+- Serviço: `src/services/viacepService.js`.
+- Endpoint-base: `https://viacep.com.br/ws/`.
+- Método: HTTP GET.
+- O CEP é normalizado para oito dígitos antes da consulta.
+- O serviço valida o formato e trata CEP não encontrado e falhas de comunicação.
+
+### 7.2 AwesomeAPI — cotações de moedas
+
+A integração de câmbio está organizada em `src/services/cambioService.js` e é utilizada pelo composable `src/composables/useCotacoes.js`.
+
+A consulta contempla dólar americano (USD/BRL) e euro (EUR/BRL), com tratamento de valores, variação, data de referência, carregamento e falha da consulta.
+
+### 7.3 Fluxo geral
+
+1. Um componente ou composable solicita a consulta.
+2. O serviço executa a requisição HTTP por Axios.
+3. A resposta JSON é validada e transformada quando necessário.
+4. O estado reativo é atualizado.
+5. A interface apresenta os dados ou uma mensagem de erro.
+
+---
+
+## 8. Componentes e recursos reutilizáveis
+
+Entre os componentes ativos identificados estão:
 
 | Componente | Responsabilidade |
-
 |---|---|
-
-| `App.vue` | Integração das funcionalidades e gerenciamento do estado principal |
-
-| `Cabecalho.vue` | Títulos, navegação mensal e acesso ao cadastro |
-
-| `MenuLateral.vue` | Navegação entre as seções |
-
-| `CardFinanceiro.vue` | Exibição dos indicadores financeiros |
-
-| `FormularioTransacao.vue` | Cadastro de receitas, despesas e categorias |
-
-| `ItemTransacao.vue` | Representação individual das movimentações |
-
-| `ListaTransacoes.vue` | Pesquisa, filtragem e gerenciamento das transações |
-
-| `ResumoOrcamento.vue` | Acompanhamento do orçamento mensal |
-
-| `Rodape.vue` | Informações de identificação do projeto |
-
-A aplicação utiliza recursos do Vue.js, incluindo:
-
-- `<script setup>`
-
-- `ref()`
-
-- `defineProps()`
-
-- `defineEmits()`
-
-- `v-if`
-
-- `v-else-if`
-
-- `v-for`
-
-- `v-model`
-
-- Eventos e comunicação entre componentes
-
----
-
-## 5. Primeira avaliação — Desenvolvimento inicial
-
-Na primeira etapa, o projeto foi desenvolvido utilizando Vue.js 3, JavaScript, HTML e CSS personalizado.
-
-O objetivo foi aplicar os fundamentos da disciplina, com ênfase na componentização, reatividade e implementação das funcionalidades.
-
-A interface foi construída utilizando CSS próprio, Flexbox, Grid e media queries.
-
-O planejamento inicial não previa a utilização de frameworks CSS.
-
----
-
-## 6. Segunda avaliação — Integração do Tailwind CSS 4
-
-Na segunda etapa, o projeto foi atualizado para incorporar o **Tailwind CSS 4**, conforme os requisitos da nova avaliação.
-
-A integração foi realizada preservando os componentes Vue.js, a reatividade e as funcionalidades existentes.
-
-### 6.1 Configuração
-
-O Tailwind CSS foi integrado ao Vite por meio do pacote `@tailwindcss/vite`.
-
-A configuração do projeto utiliza os pacotes:
-
-- `tailwindcss`
-
-- `@tailwindcss/vite`
-
-- `@vitejs/plugin-vue`
-
-O arquivo `src/style.css` mantém a estilização personalizada e incorpora os recursos do Tailwind CSS.
-
-### 6.2 Aplicação das classes utilitárias
-
-Foram utilizados recursos do Tailwind CSS em diferentes elementos da interface, incluindo:
-
-| Recurso | Aplicação |
-
-|---|---|
-
-| `rounded-xl` | Arredondamento de botões e controles |
-
-| `shadow-sm` | Sombras suaves |
-
-| `hover:shadow-lg` | Destaque de elementos ao passar o mouse |
-
-| `hover:-translate-y-1` | Elevação visual de cartões e botões |
-
-| `transition-all` | Transições entre estados visuais |
-
-| `duration-300` | Controle da duração das animações |
-
-| `hover:border-emerald-300` | Destaque de bordas |
-
-| `focus-visible:*` | Destaque de foco para navegação por teclado |
-
-Esses recursos foram aplicados de forma complementar ao CSS personalizado.
-
-### 6.3 Melhorias visuais
-
-A segunda etapa contemplou aprimoramentos como:
-
-1. **Botões interativos:** efeitos de elevação, sombras e transições.
-
-2. **Cartões financeiros:** destaque visual ao passar o mouse.
-
-3. **Listagem de transações:** melhorias na apresentação e interação.
-
-4. **Formulários:** aprimoramento de bordas, estados de foco e botões.
-
-5. **Painéis financeiros:** refinamento visual e transições.
-
-A identidade visual adotada segue o conceito **Premium Fintech**, com predominância de azul-marinho, verde-esmeralda e tons claros.
-
----
-
-## 7. Responsividade
-
-A interface foi desenvolvida para se adaptar a diferentes resoluções de tela.
-
-### Computadores
-
-- Menu lateral permanente.
-
-- Dashboard organizado em colunas.
-
-- Cartões financeiros distribuídos horizontalmente.
-
-- Formulários e relatórios apresentados em painéis.
-
-### Dispositivos móveis
-
-- Substituição do menu lateral por navegação inferior.
-
-- Organização dos cartões em coluna única.
-
-- Adaptação dos formulários à largura disponível.
-
-- Reorganização dos filtros e botões.
-
-- Manutenção do acesso às quatro seções principais.
-
-A responsividade combina CSS Grid, Flexbox, media queries e os aprimoramentos visuais incorporados ao projeto.
-
----
-
-## 8. Como executar o projeto
-
-### Pré-requisitos
-
-- Node.js e npm instalados.
-
-- Navegador web atualizado.
-
-### Instalação
-
-No terminal, execute:
-
-```bash
-
-npm install
-
-```
-
-### Ambiente de desenvolvimento
-
-```bash
-
-npm run dev
-
-```
-
-### Compilação de produção
-
-```bash
-
-npm run build
-
-```
-
-### Visualização da versão compilada
-
-```bash
-
-npm run preview
-
-```
-
-A aplicação é executada localmente. O StackBlitz foi utilizado em fases anteriores do desenvolvimento; atualmente, o ambiente principal é o VS Code.
-
-Para obter o projeto a partir do GitHub:
-
-```bash
-git clone https://github.com/fabricioecon12-dev/vitejs-vite-eygm1ahr.git
-cd vitejs-vite-eygm1ahr
-npm install
-npm run dev
-```
-
-Abra o endereço exibido pelo Vite no terminal (geralmente `http://localhost:5173`). Esse endereço é **local**, não um site público.
-
-No Windows PowerShell, caso o comando `npm` seja bloqueado, use `npm.cmd install` e `npm.cmd run dev`.
+| `Cabecalho.vue` | Cabeçalho e informações de contexto |
+| `MenuLateral.vue` | Navegação principal e móvel |
+| `CardFinanceiro.vue` | Indicadores financeiros |
+| `FormularioTransacao.vue` | Cadastro e edição de transações |
+| `ListaTransacoes.vue` | Listagem e gerenciamento de movimentações |
+| `ItemTransacao.vue` | Apresentação de uma movimentação |
+| `ResumoOrcamento.vue` | Indicadores do orçamento |
+| `EstadoVazio.vue` | Estado visual sem registros |
+| `FormularioContaBancaria.vue` | Cadastro e edição de contas |
+| `FormularioTransferencia.vue` | Solicitação de transferência |
+| `HistoricoTransferenciasRecusadas.vue` | Histórico de tentativas recusadas |
+| `SeletorInstituicao.vue` | Seleção de instituição bancária |
+| `FormularioCartao.vue` | Cadastro e edição de cartões |
+| `FormularioCompraCartao.vue` | Registro de compras no cartão |
+| `ConsultaFaturasCartao.vue` | Consulta de faturas |
+| `HistoricoCartoesCredito.vue` | Histórico de cartões |
+| `ControleAdministrativo.vue` | Interface de procedimentos administrativos |
+| `CotacoesMercado.vue` | Apresentação de cotações externas |
+| `Rodape.vue` | Identificação e informações do projeto |
+
+A composição efetiva de cada página pode ser conferida em `src/pages/`.
 
 ---
 
 ## 9. Testes e validação
 
-Durante o desenvolvimento, foram realizados testes manuais das funcionalidades e da interface, além de testes automatizados com **Vitest**. Na última validação registrada, **62 testes passaram**, e o build de produção foi concluído com sucesso.
+O projeto utiliza **Vitest**, com configuração em `vite.config.js`. A inclusão de testes está configurada para `src/tests/**/*.test.{js,ts,jsx,tsx}`.
 
-As verificações contemplaram:
+No ZIP analisado foram encontrados **69 arquivos de teste** com extensão `.test.js` ou `.spec.js` dentro de `src/`. Esse número representa arquivos existentes, não a quantidade de casos de teste nem o número de aprovações.
 
-- Navegação entre as quatro seções.
+Os arquivos cobrem diferentes áreas, entre elas:
 
-- Cadastro de receitas e despesas.
+- Núcleo financeiro, perfil, preferências e privacidade.
+- Cadastro, edição, situação e saldos de contas.
+- Serviços bancários, identidade de instituições e migração.
+- Transferências, tarifas, precisão monetária e recuperação.
+- Compras, limites, fechamento e histórico de faturas.
+- Pagamentos, encargos e obrigações complementares.
+- Controle administrativo, auditoria, concorrência e bloqueios técnicos.
 
-- Pesquisa e filtragem de transações.
+**Resultado da execução:** não foi realizada uma nova execução da suíte Vitest durante a atualização deste README. Portanto, não se declara aqui que os 69 arquivos estejam aprovados na versão recebida.
 
-- Exclusão de registros.
-
-- Cadastro de categorias personalizadas.
-
-- Atualização dos indicadores financeiros.
-
-- Alteração dos limites de orçamento.
-
-- Exibição de alertas financeiros.
-
-- Funcionamento dos efeitos visuais.
-
-- Adaptação da interface para dispositivos móveis.
-
-Também foi executado o comando:
+### 9.1 Executar os testes
 
 ```bash
-
-npm run build
-
+npm run test
 ```
 
-A compilação de produção foi concluída com sucesso utilizando Vite.
+No Windows PowerShell, se necessário:
+
+```powershell
+npm.cmd run test
+```
+
+### 9.2 Compilar para produção
+
+```bash
+npm run build
+```
+
+No Windows PowerShell:
+
+```powershell
+npm.cmd run build
+```
+
+Os resultados e a data de cada validação devem ser registrados após a execução efetiva dos comandos. Avisos de tamanho de chunks devem ser avaliados separadamente de erros de compilação.
 
 ---
 
-## 10. Utilização de inteligência artificial
+## 10. Como executar o projeto
 
-### Ferramenta utilizada
+### 10.1 Pré-requisitos
 
-**ChatGPT — OpenAI**
+- Node.js compatível com as dependências do projeto.
+- npm.
+- Navegador atualizado.
+- Conexão com a internet para consultar os serviços externos.
 
-A inteligência artificial foi utilizada como ferramenta de apoio durante o planejamento, desenvolvimento, testes, documentação e preparação da apresentação acadêmica.
+### 10.2 Obter o código-fonte
 
-### 10.1 Prompt original da primeira avaliação
+```bash
+git clone https://github.com/fabricioecon12-dev/vitejs-vite-eygm1ahr.git
+cd vitejs-vite-eygm1ahr
+```
 
-O prompt abaixo registra a orientação inicial utilizada no desenvolvimento do projeto.
+### 10.3 Instalar dependências
+
+```bash
+npm install
+```
+
+### 10.4 Iniciar o ambiente de desenvolvimento
+
+```bash
+npm run dev
+```
+
+Abra no navegador o endereço local informado pelo Vite, geralmente `http://localhost:5173`.
+
+### 10.5 Compilar e visualizar a versão de produção
+
+```bash
+npm run build
+npm run preview
+```
+
+O comando `preview` disponibiliza localmente a versão compilada para conferência. Isso não representa publicação em hospedagem pública.
+
+No Windows PowerShell, os comandos também podem ser executados com `npm.cmd`.
+
+---
+
+## 11. Histórico acadêmico e evolução do projeto
+
+O desenvolvimento foi organizado em etapas, acompanhando a evolução dos requisitos da disciplina e a ampliação funcional do sistema.
+
+### 11.1 Primeira avaliação — fundamentos do Vue.js
+
+Na etapa inicial, o projeto foi desenvolvido com Vue.js 3, JavaScript, HTML e CSS personalizado. O foco foi aplicar componentização, reatividade, comunicação entre componentes e diretivas estudadas em aula.
+
+A orientação inicial previa uma aplicação de página única sem Vue Router, bibliotecas externas de interface ou frameworks CSS. Essa restrição correspondia à primeira avaliação e foi posteriormente ampliada conforme os requisitos das etapas seguintes.
+
+### 11.2 Segunda avaliação — Tailwind CSS 4
+
+Na etapa seguinte, o Tailwind CSS 4 foi incorporado por meio da integração com Vite. A adoção do framework ocorreu preservando os componentes Vue e a lógica existente. O CSS personalizado continuou sendo utilizado em conjunto com as classes utilitárias.
+
+### 11.3 Terceira etapa — Vue Router
+
+O Vue Router foi incorporado para organizar a navegação por rotas. A configuração atual está em `src/router/index.js`, e a aplicação utiliza `RouterView` para apresentar a página selecionada.
+
+A apresentação original dessa etapa registrava quatro rotas principais — Visão geral, Transações, Orçamento e Relatórios. Posteriormente, foram adicionadas as páginas de Contas bancárias, Cartões e Configurações, totalizando sete rotas na configuração atual.
+
+### 11.4 Quarta etapa — APIs REST
+
+A etapa de integração de serviços externos incluiu ViaCEP para consulta de endereço e AwesomeAPI para cotações de moedas, utilizando Axios, respostas JSON e tratamento de erros.
+
+### 11.5 Ampliação dos módulos financeiros
+
+Após as etapas acadêmicas iniciais, o projeto evoluiu para incluir contas bancárias, transferências, cartões de crédito, compras parceladas, faturas, pagamentos, encargos e controle administrativo. Essa ampliação envolveu componentes, serviços, utilitários, regras de integridade e testes direcionados.
+
+As regras detalhadas foram desenvolvidas de forma incremental. O histórico de decisões do projeto deve ser consultado em conjunto com o código e os testes antes de classificar cada cenário como integralmente concluído.
+
+---
+
+## 12. Utilização de inteligência artificial
+
+**Ferramenta utilizada:** ChatGPT — OpenAI.
+
+A inteligência artificial foi utilizada como ferramenta de apoio ao planejamento, à implementação, à análise de requisitos, à identificação de problemas, à elaboração de testes e à documentação. As sugestões foram avaliadas no contexto do projeto e submetidas a verificações no ambiente de desenvolvimento.
+
+### 12.1 Prompt original da primeira avaliação
+
+O texto a seguir registra a orientação inicial utilizada no desenvolvimento:
 
 > Desenvolva uma aplicação web de controle financeiro pessoal denominada Nexux Finanças, utilizando Vue.js 3, JavaScript, HTML e CSS, respeitando os requisitos acadêmicos da disciplina de Frameworks Front-End.
-
 >
-
 > A aplicação deverá funcionar em uma única página (One Page), sem utilizar Vue Router, bibliotecas externas de interface, frameworks CSS ou backend. Utilize os conceitos estudados na disciplina, incluindo componentes Vue, script setup, ref(), defineProps, defineEmits, v-if, v-for, v-model e eventos.
-
 >
-
 > Organize a aplicação em componentes reutilizáveis, com responsabilidades bem definidas, integrados pelo arquivo App.vue.
-
 >
-
 > Desenvolva uma interface moderna, intuitiva e responsiva, com identidade visual em azul-marinho, verde-esmeralda e tons claros. O dashboard deverá destacar o saldo financeiro e apresentar indicadores de receitas, despesas e resultado mensal.
-
 >
-
 > Implemente quatro seções principais: Visão geral, Transações, Orçamento e Relatórios. A navegação deverá ocorrer dentro da mesma página, exibindo somente a seção selecionada, sem recarregar a aplicação.
-
 >
-
 > Permita cadastrar receitas e despesas com descrição, valor, categoria e data; listar, pesquisar, filtrar e excluir movimentações; navegar entre meses; acompanhar o saldo acumulado; definir limites mensais de orçamento; e visualizar relatórios financeiros por categoria.
-
 >
-
 > Inclua a possibilidade de cadastrar novas categorias de receitas e despesas, caso o usuário não encontre uma opção adequada. As categorias personalizadas deverão funcionar durante a utilização da aplicação, sem necessidade de armazenamento permanente.
-
 >
-
 > Inclua dados demonstrativos para facilitar os testes e a apresentação, com opções para limpar e restaurar os registros.
-
 >
-
 > Desenvolva o projeto componente por componente, explicando a responsabilidade de cada arquivo e, por último, apresente a integração no App.vue. Utilize CSS próprio, Flexbox, Grid e media queries para criar uma interface responsiva.
 
-**Observação:** o nome “Nexux” foi utilizado no texto original do prompt. O nome adotado na aplicação é **Nexus Finanças**.
+**Observação:** o nome “Nexux” aparece no texto do prompt original. O nome adotado no projeto é **Nexus Finanças**. A restrição inicial de não utilizar frameworks CSS ou Vue Router foi substituída nas etapas acadêmicas posteriores, conforme a evolução dos requisitos.
 
-A orientação inicial de não utilizar frameworks CSS corresponde à primeira avaliação. Na segunda etapa, foi incorporado o Tailwind CSS 4 para atender aos novos requisitos acadêmicos.
+### 12.2 Etapas de utilização da IA
 
-### 10.2 Etapas de utilização da IA
-
-| Etapa | Aplicação das instruções | Resultado |
-
+| Etapa | Aplicação | Resultado esperado |
 |---|---|---|
+| Planejamento | Definição de requisitos e funcionalidades | Escopo inicial |
+| UX/UI | Cores, layout e navegação | Identidade visual |
+| Prototipação | Organização das seções | Estrutura da interface |
+| Componentização | Separação de responsabilidades | Componentes reutilizáveis |
+| Implementação | Desenvolvimento e integração | Funcionalidades da aplicação |
+| Reatividade | Estados, diretivas, props e eventos | Atualização dinâmica |
+| Estilização | CSS e Tailwind CSS | Interface responsiva |
+| Navegação | Configuração do Vue Router | Navegação por rotas |
+| Integração | Consumo de APIs REST | Consultas externas |
+| Testes | Verificações automatizadas e manuais | Evidências de validação |
+| Documentação | Registro das decisões e recursos | Histórico do projeto |
 
-| 1. Planejamento | Definição dos requisitos e funcionalidades | Escopo inicial |
+### 12.3 Considerações sobre o uso da IA
 
-| 2. UX/UI | Escolha de cores, layout e navegação | Identidade visual |
-
-| 3. Prototipação | Planejamento das quatro seções | Estrutura da interface |
-
-| 4. Componentização | Organização dos componentes Vue | Arquitetura reutilizável |
-
-| 5. Implementação | Desenvolvimento e integração das funcionalidades | Aplicação funcional |
-
-| 6. Reatividade | Utilização de estados, diretivas, props e eventos | Atualização dinâmica |
-
-| 7. Estilização | Desenvolvimento do CSS personalizado | Interface responsiva |
-
-| 8. Integração do framework | Configuração do Tailwind CSS 4 | Classes utilitárias disponíveis |
-
-| 9. Aprimoramento visual | Refinamento de botões, cartões e formulários | Interface Premium Fintech |
-
-| 10. Testes | Verificações funcionais e responsivas | Validação da aplicação |
-
-| 11. Documentação | Atualização das informações do projeto | Registro das duas avaliações |
-
-### 10.3 Considerações sobre o uso da IA
-
-As respostas fornecidas pela inteligência artificial foram analisadas e utilizadas como referência durante a implementação.
-
-O desenvolvimento envolveu decisões sobre funcionalidades, organização da interface, correções e testes práticos, inicialmente no StackBlitz e posteriormente no VS Code.
-
-A utilização da ferramenta teve como finalidade apoiar a aplicação dos conceitos estudados na disciplina.
+A ferramenta foi utilizada como apoio. As decisões de escopo, as alterações realizadas, a interpretação dos requisitos e a validação do comportamento devem ser conferidas pela equipe responsável pelo projeto.
 
 ---
 
-## 11. Terceira etapa — Navegação com Vue Router
+## 13. Estado atual e próximos passos
 
-Após as duas primeiras avaliações, o Nexus Finanças passou a utilizar **Vue Router**, antes da integração das APIs REST. Essa etapa organizou a navegação por URLs e componentes de página, preservando o comportamento de uma **Single Page Application (SPA)**: as páginas são alternadas sem recarregamento completo do navegador.
+A versão analisada contém páginas e componentes para os sete módulos listados na seção de rotas, serviços de integração externa, persistência local, utilitários financeiros e uma suíte de testes automatizados.
 
-### 11.1 Arquitetura e fluxo de navegação
+Os próximos passos de desenvolvimento e entrega são:
 
-A apresentação acadêmica desta etapa documenta o seguinte fluxo:
+1. Concluir a revisão funcional e de integração dos módulos de contas bancárias e cartões.
+2. Distinguir implementações ativas de arquivos candidatos e experimentos isolados.
+3. Executar a suíte Vitest e registrar o resultado real.
+4. Executar o build de produção e avaliar eventuais avisos.
+5. Revisar os arquivos modificados, novos arquivos, backups e artefatos temporários antes de preparar o Git.
+6. Atualizar este documento quando houver novas validações ou mudanças de escopo.
 
-1. O menu lateral utiliza `RouterLink` para indicar a rota desejada.
-2. O **Vue Router** interpreta a URL e seleciona o componente associado.
-3. O `RouterView`, no `App.vue`, exibe a página ativa.
+### 13.1 Critérios para declarar uma funcionalidade concluída
 
-Os arquivos apresentados como evidência da implementação são:
+Uma funcionalidade deve ser classificada como concluída somente quando:
 
-| Arquivo | Responsabilidade documentada |
-|---|---|
-| `src/main.js` | Registra o roteador com `app.use(router)` antes de montar a aplicação. |
-| `src/router/index.js` | Define caminhos, nomes de rotas e componentes de página. |
-| `src/components/MenuLateral.vue` | Utiliza `RouterLink` para a navegação. |
-| `src/App.vue` | Utiliza `RouterView` para apresentar a rota ativa. |
-
-Exemplos de código mostrados na apresentação dessa etapa:
-
-```js
-// src/main.js — trecho ilustrado na apresentação
-const app = createApp(App)
-app.use(router)
-app.mount('#app')
-```
-
-```vue
-<!-- src/App.vue — trecho ilustrado na apresentação -->
-<RouterView />
-```
-
-### 11.2 Rotas documentadas na apresentação
-
-A apresentação do Vue Router registrou **quatro rotas principais** naquele momento do desenvolvimento:
-
-| Página | Caminho | Finalidade |
-|---|---|---|
-| Visão geral | `/` | Resumo de receitas, despesas e saldo. |
-| Transações | `/transacoes` | Cadastro, pesquisa e gerenciamento de lançamentos. |
-| Orçamento | `/orcamento` | Limites mensais e acompanhamento dos gastos. |
-| Relatórios | `/relatorios` | Indicadores e análises financeiras. |
-
-**Nota histórica:** a lista acima representa as quatro rotas exibidas na apresentação do Vue Router, e não necessariamente a lista completa de rotas da versão mais recente. Posteriormente, a aplicação também passou a contar com a página de Configurações, utilizada na integração com o ViaCEP.
-
-### 11.3 Validação da etapa
-
-Na apresentação específica do Vue Router foram registrados **20 testes automatizados aprovados** e a validação do build de produção. Esse número corresponde ao estágio do projeto naquela ocasião. Após as implementações seguintes, a última verificação registrada passou a ser de **62 testes aprovados**, conforme a seção [Testes e validação](#9-testes-e-validação).
-
-A navegação por rotas foi integrada mantendo a identidade **Premium Fintech Light**, com sidebar azul-marinho, destaques verde-esmeralda, fundo cinza-claro e cards brancos arredondados.
-
-> A navegação exclusivamente por estado reativo, descrita no histórico inicial do projeto, corresponde à arquitetura anterior à implementação do Vue Router.
+- estiver integrada ao fluxo ativo da aplicação;
+- respeitar as regras de negócio e os requisitos definidos;
+- possuir validações adequadas;
+- tiver seus cenários relevantes testados;
+- não depender exclusivamente de um arquivo candidato ou teste isolado;
+- apresentar comportamento coerente na interface.
 
 ---
 
-## 12. Quarta etapa — Integração de APIs REST
+## 14. Entrega acadêmica e acesso ao projeto
 
-A aplicação consome serviços públicos externos por meio de **Axios**, utilizando requisições **HTTP GET** e respostas **JSON**. Não há backend próprio para essas integrações.
+- **Integrantes:** Jefferson Cabral e Tiago Beckman.
+- **Código-fonte:** https://github.com/fabricioecon12-dev/vitejs-vite-eygm1ahr
+- **Execução:** local, por meio do servidor de desenvolvimento do Vite.
+- **Publicação:** não há URL pública de produção confirmada nesta versão.
 
-### 12.1 ViaCEP — Consulta de endereço
-
-- **Endpoint:** `GET https://viacep.com.br/ws/{cep}/json/`
-- **Exemplo:** https://viacep.com.br/ws/66050430/json/
-- **Serviço:** `src/services/viacepService.js`
-- **Interface:** `src/pages/ConfiguracoesPage.vue`, seção **Meu endereço**.
-- **Funcionamento:** o usuário informa um CEP com oito dígitos; o sistema consulta e exibe logradouro, bairro, cidade, UF e CEP.
-- **Tratamento:** validação do CEP, indicação de carregamento e mensagens em caso de endereço não encontrado ou falha na consulta.
-
-Exemplo simplificado da requisição utilizada:
-
-```js
-const resposta = await apiViaCEP.get(`${cepLimpo}/json/`)
-return resposta.data
-```
-
-### 12.2 AwesomeAPI — Cotações de moedas
-
-- **Endpoint:** `GET https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL`
-- **Consulta:** https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL
-- **Serviço:** `src/services/cambioService.js`
-- **Estado reativo:** `src/composables/useCotacoes.js`
-- **Interface:** `src/components/CotacoesMercado.vue`, exibido no Dashboard.
-- **Funcionamento:** consulta as cotações de dólar (USD/BRL) e euro (EUR/BRL), com valor e variação percentual, além de atualização manual.
-- **Tratamento:** estados de carregamento, erro, ausência de resultados e horário da última atualização.
-
-Exemplo simplificado da requisição utilizada:
-
-```js
-const resposta = await axios.get(
-  'https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL',
-  { timeout: 10000 }
-)
-const dados = resposta.data
-```
-
-### 12.3 Fluxo de dados
-
-1. O usuário acessa a funcionalidade ou solicita uma consulta.
-2. O componente Vue aciona a função de serviço ou composable.
-3. O Axios envia uma requisição HTTP GET à API externa.
-4. A API retorna dados JSON, que são validados e transformados quando necessário.
-5. Os dados atualizam o estado reativo do Vue e são exibidos na interface.
-6. A aplicação apresenta mensagens adequadas durante o carregamento e em caso de erro.
+A documentação e a apresentação acadêmica devem refletir a versão efetivamente validada, evitando apresentar funcionalidades planejadas ou testes não executados como resultados concluídos.
 
 ---
 
-## 13. Entrega acadêmica e acesso ao projeto
+## 15. Considerações finais
 
-**Integrantes:** Jefferson Cabral e Tiago Beckman.
+O Nexus Finanças evoluiu de uma aplicação acadêmica voltada aos fundamentos do Vue.js 3 para um sistema de controle financeiro pessoal com navegação por rotas, identidade visual Premium Fintech, integração com APIs REST e módulos de transações, orçamento, relatórios, contas bancárias, cartões de crédito e configurações.
 
-**Código-fonte:** https://github.com/fabricioecon12-dev/vitejs-vite-eygm1ahr
+A implementação utiliza componentes Vue, composables, serviços, utilitários e testes automatizados para organizar a interface e as regras financeiras. A persistência identificada nesta versão é local, baseada no armazenamento do navegador, e não há backend próprio ou publicação pública confirmada.
 
-**Execução:** atualmente local, pelo servidor de desenvolvimento do Vite. **Não existe URL pública da aplicação nesta etapa.** Para executar, siga a seção [Como executar o projeto](#8-como-executar-o-projeto).
-
-**Apresentação:** os quatro slides da atividade documentam as APIs selecionadas, os endpoints, o consumo com Axios, as capturas da aplicação e os aprendizados sobre HTTP, REST, JSON e assincronicidade.
+O desenvolvimento permanece incremental. A conclusão de cada módulo depende da integração efetiva, da validação das regras correspondentes e da execução dos testes pertinentes. Este documento deve acompanhar essa evolução e ser atualizado com resultados verificáveis.
 
 ---
 
-## 14. Considerações finais
-
-O Nexus Finanças demonstra a utilização dos principais recursos do Vue.js 3 na construção de uma aplicação financeira interativa.
-
-A primeira etapa consolidou a componentização e a reatividade. A segunda aprimorou a interface com o Tailwind CSS 4. Na sequência, foram integrados o Vue Router e duas APIs REST, ViaCEP e AwesomeAPI.
-
-O resultado é uma aplicação de página única com funcionalidades de gerenciamento financeiro, navegação por rotas, integração de serviços REST, organização modular e interface responsiva, desenvolvida para fins acadêmicos.
+*README revisado com base na estrutura do código-fonte recebida em 26/11/2026. A suíte de testes e o build não foram executados durante esta revisão documental.*
